@@ -79,6 +79,7 @@ const isOverlay = mode === "overlay";
                 <img
                   src={item.image}
                   alt=""
+                  class={item.visualTreatment}
                   loading="lazy"
                 />
               </div>
@@ -261,6 +262,10 @@ const isOverlay = mode === "overlay";
     width: 100%;
     height: 100%;
     object-fit: contain;
+  }
+
+  .hardware-visual .zoomed {
+    transform: scale(1.65);
   }
 
   .hardware-card .card-label {

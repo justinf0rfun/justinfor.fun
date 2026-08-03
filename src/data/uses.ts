@@ -7,6 +7,7 @@ export interface SoftwareUse {
 export interface HardwareUse {
   name: string;
   image: string;
+  visualTreatment?: "zoomed";
 }
 
 export const softwareUses: SoftwareUse[] = [
@@ -60,27 +61,28 @@ export const softwareUses: SoftwareUse[] = [
 export const hardwareUses: HardwareUse[] = [
   {
     name: "MacBook Pro M1 Max",
-    image: "/uses/hardware/macbook-pro-m1-max.jpg",
+    image: "/uses/hardware/macbook-pro-m1-max.png",
   },
   {
     name: "iPhone 17 Pro Max",
-    image: "/uses/hardware/iphone-17-pro-max.jpg",
+    image: "/uses/hardware/iphone-17-pro-max.png",
   },
   {
     name: "Apple Watch Ultra 1",
-    image: "/uses/hardware/apple-watch-ultra.jpg",
+    image: "/uses/hardware/apple-watch-ultra.png",
   },
   {
     name: "AirPods Pro 2",
-    image: "/uses/hardware/airpods-pro-2.jpg",
+    image: "/uses/hardware/airpods-pro-2.png",
   },
   {
     name: "Studio Display",
     image: "/uses/hardware/studio-display.jpg",
+    visualTreatment: "zoomed",
   },
   {
     name: "HHKB Professional BT",
-    image: "/uses/hardware/hhkb-professional-bt.jpg",
+    image: "/uses/hardware/hhkb-professional-bt.png",
   },
 ];
 
