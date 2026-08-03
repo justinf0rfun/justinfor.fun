@@ -1,0 +1,324 @@
+---
+import { folderPreviewUses, hardwareUses, softwareUses } from "../data/uses";
+
+interface Props {
+  mode: "overlay" | "standalone";
+}
+
+const { mode } = Astro.props;
+const isOverlay = mode === "overlay";
+---
+
+<div
+  class:list={["uses-stage", !isOverlay && "is-open"]}
+  data-uses-stage={isOverlay ? "overlay" : "standalone"}
+  aria-hidden={isOverlay ? "true" : undefined}
+>
+  <header class="uses-bar">
+    <div>
+      <h1 class="text-sm font-medium text-neutral-800">What I Use</h1>
+      <p class="mt-0.5 text-xs text-neutral-500">Tools I use every day</p>
+    </div>
+    {
+      isOverlay ? (
+        <button class="uses-close" data-uses-close type="button" aria-label="Close">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </button>
+      ) : (
+        <a class="uses-close" href="/" aria-label="Back">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </a>
+      )
+    }
+  </header>
+
+  <main class="uses-content">
+    <section aria-labelledby={`software-${mode}`}>
+      <h2 id={`software-${mode}`} class="uses-heading">Software</h2>
+      <div class="uses-grid">
+        {
+          softwareUses.map((item, i) => (
+            <a
+              class="uses-card software-card"
+              data-use-reveal={i >= folderPreviewUses.length ? "" : undefined}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span class="software-logo-wrap" data-use-logo-target={i < folderPreviewUses.length ? String(i) : undefined}>
+                <img
+                  data-use-preview-logo={i < folderPreviewUses.length ? "" : undefined}
+                  src={item.logo}
+                  alt=""
+                  loading={i < folderPreviewUses.length ? "eager" : "lazy"}
+                />
+              </span>
+              <span class="card-label">
+                <span>{item.name}</span>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="hardware-section" data-use-reveal aria-labelledby={`hardware-${mode}`}>
+      <h2 id={`hardware-${mode}`} class="uses-heading">Hardware</h2>
+      <div class="uses-grid">
+        {
+          hardwareUses.map((item) => (
+            <article class="uses-card hardware-card">
+              <div class="hardware-visual">
+                <img
+                  src={item.image}
+                  alt=""
+                  loading="lazy"
+                />
+              </div>
+              <p class="card-label"><span>{item.name}</span></p>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</div>
+
+<style>
+  .uses-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    overflow-y: auto;
+    background: rgb(250 250 250);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 240ms var(--ease-out);
+  }
+
+  .uses-stage.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .uses-bar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 10;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 2rem;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgb(250 250 250) 0%,
+      rgb(250 250 250 / 0.96) 68%,
+      transparent 100%
+    );
+  }
+
+  .uses-bar > * {
+    pointer-events: auto;
+  }
+
+  .uses-close {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--color-neutral-500);
+    background: rgb(255 255 255 / 0.78);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    transition:
+      color 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
+  }
+
+  .uses-close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .uses-close:active {
+    transform: scale(0.94);
+  }
+
+  .uses-content {
+    width: min(100% - 2rem, 42rem);
+    margin-inline: auto;
+    padding-block: 6.5rem 5rem;
+  }
+
+  .uses-heading {
+    margin-bottom: 0.875rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-neutral-500);
+  }
+
+  .uses-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
+  }
+
+  .hardware-section {
+    margin-top: 3.5rem;
+  }
+
+  .uses-card {
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: rgb(255 255 255 / 0.82);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.045),
+      0 2px 5px rgb(0 0 0 / 0.04),
+      0 14px 30px rgb(0 0 0 / 0.055);
+  }
+
+  .software-card {
+    display: flex;
+    min-height: 10rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem;
+    outline: none;
+    transition:
+      transform 180ms var(--ease-out),
+      box-shadow 180ms var(--ease-out);
+  }
+
+  .software-logo-wrap {
+    display: grid;
+    place-items: center;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1.1rem;
+  }
+
+  .software-logo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.1));
+  }
+
+  .uses-stage.is-carrying [data-use-preview-logo] {
+    opacity: 0;
+  }
+
+  .card-label {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-neutral-800);
+  }
+
+  .card-label span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-label svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    color: var(--color-neutral-400);
+  }
+
+  .hardware-card {
+    padding: 0.625rem 0.625rem 1.125rem;
+  }
+
+  .hardware-visual {
+    display: grid;
+    aspect-ratio: 4 / 3;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 1.1rem;
+    background: #f7f7f7;
+  }
+
+  .hardware-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .hardware-card .card-label {
+    padding: 1rem 0.625rem 0;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .uses-close:hover {
+      color: var(--color-neutral-800);
+    }
+
+    .software-card:hover,
+    .software-card:focus-visible {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.05),
+        0 4px 9px rgb(0 0 0 / 0.05),
+        0 20px 38px rgb(0 0 0 / 0.08);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .uses-content {
+      width: min(100% - 1.25rem, 42rem);
+      padding-top: 5.75rem;
+    }
+
+    .uses-grid {
+      gap: 0.625rem;
+    }
+
+    .uses-card {
+      border-radius: 1.25rem;
+    }
+
+    .software-card {
+      min-height: 8.5rem;
+      padding: 1rem;
+    }
+
+    .software-logo-wrap {
+      width: 3.25rem;
+      height: 3.25rem;
+      border-radius: 0.9rem;
+    }
+
+    .card-label {
+      font-size: 0.8125rem;
+    }
+  }
+</style>
+
+<script>
+  document
+    .querySelectorAll<HTMLElement>('[data-uses-stage="standalone"]')
+    .forEach((standalone) => {
+      addEventListener("keydown", (event) => {
+        if (event.key === "Escape") location.assign("/");
+      });
+    });
+</script>

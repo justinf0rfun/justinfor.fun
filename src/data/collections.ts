@@ -1,3 +1,5 @@
+import { folderPreviewUses } from "./uses";
+
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
 export type Shape = { w?: number; ratio?: string; top?: number };
@@ -13,20 +15,16 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
+  layout?: "carousel" | "uses";
 }
 
 export const collections: Collection[] = [
   {
-    slug: "travel",
-    title: "Travel",
-    meta: "14 places",
-    items: [
-      "https://picsum.photos/seed/kashmir/900/1200",
-      "https://picsum.photos/seed/london/1200/900",
-      "https://picsum.photos/seed/paris/1000/1000",
-      "https://picsum.photos/seed/tokyo/1200/800",
-      "https://picsum.photos/seed/lisbon/900/1200",
-    ],
+    slug: "what-i-use",
+    title: "What I Use",
+    meta: "Tools I use every day",
+    layout: "uses",
+    items: folderPreviewUses.map(({ logo, name }) => ({ logo, label: name })),
   },
   {
     slug: "projects",
@@ -87,9 +85,9 @@ export const collections: Collection[] = [
     ],
   },
   {
-    slug: "bookmarks",
-    title: "Bookmarks",
-    meta: "A pile of tabs",
+    slug: "x-threads",
+    title: "X Threads",
+    meta: "Thoughts shared on X",
     items: [
       "https://picsum.photos/seed/delta/900/1200",
       "https://picsum.photos/seed/epsilon/1200/900",

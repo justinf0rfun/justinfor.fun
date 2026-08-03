@@ -1,5 +1,14 @@
 ## Development
 
+Use the nvm-managed Node.js v22.22.2 for all Node and pnpm commands. Do not rely
+on `PATH`, especially in elevated or isolated environments, because
+`/usr/local/bin/node` is an outdated v18.12.1 installation. Invoke pnpm through
+the pinned runtime:
+
+```
+/Users/justin/.nvm/versions/node/v22.22.2/bin/node /Users/justin/.nvm/versions/node/v22.22.2/lib/node_modules/pnpm/bin/pnpm.cjs <command>
+```
+
 When starting the dev server, use background mode:
 
 ```

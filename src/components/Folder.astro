@@ -27,6 +27,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 <a
   href={`/${slug}`}
   data-folder={slug}
+  data-layout={collection.layout ?? "carousel"}
   data-title={title}
   data-meta={meta}
   class:list={["folder group block", className]}
@@ -204,6 +205,17 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     transform: none !important;
   }
 
+  /* The uses view lands its logos in real grid cards. Only those carried
+     items stay above the overlay; the folder shell itself must not cover the
+     grid while it remains at its home position underneath them. */
+  a.folder.is-stage[data-layout="uses"] .back {
+    opacity: 0;
+  }
+
+  a.folder.is-stage[data-layout="uses"] {
+    pointer-events: none;
+  }
+
   .folder.is-stage [data-folder-flap] {
     pointer-events: none;
   }
@@ -287,6 +299,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     active: number;
     base: { x: number; y: number }[];
     closing: boolean;
+    uses: boolean;
   } | null = null;
 
   /* ------------------------------------------------------------------ */
@@ -295,6 +308,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
   document.querySelectorAll<HTMLElement>("[data-folder]").forEach((folder) => {
     const slug = folder.dataset.folder ?? "";
+    const folderSpring = (s: object) =>
+      folder.dataset.layout === "uses" ? s : spring(s);
     const flap = folder.querySelector<HTMLElement>("[data-folder-flap]")!;
     const wrap = flap.parentElement!;
     const items = [...folder.querySelectorAll<HTMLElement>("[data-folder-item]")];
@@ -359,8 +374,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       expanded = isOpen;
       if (!isOpen) focused = null;
       restack();
-      animate(flap, { rotateX: isOpen ? -30 : 0 }, spring(isOpen ? openSpring : closeSpring));
-      apply(spring(isOpen ? openSpring : closeSpring), isOpen ? 0.04 : 0.02);
+      animate(
+        flap,
+        { rotateX: isOpen ? -30 : 0 },
+        folderSpring(isOpen ? openSpring : closeSpring),
+      );
+      apply(folderSpring(isOpen ? openSpring : closeSpring), isOpen ? 0.04 : 0.02);
     };
 
     controllers.set(slug, {
@@ -400,11 +419,11 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         if (stage) return;
         focused = i;
         restack();
-        apply(spring(focusSpring));
+        apply(folderSpring(focusSpring));
         return () => {
           if (stage) return;
           if (focused === i) focused = null;
-          apply(spring(focusSpring));
+          apply(folderSpring(focusSpring));
         };
       }),
     );
@@ -448,6 +467,16 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   document.body.appendChild(overlay);
   const overlayTitle = overlay.querySelector<HTMLElement>(".fstage-title")!;
   const overlayMeta = overlay.querySelector<HTMLElement>(".fstage-meta")!;
+  const usesOverlay = document.querySelector<HTMLElement>('[data-uses-stage="overlay"]');
+  const usesTargets = usesOverlay
+    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-logo-target]")]
+    : [];
+  const usesPreviewLogos = usesOverlay
+    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-preview-logo]")]
+    : [];
+  const usesReveal = usesOverlay
+    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-reveal]")]
+    : [];
 
   const isNote = (c: Controller, i: number) => c.items[i].dataset.kind === "note";
 
@@ -466,7 +495,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      straight, neighbours at 60% with their tilt back, everything on one
      vertical centreline. All in px - the stage is viewport-space. */
   const render = (opts: object, stagger = 0) => {
-    if (!stage) return;
+    if (!stage || stage.uses) return;
     const { c, active, base } = stage;
     const unit = Math.min(innerWidth * 0.46, innerHeight * 0.52);
 
@@ -510,15 +539,57 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
   };
 
+  const openUses = () => {
+    if (!stage || !stage.uses || !usesOverlay) return;
+    const { c, base } = stage;
+
+    usesOverlay.scrollTop = 0;
+    usesReveal.forEach((item) => animate(item, { opacity: 0, y: 12 }, instant));
+    usesOverlay.classList.add("is-carrying", "is-open");
+    usesOverlay.setAttribute("aria-hidden", "false");
+
+    usesReveal.forEach((item, i) =>
+      animate(item, { opacity: 1, y: 0 }, { duration: 0.32, delay: 0.2 + i * 0.05 }),
+    );
+
+    const flights = c.items.map((item, i) => {
+      const target = usesTargets[i];
+      if (!target) return Promise.resolve();
+      const rect = target.getBoundingClientRect();
+      const scale = rect.width / item.offsetWidth;
+      item.style.zIndex = String(60 + i);
+      return animate(
+        item,
+        {
+          x: rect.left + rect.width / 2 - base[i].x,
+          y: rect.top + rect.height / 2 - base[i].y,
+          scale,
+          rotate: 0,
+          opacity: 1,
+        },
+        { ...stageSpring, delay: Math.abs(c.offset(i)) * 0.05 },
+      ).finished;
+    });
+
+    Promise.all(flights).then(() => {
+      if (!stage?.uses || stage.closing) return;
+      c.items.forEach((item) => animate(item, { opacity: 0 }, instant));
+      usesOverlay.classList.remove("is-carrying");
+    });
+  };
+
   const openStage = (slug: string, push: boolean) => {
     const c = controllers.get(slug);
     if (!c || stage) return;
-    stage = { slug, c, active: 0, base: [], closing: false };
+    const uses = c.folder.dataset.layout === "uses";
+    stage = { slug, c, active: 0, base: [], closing: false, uses };
 
     if (push) history.pushState({ folder: slug }, "", `/${slug}`);
-    overlayTitle.textContent = c.folder.dataset.title ?? "";
-    overlayMeta.textContent = c.folder.dataset.meta ?? "";
-    overlay.classList.add("is-open");
+    if (!uses) {
+      overlayTitle.textContent = c.folder.dataset.title ?? "";
+      overlayMeta.textContent = c.folder.dataset.meta ?? "";
+      overlay.classList.add("is-open");
+    }
     document.documentElement.style.overflow = "hidden";
     c.folder.classList.add("is-stage", "is-scaled");
 
@@ -542,8 +613,9 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
 
     // The flap flings right out of the way and vanishes; the cards pour out.
-    animate(c.flap, { rotateX: -80, opacity: 0 }, spring(flingSpring));
-    render(spring(stageSpring), 0.05);
+    animate(c.flap, { rotateX: -80, opacity: 0 }, uses ? flingSpring : spring(flingSpring));
+    if (uses) openUses();
+    else render(spring(stageSpring), 0.05);
   };
 
   const closeStage = async () => {
@@ -551,7 +623,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     stage.closing = true;
     const { c } = stage;
 
-    overlay.classList.remove("is-open");
+    if (!stage.uses) overlay.classList.remove("is-open");
     document.documentElement.style.overflow = "";
     // Radius starts easing back now, in step with the shrink about to start —
     // not after it, once the cards have already landed.
@@ -561,6 +633,32 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
        centre card leading, then the flap swings up into view and shuts over
        them. Sequencing rather than overlapping is the point - the shut only
        reads if the cards are already home. */
+    if (stage.uses && usesOverlay) {
+      usesOverlay.scrollTop = 0;
+      await new Promise(requestAnimationFrame);
+      usesOverlay.classList.add("is-carrying");
+      usesPreviewLogos.forEach((logo) => (logo.style.opacity = ""));
+      c.items.forEach((item, i) => {
+        const target = usesTargets[i];
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        animate(
+          item,
+          {
+            x: rect.left + rect.width / 2 - stage!.base[i].x,
+            y: rect.top + rect.height / 2 - stage!.base[i].y,
+            scale: rect.width / item.offsetWidth,
+            rotate: 0,
+            opacity: 1,
+          },
+          instant,
+        );
+      });
+      usesReveal.forEach((item, i) =>
+        animate(item, { opacity: 0, y: 12 }, { duration: 0.22, delay: i * 0.03 }),
+      );
+    }
+
     const w = c.wrap.offsetWidth;
     await Promise.all(
       c.items.map(
@@ -574,12 +672,25 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
               scale: 1,
               opacity: 1,
             },
-            { ...spring(homeSpring), delay: Math.abs(c.offset(i)) * 0.03 },
+            {
+              ...(stage!.uses ? homeSpring : spring(homeSpring)),
+              delay: Math.abs(c.offset(i)) * 0.03,
+            },
           ).finished,
       ),
     );
 
-    await animate(c.flap, { rotateX: 0, opacity: 1 }, spring(shutSpring)).finished;
+    if (stage.uses && usesOverlay) {
+      usesOverlay.classList.remove("is-open", "is-carrying");
+      usesOverlay.setAttribute("aria-hidden", "true");
+      usesReveal.forEach((item) => animate(item, { opacity: 1, y: 0 }, instant));
+    }
+
+    await animate(
+      c.flap,
+      { rotateX: 0, opacity: 1 },
+      stage.uses ? shutSpring : spring(shutSpring),
+    ).finished;
 
     /* Hand the cards back to the hover system in its own units - same pose.
        Deliberately NOT restacking: the card you were just looking at keeps the
@@ -592,7 +703,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   };
 
   const go = (next: number) => {
-    if (!stage || stage.closing) return;
+    if (!stage || stage.closing || stage.uses) return;
     const clamped = Math.max(0, Math.min(stage.c.items.length - 1, next));
     if (clamped === stage.active) return;
     stage.active = clamped;
@@ -611,10 +722,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (target === overlay || target.closest(".fstage-close")) requestClose();
   });
 
+  usesOverlay
+    ?.querySelector<HTMLElement>("[data-uses-close]")
+    ?.addEventListener("click", requestClose);
+
   addEventListener("keydown", (event) => {
     if (!stage || stage.closing) return;
-    if (event.key === "ArrowRight") go(stage.active + 1);
-    else if (event.key === "ArrowLeft") go(stage.active - 1);
+    if (!stage.uses && event.key === "ArrowRight") go(stage.active + 1);
+    else if (!stage.uses && event.key === "ArrowLeft") go(stage.active - 1);
     else if (event.key === "Escape") requestClose();
     else return;
     event.preventDefault();
@@ -635,6 +750,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   addEventListener("resize", () => {
     if (!stage || stage.closing) return;
     stage.base = stage.c.items.map((_, i) => baseCenter(stage.c, i));
-    render(instant);
+    if (!stage.uses) render(instant);
   });
 </script>

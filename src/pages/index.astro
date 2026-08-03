@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
 import Folder from "../components/Folder.astro";
+import UsesGrid from "../components/UsesGrid.astro";
 import { collections } from "../data/collections";
 ---
 
@@ -11,5 +12,6 @@ import { collections } from "../data/collections";
     <div class="grid grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}
     </div>
+    <UsesGrid mode="overlay" />
   </main>
 </Layout>
