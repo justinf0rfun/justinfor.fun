@@ -38,7 +38,7 @@ export const softwareUses: SoftwareUse[] = [
   },
   {
     name: "Warp",
-    slogan: "The agentic development environment.",
+    slogan: "The best place to build with agents.",
     logo: "/uses/software/warp.png",
     href: "https://www.warp.dev/terminal",
   },
