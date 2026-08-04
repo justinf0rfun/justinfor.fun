@@ -57,8 +57,11 @@ const isOverlay = mode === "overlay";
                   loading={i < folderPreviewUses.length ? "eager" : "lazy"}
                 />
               </span>
-              <span class="card-label">
-                <span>{item.name}</span>
+              <span class="software-details">
+                <span class="software-copy">
+                  <span class="software-name">{item.name}</span>
+                  <span class="software-slogan">{item.slogan}</span>
+                </span>
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -220,6 +223,47 @@ const isOverlay = mode === "overlay";
     opacity: 0;
   }
 
+  .software-details {
+    display: flex;
+    min-width: 0;
+    align-items: end;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .software-copy {
+    display: grid;
+    min-width: 0;
+    gap: 0.125rem;
+  }
+
+  .software-name {
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-neutral-800);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .software-slogan {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.6875rem;
+    line-height: 1.25;
+    color: var(--color-neutral-500);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .software-details svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    color: var(--color-neutral-400);
+  }
+
   .card-label {
     display: flex;
     min-width: 0;
@@ -314,6 +358,14 @@ const isOverlay = mode === "overlay";
 
     .card-label {
       font-size: 0.8125rem;
+    }
+
+    .software-name {
+      font-size: 0.8125rem;
+    }
+
+    .software-slogan {
+      font-size: 0.625rem;
     }
   }
 </style>
