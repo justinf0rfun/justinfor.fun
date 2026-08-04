@@ -216,6 +216,13 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     pointer-events: none;
   }
 
+  /* Once the carried logos have landed, the source folder has no visual job.
+     Removing it from painting avoids stale compositing tiles in iOS Safari;
+     its layout box stays intact so the reverse flight keeps the same geometry. */
+  a.folder.is-stage[data-layout="uses"].is-landed {
+    visibility: hidden;
+  }
+
   .folder.is-stage [data-folder-flap] {
     pointer-events: none;
   }
@@ -574,6 +581,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     Promise.all(flights).then(() => {
       if (!stage?.uses || stage.closing) return;
       c.items.forEach((item) => animate(item, { opacity: 0 }, instant));
+      c.folder.classList.add("is-landed");
       usesOverlay.classList.remove("is-carrying");
     });
   };
@@ -634,6 +642,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
        them. Sequencing rather than overlapping is the point - the shut only
        reads if the cards are already home. */
     if (stage.uses && usesOverlay) {
+      c.folder.classList.remove("is-landed");
       usesOverlay.scrollTop = 0;
       await new Promise(requestAnimationFrame);
       usesOverlay.classList.add("is-carrying");
