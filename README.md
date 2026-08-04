@@ -7,11 +7,7 @@ A small personal portfolio built with [Astro](https://astro.build), Tailwind CSS
 
 ## Deploy
 
-Deploy your own copy to Cloudflare Workers with one click:
-
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/fayazara/portfolio-site-template)
-
-Or deploy manually from your machine:
+Deploy to Cloudflare Workers from your machine:
 
 ```sh
 pnpm install
