@@ -15,7 +15,7 @@ export const softwareUses: SoftwareUse[] = [
   {
     name: "ChatGPT",
     slogan: "Helps you think, write, and solve problems.",
-    logo: "/uses/software/chatgpt.webp",
+    logo: "/uses/software/chatgpt.png",
     href: "https://chatgpt.com/",
   },
   {

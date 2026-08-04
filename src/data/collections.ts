@@ -105,17 +105,17 @@ export const collections: Collection[] = [
    portrait, so those cycles only vary width and how far they're pushed in. */
 const SHAPES = {
   photo: [
-    { w: 34, ratio: "4/5", top: 5 },
-    { w: 44, ratio: "4/3", top: 9 },
-    { w: 37, ratio: "1/1", top: 4 },
-    { w: 42, ratio: "3/2", top: 10 },
-    { w: 32, ratio: "3/4", top: 6 },
+    { w: 31.28, ratio: "4/5", top: 5 },
+    { w: 40.48, ratio: "4/3", top: 9 },
+    { w: 34.04, ratio: "1/1", top: 4 },
+    { w: 38.64, ratio: "3/2", top: 10 },
+    { w: 29.44, ratio: "3/4", top: 6 },
   ],
   logo: [
-    { w: 36, ratio: "1/1", top: 6 },
-    { w: 40, ratio: "1/1", top: 10 },
-    { w: 34, ratio: "1/1", top: 4 },
-    { w: 38, ratio: "1/1", top: 12 },
+    { w: 28.8, ratio: "1/1", top: 6 },
+    { w: 32, ratio: "1/1", top: 10 },
+    { w: 27.2, ratio: "1/1", top: 4 },
+    { w: 30.4, ratio: "1/1", top: 12 },
   ],
   /* Pages, not cards: same-ish widths but genuinely different heights, like a
      sheaf of manuscripts rather than a template. */

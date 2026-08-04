@@ -193,10 +193,11 @@ const isOverlay = mode === "overlay";
   }
 
   .software-card {
+    position: relative;
     display: flex;
     min-height: 7.25rem;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 0.875rem;
     outline: none;
     transition:
@@ -205,10 +206,13 @@ const isOverlay = mode === "overlay";
   }
 
   .software-logo-wrap {
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
+    display: flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: none;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-bottom: 0.625rem;
     border-radius: 0.8rem;
   }
 
@@ -224,17 +228,14 @@ const isOverlay = mode === "overlay";
   }
 
   .software-details {
-    display: flex;
     min-width: 0;
-    align-items: end;
-    justify-content: space-between;
-    gap: 0.5rem;
   }
 
   .software-copy {
     display: grid;
     min-width: 0;
     gap: 0.125rem;
+    padding-right: 1.5rem;
   }
 
   .software-name {
@@ -258,9 +259,11 @@ const isOverlay = mode === "overlay";
   }
 
   .software-details svg {
+    position: absolute;
+    right: 0.875rem;
+    bottom: 0.875rem;
     width: 1rem;
     height: 1rem;
-    flex: none;
     color: var(--color-neutral-400);
   }
 
@@ -351,9 +354,15 @@ const isOverlay = mode === "overlay";
     }
 
     .software-logo-wrap {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-bottom: 0.5rem;
       border-radius: 0.7rem;
+    }
+
+    .software-details svg {
+      right: 0.75rem;
+      bottom: 0.75rem;
     }
 
     .card-label {

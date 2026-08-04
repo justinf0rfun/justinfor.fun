@@ -9,7 +9,7 @@ import { collections } from "../data/collections";
 <Layout>
   <main class="space-y-16 py-8">
     <About />
-    <div class="grid grid-cols-2 gap-6">
+    <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}
     </div>
     <UsesGrid mode="overlay" />
