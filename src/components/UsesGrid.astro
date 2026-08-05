@@ -1,5 +1,5 @@
 ---
-import { folderPreviewUses, hardwareUses, softwareUses } from "../data/uses";
+import { folderPreviewUses, hardwareUses, useSections } from "../data/uses";
 
 interface Props {
   mode: "overlay" | "standalone";
@@ -37,44 +37,85 @@ const isOverlay = mode === "overlay";
   </header>
 
   <main class="uses-content">
-    <section aria-labelledby={`software-${mode}`}>
-      <h2 id={`software-${mode}`} class="uses-heading">Software</h2>
-      <div class="uses-grid">
-        {
-          softwareUses.map((item, i) => (
-            <a
-              class="uses-card software-card"
-              data-use-reveal={i >= folderPreviewUses.length ? "" : undefined}
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span class="software-logo-wrap" data-use-logo-target={i < folderPreviewUses.length ? String(i) : undefined}>
-                <img
-                  data-use-preview-logo={i < folderPreviewUses.length ? "" : undefined}
-                  src={item.logo}
-                  alt=""
-                  loading={i < folderPreviewUses.length ? "eager" : "lazy"}
-                />
-              </span>
-              <span class="software-details">
-                <span class="software-copy">
-                  <span class="software-name">{item.name}</span>
-                  <span class="software-slogan">{item.slogan}</span>
-                </span>
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </section>
+    {
+      useSections.map((section, sectionIndex) => (
+        <section
+          class:list={[sectionIndex > 0 && "uses-section"]}
+          aria-labelledby={`${section.title.toLowerCase()}-${mode}`}
+        >
+          <h2 id={`${section.title.toLowerCase()}-${mode}`} class="uses-heading">
+            {section.title}
+          </h2>
+          {section.groups.map((group, groupIndex) => (
+            <div class:list={["uses-group", groupIndex > 0 && "uses-group-spaced"]}>
+              {group.title && <h3 class="uses-subheading">{group.title}</h3>}
+              <div class="uses-row">
+                {
+                  group.items.map((item) => {
+                    const previewIndex = folderPreviewUses.indexOf(item);
+                    const isPreview = previewIndex >= 0;
+
+                    return (
+                      <a
+                        class:list={[
+                          "uses-card software-card",
+                          item.visualTreatment === "banner" && "banner-card",
+                        ]}
+                        data-use-reveal={!isPreview ? "" : undefined}
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span
+                          class:list={[
+                            "software-logo-wrap",
+                            item.visualTreatment === "banner" && "is-banner",
+                          ]}
+                          data-use-logo-target={isPreview ? String(previewIndex) : undefined}
+                        >
+                          <img
+                            data-use-preview-logo={isPreview ? "" : undefined}
+                            src={item.logo}
+                            alt=""
+                            loading={isPreview ? "eager" : "lazy"}
+                          />
+                        </span>
+                        <span class="software-details">
+                          <span class="software-copy">
+                            <span class="software-title-row">
+                              <span class="software-name">{item.name}</span>
+                              {item.badge && <span class="software-badge">{item.badge}</span>}
+                            </span>
+                            <span class="software-slogan">{item.slogan}</span>
+                          </span>
+                          <svg
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M5 11 11 5M6 5h5v5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </a>
+                    );
+                  })
+                }
+              </div>
+            </div>
+          ))}
+        </section>
+      ))
+    }
 
     <section class="hardware-section" data-use-reveal aria-labelledby={`hardware-${mode}`}>
       <h2 id={`hardware-${mode}`} class="uses-heading">Hardware</h2>
-      <div class="uses-grid">
+      <div class="uses-row">
         {
           hardwareUses.map((item) => (
             <article class="uses-card hardware-card">
@@ -158,9 +199,10 @@ const isOverlay = mode === "overlay";
   }
 
   .uses-content {
-    width: min(100% - 2rem, 34rem);
-    margin-inline: auto;
-    padding-block: 6.5rem 5rem;
+    --uses-gutter: clamp(1rem, 5vw, 6rem);
+
+    width: 100%;
+    padding: 6.5rem 0 5rem var(--uses-gutter);
   }
 
   .uses-heading {
@@ -171,10 +213,40 @@ const isOverlay = mode === "overlay";
     color: var(--color-neutral-500);
   }
 
-  .uses-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.625rem;
+  .uses-section {
+    margin-top: 2.75rem;
+  }
+
+  .uses-group-spaced {
+    margin-top: 1.5rem;
+  }
+
+  .uses-subheading {
+    margin-bottom: 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--color-neutral-400);
+  }
+
+  .uses-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    margin-block: -0.25rem;
+    padding: 0.25rem var(--uses-gutter) 0.25rem 0;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 0.25rem;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: none;
+  }
+
+  .uses-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .uses-row > .uses-card {
+    flex: 0 0 clamp(10.75rem, 28vw, 16rem);
+    scroll-snap-align: start;
   }
 
   .hardware-section {
@@ -223,6 +295,43 @@ const isOverlay = mode === "overlay";
     filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.1));
   }
 
+  .banner-card {
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+
+  .software-logo-wrap.is-banner {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 512 / 269;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+
+  .software-logo-wrap.is-banner img {
+    object-fit: cover;
+    filter: none;
+  }
+
+  .banner-card .software-details svg {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  .banner-card .software-title-row {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .banner-card .software-name {
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  .banner-card .software-badge {
+    order: 1;
+  }
+
   .uses-stage.is-carrying [data-use-preview-logo] {
     opacity: 0;
   }
@@ -246,6 +355,25 @@ const isOverlay = mode === "overlay";
     color: var(--color-neutral-800);
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .software-title-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .software-badge {
+    flex: none;
+    padding: 0.125rem 0.375rem;
+    border-radius: 999px;
+    font-size: 0.5rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    color: #6b4f00;
+    background: #ffe28a;
   }
 
   .software-slogan {
@@ -336,12 +464,7 @@ const isOverlay = mode === "overlay";
 
   @media (max-width: 480px) {
     .uses-content {
-      width: min(100% - 2rem, 34rem);
       padding-top: 5.75rem;
-    }
-
-    .uses-grid {
-      gap: 0.625rem;
     }
 
     .uses-card {
