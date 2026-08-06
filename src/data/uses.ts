@@ -74,6 +74,12 @@ export const useSections: UseSection[] = [
             logo: "/uses/ai/chatcut.svg",
             href: "https://chatcut.io/",
           },
+          {
+            name: "brainless",
+            slogan: "Claude Code, Codex, and Grok interfaces as shadcn components.",
+            logo: "/uses/ai/brainless.png",
+            href: "https://brainless.swerdlow.dev/",
+          },
         ],
       },
       {
@@ -131,6 +137,12 @@ export const useSections: UseSection[] = [
             href: "https://www.warp.dev/terminal",
           },
           {
+            name: "Otty",
+            slogan: "A native, beautiful terminal app.",
+            logo: "/uses/software/otty.png",
+            href: "https://otty.sh/",
+          },
+          {
             name: "Zed",
             slogan: "Code at the speed of thought.",
             logo: "/uses/software/zed.png",
@@ -185,6 +197,14 @@ export const hardwareUses: HardwareUse[] = [
   {
     name: "HHKB Professional BT",
     image: "/uses/hardware/hhkb-professional-bt.png",
+  },
+  {
+    name: "Skylrk MagSafe Power Bank",
+    image: "/uses/hardware/skylrk-power-bank.jpg",
+  },
+  {
+    name: "iPod classic",
+    image: "/uses/hardware/ipod-classic.jpg",
   },
 ];
 
