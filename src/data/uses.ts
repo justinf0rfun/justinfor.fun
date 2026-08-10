@@ -54,6 +54,17 @@ export const useSections: UseSection[] = [
         ],
       },
       {
+        title: "Trying Now",
+        items: [
+          {
+            name: "Avec",
+            slogan: "The best way to write emails.",
+            logo: "/uses/ai/avec.png",
+            href: "https://www.avec.ai/",
+          },
+        ],
+      },
+      {
         title: "Agent Infrastructure",
         items: [
           {
@@ -61,12 +72,6 @@ export const useSections: UseSection[] = [
             slogan: "Run them anywhere. Leave them running.",
             logo: "/uses/ai/herdr.png",
             href: "https://herdr.dev/",
-          },
-          {
-            name: "cmux",
-            slogan: "The terminal built for multitasking.",
-            logo: "/uses/ai/cmux.png",
-            href: "https://cmux.com/",
           },
           {
             name: "ChatCut",
@@ -89,7 +94,7 @@ export const useSections: UseSection[] = [
             name: "Skills for Real Engineers",
             slogan: "Small, composable skills for real engineering.",
             logo: "/uses/ai/matt-pocock-skills.png",
-            href: "https://github.com/mattpocock/skills",
+            href: "https://www.aihero.dev/skills",
             badge: "Featured",
             visualTreatment: "banner",
           },
