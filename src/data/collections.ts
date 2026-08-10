@@ -15,7 +15,7 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
-  layout?: "carousel" | "uses";
+  layout?: "carousel" | "uses" | "projects";
 }
 
 export const collections: Collection[] = [
@@ -29,18 +29,21 @@ export const collections: Collection[] = [
   {
     slug: "projects",
     title: "Projects",
-    meta: "9 things I built",
+    meta: "2 shipped projects",
+    layout: "projects",
     items: [
       {
-        logo: "https://pdfstudio-demo.fayaz.workers.dev/favicon.svg",
-        label: "PDF Studio",
+        src: "/projects/huoban-cover.png",
+        w: 38,
+        ratio: "1200/630",
+        top: 8,
       },
       {
-        logo: "https://screendrop.fayazahmed.com/favicon.ico",
-        label: "Screendrop",
+        src: "/projects/gson-cover.png",
+        w: 42,
+        ratio: "1200/630",
+        top: 4,
       },
-      { logo: "https://codereel.fayazahmed.com/logo.png", label: "CodeReel" },
-      { logo: "https://supersaas.dev/logo.png", label: "Supersaas" },
     ],
   },
   {

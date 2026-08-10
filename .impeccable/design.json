@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-08T09:08:29Z",
+  "title": "Design System: Justin",
+  "extensions": {
+    "colorMeta": {
+      "canvas": { "role": "neutral", "displayName": "Canvas", "canonical": "oklch(98.5% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "#ffffff", "tonalRamp": ["oklch(15% 0 0)", "oklch(27% 0 0)", "oklch(39% 0 0)", "oklch(51% 0 0)", "oklch(63% 0 0)", "oklch(75% 0 0)", "oklch(87% 0 0)", "oklch(100% 0 0)"] },
+      "neutral-soft": { "role": "neutral", "displayName": "Soft Edge", "canonical": "oklch(87% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "neutral-muted": { "role": "neutral", "displayName": "Muted Mark", "canonical": "oklch(70.8% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "neutral-secondary": { "role": "neutral", "displayName": "Secondary Copy", "canonical": "oklch(55.6% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "neutral-body": { "role": "neutral", "displayName": "Body Gray", "canonical": "oklch(43.9% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "neutral-strong": { "role": "primary", "displayName": "Workbench Ink", "canonical": "oklch(26.9% 0 0)", "tonalRamp": ["oklch(15% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "neutral-ink": { "role": "neutral", "displayName": "Deep Ink", "canonical": "oklch(14.5% 0 0)", "tonalRamp": ["oklch(14.5% 0 0)", "oklch(26.9% 0 0)", "oklch(37.1% 0 0)", "oklch(43.9% 0 0)", "oklch(55.6% 0 0)", "oklch(70.8% 0 0)", "oklch(87% 0 0)", "oklch(98.5% 0 0)"] },
+      "alpha-ink": { "role": "secondary", "displayName": "Alpha Green Ink", "canonical": "#0d6b35", "tonalRamp": ["oklch(15% 0.1 150)", "oklch(26% 0.1 150)", "oklch(38% 0.1 150)", "oklch(50% 0.1 150)", "oklch(62% 0.1 150)", "oklch(73% 0.1 150)", "oklch(84% 0.1 150)", "oklch(95% 0.1 150)"] },
+      "alpha-wash": { "role": "secondary", "displayName": "Alpha Green Wash", "canonical": "#e6f7ec", "tonalRamp": ["oklch(15% 0.04 150)", "oklch(26% 0.04 150)", "oklch(38% 0.04 150)", "oklch(50% 0.04 150)", "oklch(62% 0.04 150)", "oklch(73% 0.04 150)", "oklch(84% 0.04 150)", "oklch(95% 0.04 150)"] },
+      "live-ink": { "role": "secondary", "displayName": "Live Teal Ink", "canonical": "#126a5a", "tonalRamp": ["oklch(15% 0.07 175)", "oklch(26% 0.07 175)", "oklch(38% 0.07 175)", "oklch(50% 0.07 175)", "oklch(62% 0.07 175)", "oklch(73% 0.07 175)", "oklch(84% 0.07 175)", "oklch(95% 0.07 175)"] },
+      "live-wash": { "role": "secondary", "displayName": "Live Teal Wash", "canonical": "#e5f4f0", "tonalRamp": ["oklch(15% 0.025 175)", "oklch(26% 0.025 175)", "oklch(38% 0.025 175)", "oklch(50% 0.025 175)", "oklch(62% 0.025 175)", "oklch(73% 0.025 175)", "oklch(84% 0.025 175)", "oklch(95% 0.025 175)"] },
+      "notice-ink": { "role": "tertiary", "displayName": "Notice Amber Ink", "canonical": "#6b4f00", "tonalRamp": ["oklch(15% 0.1 85)", "oklch(26% 0.1 85)", "oklch(38% 0.1 85)", "oklch(50% 0.1 85)", "oklch(62% 0.1 85)", "oklch(73% 0.1 85)", "oklch(84% 0.1 85)", "oklch(95% 0.1 85)"] },
+      "notice-wash": { "role": "tertiary", "displayName": "Notice Amber Wash", "canonical": "#ffe28a", "tonalRamp": ["oklch(15% 0.1 85)", "oklch(26% 0.1 85)", "oklch(38% 0.1 85)", "oklch(50% 0.1 85)", "oklch(62% 0.1 85)", "oklch(73% 0.1 85)", "oklch(84% 0.1 85)", "oklch(95% 0.1 85)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Project Display", "purpose": "Artifact-led project names and major surface titles." },
+      "title": { "displayName": "Compact Title", "purpose": "Stage titles, card names, and navigation." },
+      "body": { "displayName": "Body", "purpose": "Concise project summaries and descriptive prose." },
+      "label": { "displayName": "Label", "purpose": "Metadata, section headings, and terse interface hints." }
+    },
+    "shadows": [
+      { "name": "hairline-edge", "value": "0 0 0 1px rgb(0 0 0 / 0.05)", "purpose": "Separates pale controls and cards from the canvas." },
+      { "name": "card-rest", "value": "0 0 0 1px rgb(0 0 0 / 0.045), 0 2px 4px rgb(0 0 0 / 0.035), 0 10px 22px rgb(0 0 0 / 0.05)", "purpose": "Seats compact content cards with soft physical depth." },
+      { "name": "project-rest", "value": "0 1px 2px rgb(0 0 0 / 0.05), 0 14px 42px rgb(0 0 0 / 0.09)", "purpose": "Gives large official imagery quiet editorial presence." },
+      { "name": "project-hover", "value": "0 2px 4px rgb(0 0 0 / 0.05), 0 22px 54px rgb(0 0 0 / 0.12)", "purpose": "Supports a three-pixel lift on fine-pointer hover." },
+      { "name": "folder-silhouette", "value": "drop-shadow(0 1px 2px rgb(0 0 0 / 0.06)) drop-shadow(0 6px 12px rgb(0 0 0 / 0.06)) drop-shadow(0 18px 32px rgb(0 0 0 / 0.07))", "purpose": "Follows the folder's non-rectangular silhouette." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Fast, physical state changes and stage transitions." },
+      { "name": "ease-in-out", "value": "cubic-bezier(0.77, 0, 0.175, 1)", "purpose": "Shape interpolation such as responsive card corners." },
+      { "name": "control-state", "value": "160ms cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Close controls and small press feedback." },
+      { "name": "card-state", "value": "180ms cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Compact card hover lift and shadow changes." },
+      { "name": "project-state", "value": "220ms cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Large project imagery hover lift and shadow changes." },
+      { "name": "stage-fade", "value": "240ms cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Overlay stage opacity transitions." }
+    ],
+    "breakpoints": [
+      { "name": "compact-card", "value": "480px" },
+      { "name": "project-stack", "value": "760px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Close Control",
+      "kind": "button",
+      "refersTo": "close-control",
+      "description": "Round stage exit control used across full-screen collections.",
+      "html": "<button class=\"ds-close\" type=\"button\" aria-label=\"Close\"><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M4 4l8 8M12 4l-8 8\" stroke-linecap=\"round\"/></svg></button>",
+      "css": ".ds-close { display:grid; place-items:center; width:2rem; height:2rem; border:0; border-radius:999px; color:var(--color-neutral-500); background:rgb(255 255 255 / .78); box-shadow:0 0 0 1px rgb(0 0 0 / .05); transition:color 160ms var(--ease-out),transform 160ms var(--ease-out); } .ds-close svg { width:1rem; height:1rem; } .ds-close:hover { color:var(--color-neutral-800); } .ds-close:focus-visible { outline:2px solid var(--color-neutral-800); outline-offset:3px; } .ds-close:active { transform:scale(.94); }"
+    },
+    {
+      "name": "Folder Preview",
+      "kind": "custom",
+      "description": "Signature tactile collection container with a continuous tab silhouette and frosted flap.",
+      "html": "<a class=\"ds-folder\" href=\"#\"><svg viewBox=\"0 0 400 340\" aria-hidden=\"true\"><defs><linearGradient id=\"ds-folder-fill\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f4f4f4\"/><stop offset=\"1\" stop-color=\"#e2e2e2\"/></linearGradient></defs><path d=\"M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26 A34,34 0 0 0 214,60 L370,60 A30,30 0 0 1 400,90 L400,310 A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z\" fill=\"url(#ds-folder-fill)\" stroke=\"white\" stroke-opacity=\".8\"/></svg><span class=\"ds-folder-flap\"><strong>Projects</strong><small>2 projects</small></span></a>",
+      "css": ".ds-folder { position:relative; display:block; width:min(20rem,100%); aspect-ratio:20/17; color:var(--color-neutral-800); transition:transform 160ms var(--ease-out); } .ds-folder svg { position:absolute; inset:0; width:100%; height:100%; filter:drop-shadow(0 1px 2px rgb(0 0 0 / .06)) drop-shadow(0 6px 12px rgb(0 0 0 / .06)) drop-shadow(0 18px 32px rgb(0 0 0 / .07)); } .ds-folder-flap { position:absolute; inset:24% 0 0; display:flex; flex-direction:column; justify-content:flex-end; padding:1.25rem; border-radius:7.5% / 11.6%; background:linear-gradient(to bottom,rgb(255 255 255 / .5),rgb(255 255 255 / .38)); backdrop-filter:blur(16px) saturate(180%); box-shadow:inset 0 0 0 1px rgb(255 255 255 / .6),0 -2px 6px -1px rgb(0 0 0 / .08); } .ds-folder strong { font-size:.875rem; font-weight:500; } .ds-folder small { margin-top:.125rem; font-size:.75rem; color:var(--color-neutral-500); } .ds-folder:focus-visible { outline:2px solid var(--color-neutral-800); outline-offset:4px; } .ds-folder:active { transform:scale(.98); }"
+    },
+    {
+      "name": "Content Card",
+      "kind": "card",
+      "refersTo": "content-card",
+      "description": "Compact white card for a tool, artifact, or hardware item.",
+      "html": "<a class=\"ds-card\" href=\"#\"><span class=\"ds-card-mark\">J</span><span><strong>JSON Workbench</strong><small>Structured workflows for messy data</small></span><svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M5 11 11 5M6 5h5v5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-card { position:relative; display:flex; min-height:7.25rem; flex-direction:column; gap:.625rem; padding:.875rem; overflow:hidden; border-radius:1.125rem; color:var(--color-neutral-800); background:rgb(255 255 255 / .82); box-shadow:0 0 0 1px rgb(0 0 0 / .045),0 2px 4px rgb(0 0 0 / .035),0 10px 22px rgb(0 0 0 / .05); transition:transform 180ms var(--ease-out),box-shadow 180ms var(--ease-out); } .ds-card-mark { display:grid; width:2.5rem; height:2.5rem; place-items:center; border-radius:.8rem; color:white; background:var(--color-neutral-800); font-weight:600; } .ds-card strong,.ds-card small { display:block; } .ds-card strong { font-size:.875rem; font-weight:500; line-height:1.2; } .ds-card small { margin-top:.125rem; padding-right:1.5rem; font-size:.6875rem; line-height:1.25; color:var(--color-neutral-500); } .ds-card svg { position:absolute; right:.875rem; bottom:.875rem; width:1rem; height:1rem; color:var(--color-neutral-400); } .ds-card:hover,.ds-card:focus-visible { transform:translateY(-2px); box-shadow:0 0 0 1px rgb(0 0 0 / .05),0 4px 9px rgb(0 0 0 / .05),0 20px 38px rgb(0 0 0 / .08); } .ds-card:focus-visible { outline:2px solid var(--color-neutral-800); outline-offset:3px; }"
+    },
+    {
+      "name": "Alpha Status",
+      "kind": "chip",
+      "refersTo": "status-alpha",
+      "description": "Precise maturity cue for alpha work.",
+      "html": "<span class=\"ds-status-alpha\">Open Protocol · Alpha</span>",
+      "css": ".ds-status-alpha { display:inline-block; padding:.3rem .55rem; border-radius:999px; color:#0d6b35; background:#e6f7ec; font:600 .625rem/1.25 \"SF Compact\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif; letter-spacing:.035em; }"
+    },
+    {
+      "name": "Live Status",
+      "kind": "chip",
+      "refersTo": "status-live",
+      "description": "Precise availability cue for a live product.",
+      "html": "<span class=\"ds-status-live\">Developer Tool · Live</span>",
+      "css": ".ds-status-live { display:inline-block; padding:.3rem .55rem; border-radius:999px; color:#126a5a; background:#e5f4f0; font:600 .625rem/1.25 \"SF Compact\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif; letter-spacing:.035em; }"
+    },
+    {
+      "name": "Project Link",
+      "kind": "nav",
+      "description": "Compact external destination link used after project evidence.",
+      "html": "<a class=\"ds-project-link\" href=\"#\">Visit project<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" aria-hidden=\"true\"><path d=\"M5 11 11 5M6 5h5v5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg></a>",
+      "css": ".ds-project-link { display:inline-flex; align-items:center; gap:.35rem; padding-bottom:.15rem; border-bottom:1px solid var(--color-neutral-300); color:var(--color-neutral-800); font-size:.8125rem; font-weight:500; transition:border-color 160ms var(--ease-out),color 160ms var(--ease-out); } .ds-project-link svg { width:.9rem; height:.9rem; } .ds-project-link:hover { color:var(--color-neutral-950); border-color:var(--color-neutral-700); } .ds-project-link:focus-visible { border-color:var(--color-neutral-800); outline:2px solid var(--color-neutral-800); outline-offset:4px; }"
+    },
+    {
+      "name": "Project Media",
+      "kind": "card",
+      "refersTo": "project-media",
+      "description": "Large official product image with quiet editorial lift.",
+      "html": "<a class=\"ds-project-media\" href=\"#\"><span>Official product interface</span></a>",
+      "css": ".ds-project-media { display:grid; width:100%; aspect-ratio:1200/630; place-items:center; overflow:hidden; border-radius:1.25rem; color:var(--color-neutral-500); background:white; box-shadow:0 1px 2px rgb(0 0 0 / .05),0 14px 42px rgb(0 0 0 / .09); font-size:.875rem; transition:transform 220ms var(--ease-out),box-shadow 220ms var(--ease-out); } .ds-project-media:hover { transform:translateY(-3px); box-shadow:0 2px 4px rgb(0 0 0 / .05),0 22px 54px rgb(0 0 0 / .12); } .ds-project-media:focus-visible { outline:2px solid var(--color-neutral-800); outline-offset:3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Worktable",
+    "overview": "Justin's site feels like a calm physical workspace where finished artifacts have been laid out for inspection. A near-white canvas, compact system typography, and careful soft depth keep the interface restrained while folders, cards, product captures, and small physical responses make it tactile.\n\nThe visual system is evidence-led: real interfaces and official project imagery supply most of the color and character. Chrome recedes, supporting copy stays concise, and state cues are precise enough to communicate maturity without becoming decoration. Surface-specific compositions may vary with the content; the Projects page's alternating editorial rows are one such composition, not a universal template.",
+    "keyCharacteristics": [
+      "Neutral, near-white working surfaces with dark-gray rather than absolute-black type.",
+      "Soft physical depth assembled from faint edge, contact, form, and ambient shadows.",
+      "Restrained system typography with compact labels and decisive, tightly tracked project titles.",
+      "Official imagery carries product identity; interface chrome remains quiet.",
+      "Small, truthful status cues and subtle press or lift feedback make state legible."
+    ],
+    "rules": [
+      { "name": "The Borrowed Color Rule", "body": "Let official product imagery carry product color; keep shared site chrome neutral and use semantic hues only for precise status communication.", "section": "colors" },
+      { "name": "The Wash, Not Badge Theater Rule", "body": "Status colors stay pale, compact, and factual. They never become oversized promotional accents.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Build hierarchy inside the system sans stack; do not add a display face merely to make a page feel designed.", "section": "typography" },
+      { "name": "The Small Chrome Rule", "body": "Persistent stage chrome stays between 0.75rem and 0.875rem so the artifact remains the visual subject.", "section": "typography" },
+      { "name": "The Artifact Chooses the Layout Rule", "body": "Reuse the neutral stage and spatial restraint, then choose a composition that fits the evidence being shown.", "section": "layout" },
+      { "name": "The Image Leads on Mobile Rule", "body": "On responsive project rows, place the product image before copy regardless of desktop alternation.", "section": "layout" },
+      { "name": "The Three-Layer Light Rule", "body": "For major physical objects, combine faint contact, form, and ambient layers; one dark drop shadow is outside the system.", "section": "elevation" },
+      { "name": "The Quiet at Rest Rule", "body": "Lift becomes more legible on hover or active state, while resting surfaces stay calm.", "section": "elevation" },
+      { "name": "The Object, Not Container Rule", "body": "A logo already has a silhouette and should not be boxed in a second arbitrary card shape.", "section": "shapes" },
+      { "name": "The Concentric Corner Rule", "body": "When an image sits inside a padded mat, subtract the padding from the outer radius so the two curves remain optically parallel.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do keep shared chrome neutral so shipped artifacts remain the subject.",
+      "Do use official product imagery and real interfaces as visual proof.",
+      "Do communicate maturity with concise text plus a restrained semantic wash.",
+      "Do build depth from several faint layers and pair interaction feedback with pointer capability.",
+      "Do preserve visible focus, reduced-motion behavior, and image-first mobile reading order.",
+      "Do choose layout per surface while retaining the same canvas, type restraint, depth, and control language."
+    ],
+    "donts": [
+      "Don't promote the Projects page's alternating editorial composition into a universal site rule.",
+      "Don't introduce loud shared brand gradients, saturated chrome, or decorative product-color accents.",
+      "Don't replace official interface evidence with generic mockups or abstract illustrations.",
+      "Don't use a single dark drop shadow, excessive blur, or glass effects without a physical layering purpose.",
+      "Don't turn folders, logos, and project imagery into identical generic cards.",
+      "Don't imply product maturity or success beyond the verified status shown in the content."
+    ]
+  }
+}

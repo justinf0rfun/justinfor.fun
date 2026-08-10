@@ -1,0 +1,341 @@
+---
+const projects = [
+  {
+    name: "Huoban",
+    status: "Open Protocol · Alpha",
+    description:
+      "An open orchestration protocol for AI systems, built around work that can be verified, composed, and reviewed.",
+    facts: [
+      "Ten top-level objects describe capability, context, orchestration, execution, governance, and trust.",
+      "CLI workflows validate, explain, derive, print, import, and export protocol objects.",
+      "Released as v0.1.0-alpha.0, with runtime execution still on the roadmap.",
+    ],
+    href: "https://huoban.dev/",
+    image: "/projects/huoban-cover.png",
+    alt: "Huoban protocol documentation cover",
+    accent: "huoban",
+  },
+  {
+    name: "GSON — JSON Workbench",
+    status: "Developer Tool · Live",
+    description:
+      "Structured workflows for messy data: format, transform, diff, query, and repair JSON from one local-first workbench.",
+    facts: [
+      "Format and repair mixed or malformed JSON without leaving the browser.",
+      "Review structural diffs, annotate results, and share read-only snapshots.",
+      "Turn a result into a temporary API endpoint for debugging and handoff.",
+    ],
+    href: "https://gson.ing/",
+    image: "/projects/gson-cover.png",
+    alt: "GSON JSON Workbench product interface",
+    accent: "gson",
+  },
+] as const;
+---
+
+<div class="projects-stage">
+  <header class="projects-bar">
+    <div>
+      <h1>Projects</h1>
+      <p>2 shipped projects</p>
+    </div>
+    <a class="projects-close" href="/" aria-label="Back to home">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+      </svg>
+    </a>
+  </header>
+
+  <main class="projects-content">
+    {
+      projects.map((project, index) => (
+        <article class:list={["project", index % 2 === 1 && "project-reversed"]}>
+          <a
+            class="project-visual"
+            href={project.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Visit ${project.name}`}
+          >
+            <img src={project.image} alt={project.alt} loading={index === 0 ? "eager" : "lazy"} />
+          </a>
+
+          <div class="project-copy">
+            <p class:list={["project-status", `is-${project.accent}`]}>{project.status}</p>
+            <h2>{project.name}</h2>
+            <p class="project-description">{project.description}</p>
+            <ul>
+              {project.facts.map((fact) => <li>{fact}</li>)}
+            </ul>
+            <a class="project-link" href={project.href} target="_blank" rel="noreferrer">
+              Visit project
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </main>
+</div>
+
+<style>
+  .projects-stage {
+    min-height: 100vh;
+    color: var(--color-neutral-800);
+    background: rgb(250 250 250);
+  }
+
+  .projects-bar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 10;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 2rem;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(250 250 250) 0%, rgb(250 250 250 / 0.96) 68%, transparent 100%);
+  }
+
+  .projects-bar > * {
+    pointer-events: auto;
+  }
+
+  .projects-bar h1 {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .projects-bar p {
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+  }
+
+  .projects-close {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--color-neutral-500);
+    background: rgb(255 255 255 / 0.78);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
+  }
+
+  .projects-close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .projects-close:active {
+    transform: scale(0.94);
+  }
+
+  .projects-content {
+    width: min(100% - 3rem, 72rem);
+    margin-inline: auto;
+    padding-block: 8.5rem 6rem;
+  }
+
+  .project {
+    display: grid;
+    grid-template-columns: minmax(15rem, 4fr) minmax(0, 8fr);
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 6rem);
+  }
+
+  .project + .project {
+    margin-top: clamp(7rem, 14vw, 11rem);
+  }
+
+  .project .project-visual {
+    order: 2;
+  }
+
+  .project .project-copy {
+    order: 1;
+  }
+
+  .project-reversed {
+    grid-template-columns: minmax(0, 8fr) minmax(15rem, 4fr);
+  }
+
+  .project-reversed .project-visual {
+    order: 1;
+  }
+
+  .project-reversed .project-copy {
+    order: 2;
+  }
+
+  .project-visual {
+    display: block;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    background: white;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 14px 42px rgb(0 0 0 / 0.09);
+    outline: none;
+    transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
+  }
+
+  .project-visual img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1200 / 630;
+    object-fit: cover;
+  }
+
+  .project-copy {
+    max-width: 26rem;
+  }
+
+  .project-status {
+    width: fit-content;
+    margin-bottom: 1rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.035em;
+  }
+
+  .project-status.is-huoban {
+    color: #0d6b35;
+    background: #e6f7ec;
+  }
+
+  .project-status.is-gson {
+    color: #126a5a;
+    background: #e5f4f0;
+  }
+
+  .project-copy h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .project-description {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--color-neutral-600);
+  }
+
+  .project-copy ul {
+    display: grid;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+  }
+
+  .project-copy li {
+    position: relative;
+    padding-left: 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-neutral-500);
+  }
+
+  .project-copy li::before {
+    position: absolute;
+    top: 0.62em;
+    left: 0;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: var(--color-neutral-300);
+    content: "";
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1.75rem;
+    padding-bottom: 0.15rem;
+    border-bottom: 1px solid var(--color-neutral-300);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  }
+
+  .project-link svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .project-visual:focus-visible {
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: 3px;
+  }
+
+  .project-link:focus-visible {
+    border-color: var(--color-neutral-800);
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: 4px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .projects-close:hover {
+      color: var(--color-neutral-800);
+    }
+
+    .project-visual:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 2px 4px rgb(0 0 0 / 0.05), 0 22px 54px rgb(0 0 0 / 0.12);
+    }
+
+    .project-link:hover {
+      color: var(--color-neutral-950);
+      border-color: var(--color-neutral-700);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .projects-content {
+      width: min(100% - 2rem, 38rem);
+      padding-block: 6.75rem 4rem;
+    }
+
+    .project {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.75rem;
+    }
+
+    .project + .project {
+      margin-top: 5.5rem;
+    }
+
+    .project .project-visual,
+    .project-reversed .project-visual {
+      order: -1;
+    }
+
+    .project .project-copy,
+    .project-reversed .project-copy {
+      order: 0;
+    }
+
+    .project-copy {
+      max-width: 32rem;
+    }
+
+    .project-copy h2 {
+      font-size: clamp(1.75rem, 9vw, 2.25rem);
+    }
+  }
+</style>
+
+<script>
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape") location.assign("/");
+  });
+</script>

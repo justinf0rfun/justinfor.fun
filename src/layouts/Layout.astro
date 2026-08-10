@@ -6,9 +6,10 @@ interface Props {
   title?: string;
   /** Drops the column and chrome, for pages that own the whole viewport. */
   full?: boolean;
+  surface?: "projects";
 }
 
-const { title = "Justin", full = false } = Astro.props;
+const { title = "Justin", full = false, surface } = Astro.props;
 ---
 
 <!doctype html>
@@ -21,6 +22,11 @@ const { title = "Justin", full = false } = Astro.props;
     <title>{title}</title>
   </head>
   <body class:list={[!full && "max-w-xl mx-auto px-4 md:px-0", "bg-neutral-50"]}>
+    {
+      surface === "projects" && (
+        <Fragment set:html={`<!-- THESIS: Real shipped interfaces lead; this surface refuses the centered carousel and utility-card grid. OWN-WORLD: Keep the incumbent neutral canvas, restrained type, and soft physical depth; project color lives inside official imagery and small status cues. STORY: Two shipped projects move from precise status to verified scope, then to the live product. FIRST VIEWPORT: Projects, 2 shipped projects, and the Huoban editorial row. FORM: User-locked alternating case-study-lite layout. Seed: projects-editorial-20260808. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->`} />
+      )
+    }
     {!full && <Header />}
     <slot />
   </body>

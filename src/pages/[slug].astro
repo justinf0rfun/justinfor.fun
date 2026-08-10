@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Carousel from "../components/Carousel.astro";
+import ProjectsShowcase from "../components/ProjectsShowcase.astro";
 import UsesGrid from "../components/UsesGrid.astro";
 import { collections } from "../data/collections";
 
@@ -13,8 +14,17 @@ export function getStaticPaths() {
 
 const { collection } = Astro.props;
 const isUses = collection.layout === "uses";
+const isProjects = collection.layout === "projects";
 ---
 
-<Layout title={`${collection.title} - Justin`} full>
-  {isUses ? <UsesGrid mode="standalone" /> : <Carousel collection={collection} />}
+<Layout title={`${collection.title} - Justin`} full surface={isProjects ? "projects" : undefined}>
+  {
+    isUses ? (
+      <UsesGrid mode="standalone" />
+    ) : isProjects ? (
+      <ProjectsShowcase />
+    ) : (
+      <Carousel collection={collection} />
+    )
+  }
 </Layout>
