@@ -1,5 +1,5 @@
 import { folderPreviewUses } from "./uses";
-import { musicTracks, type MusicTrack } from "./music";
+import { folderMusicTracks, musicTracks, type MusicTrack } from "./music";
 
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
@@ -53,7 +53,7 @@ export const collections: Collection[] = [
     title: "Music",
     meta: `${musicTracks.length} tracks on repeat`,
     layout: "music",
-    items: musicTracks.map((track) => ({
+    items: folderMusicTracks.map((track) => ({
       src: track.artwork,
       motion: track.motionArtwork,
       music: {

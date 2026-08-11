@@ -5,13 +5,30 @@ type MusicTarget = HTMLElement & {
   };
 };
 
-const audio = new Audio();
-audio.loop = true;
-audio.preload = "none";
+type ActivePreview = {
+  target: MusicTarget;
+  audio: HTMLAudioElement;
+};
 
-const positions = new Map<string, number>();
-let active: MusicTarget | null = null;
+const players = new Map<string, HTMLAudioElement>();
+let active: ActivePreview | null = null;
 let request = 0;
+
+const getPlayer = (target: MusicTarget) => {
+  const src = target.dataset.previewUrl;
+  if (!src) return null;
+
+  const cached = players.get(src);
+  if (cached) return cached;
+
+  const audio = new Audio();
+  audio.loop = true;
+  audio.preload = "auto";
+  audio.src = src;
+  audio.load();
+  players.set(src, audio);
+  return audio;
+};
 
 const setState = (target: MusicTarget, state: "idle" | "loading" | "playing" | "blocked") => {
   target.dataset.musicState = state;
@@ -22,61 +39,69 @@ const setState = (target: MusicTarget, state: "idle" | "loading" | "playing" | "
   }
 };
 
-const pause = (target = active) => {
-  if (!target || target !== active) return;
+const pause = (target = active?.target) => {
+  if (!target || target !== active?.target) return;
   request += 1;
-  const slug = target.dataset.musicTrack;
-  if (slug && Number.isFinite(audio.currentTime)) positions.set(slug, audio.currentTime);
-  audio.pause();
+  active.audio.pause();
   setState(target, "idle");
 };
 
 const play = async (target: MusicTarget) => {
   const slug = target.dataset.musicTrack;
-  const src = target.dataset.previewUrl;
-  if (!slug || !src) return;
+  const audio = getPlayer(target);
+  if (!slug || !audio) return;
 
-  if (active && active !== target) pause(active);
+  if (active && active.target !== target) pause(active.target);
   const currentRequest = ++request;
-  active = target;
+  active = { target, audio };
   setState(target, "loading");
-
-  if (audio.src !== src) {
-    audio.src = src;
-    audio.load();
-    const savedPosition = positions.get(slug) ?? 0;
-    if (savedPosition > 0) {
-      audio.addEventListener(
-        "loadedmetadata",
-        () => {
-          if (active === target) audio.currentTime = Math.min(savedPosition, audio.duration || savedPosition);
-        },
-        { once: true },
-      );
-    }
-  }
 
   try {
     await audio.play();
-    if (currentRequest !== request || active !== target) {
+    if (currentRequest !== request || active?.target !== target) {
       audio.pause();
       return;
     }
     setState(target, "playing");
   } catch {
-    if (currentRequest === request && active === target) setState(target, "blocked");
+    if (currentRequest === request && active?.target === target) setState(target, "blocked");
   }
 };
 
 const toggle = (target: MusicTarget) => {
-  if (target === active && !audio.paused) pause(target);
+  if (target === active?.target && !active.audio.paused) pause(target);
   else void play(target);
+};
+
+const preloadHomeFolder = (targets: MusicTarget[]) => {
+  targets.forEach(getPlayer);
+};
+
+const preloadUpcomingTracks = (targets: MusicTarget[]) => {
+  if (!("IntersectionObserver" in window)) {
+    targets.slice(0, 2).forEach(getPlayer);
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        getPlayer(entry.target as MusicTarget);
+        observer.unobserve(entry.target);
+      });
+    },
+    { rootMargin: "0px 0px 100% 0px" },
+  );
+
+  targets.forEach((target) => observer.observe(target));
 };
 
 export const mountMusicPreviews = (root: ParentNode = document) => {
   const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
+  const targets = [...root.querySelectorAll<MusicTarget>("[data-music-track]")];
 
-  root.querySelectorAll<MusicTarget>("[data-music-track]").forEach((target) => {
+  targets.forEach((target) => {
     target.dataset.musicState = "idle";
 
     target.addEventListener("pointerenter", () => {
@@ -103,6 +128,9 @@ export const mountMusicPreviews = (root: ParentNode = document) => {
       toggle(target);
     });
   });
+
+  if (root.querySelector("[data-music-folder]")) preloadHomeFolder(targets);
+  else preloadUpcomingTracks(targets);
 };
 
 addEventListener("pagehide", () => pause());
