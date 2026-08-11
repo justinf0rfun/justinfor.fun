@@ -1,22 +1,45 @@
 ---
 import { musicTracks } from "../data/music";
+
+interface Props {
+  mode?: "standalone" | "overlay";
+}
+
+const { mode = "standalone" } = Astro.props;
+const isOverlay = mode === "overlay";
 ---
 
-<main class="music-page" data-music-preview>
+<main
+  class:list={["music-page", isOverlay && "is-overlay"]}
+  data-music-preview
+  data-music-stage={mode}
+  aria-hidden={isOverlay ? "true" : undefined}
+  inert={isOverlay ? true : undefined}
+>
   <header class="music-header">
-    <div>
+    <div data-music-reveal>
       <h1>Music</h1>
       <p>{musicTracks.length} tracks on repeat</p>
     </div>
-    <a class="music-close" href="/" aria-label="Back to home">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-      </svg>
-    </a>
+    {
+      isOverlay ? (
+        <button class="music-close" type="button" data-music-close aria-label="Close">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </button>
+      ) : (
+        <a class="music-close" href="/" aria-label="Back to home">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </a>
+      )
+    }
   </header>
 
   <div class="music-content">
-    <div class="music-intro">
+    <div class="music-intro" data-music-reveal>
       <h2>On repeat lately.</h2>
       <p>Hover a cover or tap play to listen. The preview pauses when you leave.</p>
     </div>
@@ -24,14 +47,15 @@ import { musicTracks } from "../data/music";
     <ol class="music-list">
       {
         musicTracks.map((track, index) => (
-          <li
-            class="music-track"
-            data-music-track={track.slug}
-            data-music-title={`${track.title} by ${track.artist}`}
-            data-preview-url={track.previewUrl}
-            data-music-state="idle"
-          >
-            <div class="music-artwork-wrap">
+          <li class="music-track">
+            <div
+              class="music-artwork-wrap"
+              data-music-visual-target={track.slug}
+              data-music-track={track.slug}
+              data-music-title={`${track.title} by ${track.artist}`}
+              data-preview-url={track.previewUrl}
+              data-music-state="idle"
+            >
               <img class="music-glow" src={track.artwork} alt="" aria-hidden="true" />
               {
                 track.motionArtwork ? (
@@ -39,7 +63,8 @@ import { musicTracks } from "../data/music";
                     class="music-artwork"
                     src={track.motionArtwork}
                     poster={track.artwork}
-                    autoplay
+                    autoplay={!isOverlay}
+                    preload={isOverlay ? "none" : "metadata"}
                     loop
                     muted
                     playsinline
@@ -69,18 +94,35 @@ import { musicTracks } from "../data/music";
               </button>
             </div>
 
-            <div class="music-copy">
-              <h3>{track.title}</h3>
-              <p>{track.artist}</p>
-              <p class="music-album">{track.album}</p>
-              <span class="music-blocked">Tap the play button to enable sound.</span>
-              <a href={track.appleMusicUrl} target="_blank" rel="noreferrer">
-                Apple Music
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </a>
-            </div>
+            <a
+              class="music-copy"
+              data-music-reveal
+              href={track.appleMusicUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${track.title} by ${track.artist} on Apple Music`}
+            >
+              <span class="music-copy-text">
+                <h3>{track.title}</h3>
+                <p>{track.artist}</p>
+                <p class="music-album">{track.album}</p>
+              </span>
+              <svg
+                class="music-link-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path
+                  d="M5 11 11 5M6 5h5v5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+            <span class="music-blocked">Tap the play button to enable sound.</span>
           </li>
         ))
       }
@@ -93,6 +135,32 @@ import { musicTracks } from "../data/music";
     min-height: 100vh;
     color: var(--color-neutral-800);
     background: var(--color-neutral-50);
+  }
+
+  .music-page.is-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    overflow-y: auto;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms var(--ease-out), visibility 0s linear 220ms;
+  }
+
+  .music-page.is-overlay.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .music-page.is-overlay [data-music-visual-target] {
+    transition: opacity 100ms var(--ease-out);
+  }
+
+  .music-page.is-overlay.is-carrying [data-music-visual-target] {
+    opacity: 0;
   }
 
   .music-header {
@@ -258,7 +326,19 @@ import { musicTracks } from "../data/music";
   .music-eq span:nth-child(4) { animation-delay: -580ms; }
 
   .music-copy {
-    padding: 1.15rem 0.2rem 0;
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1.15rem 0.2rem 0.25rem;
+    border-radius: 0.75rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .music-copy-text {
+    min-width: 0;
   }
 
   .music-copy h3 {
@@ -270,7 +350,7 @@ import { musicTracks } from "../data/music";
     white-space: nowrap;
   }
 
-  .music-copy > p {
+  .music-copy p {
     margin-top: 0.2rem;
     font-size: 0.75rem;
     line-height: 1.4;
@@ -284,50 +364,41 @@ import { musicTracks } from "../data/music";
     white-space: nowrap;
   }
 
-  .music-copy a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-top: 0.9rem;
-    padding-bottom: 0.12rem;
-    border-bottom: 1px solid var(--color-neutral-300);
-    font-size: 0.75rem;
-    font-weight: 500;
-    outline: none;
-    transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out);
-  }
-
-  .music-copy a svg {
-    width: 0.8rem;
-    height: 0.8rem;
+  .music-link-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    flex: none;
+    margin-top: 0.12rem;
+    color: var(--color-neutral-400);
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
   }
 
   .music-blocked {
     display: none;
-    margin-top: 0.65rem;
+    margin: 0.45rem 0.2rem 0;
     font-size: 0.625rem;
     color: var(--color-neutral-500);
   }
 
-  .music-track[data-music-state="playing"] .music-play-icon {
+  .music-artwork-wrap[data-music-state="playing"] .music-play-icon {
     display: none;
   }
 
-  .music-track[data-music-state="playing"] .music-eq {
+  .music-artwork-wrap[data-music-state="playing"] .music-eq {
     display: flex;
   }
 
-  .music-track[data-music-state="playing"] .music-glow {
+  .music-artwork-wrap[data-music-state="playing"] .music-glow {
     opacity: 0.36;
     transform: translateY(14%) scale(1.08);
   }
 
-  .music-track[data-music-state="blocked"] .music-blocked {
+  .music-track:has(.music-artwork-wrap[data-music-state="blocked"]) .music-blocked {
     display: block;
   }
 
   .music-play:focus-visible,
-  .music-copy a:focus-visible,
+  .music-copy:focus-visible,
   .music-close:focus-visible {
     outline: 2px solid var(--color-neutral-800);
     outline-offset: 3px;
@@ -343,7 +414,7 @@ import { musicTracks } from "../data/music";
       color: var(--color-neutral-800);
     }
 
-    .music-track:hover .music-artwork {
+    .music-artwork-wrap:hover .music-artwork {
       transform: translateY(-3px);
       box-shadow: 0 2px 4px rgb(0 0 0 / 0.05), 0 22px 54px rgb(0 0 0 / 0.12);
     }
@@ -352,9 +423,9 @@ import { musicTracks } from "../data/music";
       background: rgb(17 17 17 / 0.92);
     }
 
-    .music-copy a:hover {
-      color: var(--color-neutral-950);
-      border-color: var(--color-neutral-700);
+    .music-copy:hover .music-link-icon {
+      color: var(--color-neutral-800);
+      transform: translate(2px, -2px);
     }
   }
 
@@ -406,10 +477,10 @@ import { musicTracks } from "../data/music";
 <script>
   import { mountMusicPreviews } from "../scripts/music-preview";
 
-  const root = document.querySelector<HTMLElement>("[data-music-preview]");
+  const root = document.querySelector<HTMLElement>('[data-music-stage="standalone"]');
   if (root) mountMusicPreviews(root);
 
   addEventListener("keydown", (event) => {
-    if (event.key === "Escape") location.assign("/");
+    if (root && event.key === "Escape") location.assign("/");
   });
 </script>

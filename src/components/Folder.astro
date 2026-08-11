@@ -253,12 +253,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      items stay above the overlay; the folder shell itself must not cover the
      grid while it remains at its home position underneath them. */
   a.folder.is-stage[data-layout="uses"] .back,
-  a.folder.is-stage[data-layout="projects"] .back {
+  a.folder.is-stage[data-layout="projects"] .back,
+  a.folder.is-stage[data-layout="music"] .back {
     opacity: 0;
   }
 
   a.folder.is-stage[data-layout="uses"],
-  a.folder.is-stage[data-layout="projects"] {
+  a.folder.is-stage[data-layout="projects"],
+  a.folder.is-stage[data-layout="music"] {
     pointer-events: none;
   }
 
@@ -266,7 +268,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      Removing it from painting avoids stale compositing tiles in iOS Safari;
      its layout box stays intact so the reverse flight keeps the same geometry. */
   a.folder.is-stage[data-layout="uses"].is-landed,
-  a.folder.is-stage[data-layout="projects"].is-landed {
+  a.folder.is-stage[data-layout="projects"].is-landed,
+  a.folder.is-stage[data-layout="music"].is-landed {
     visibility: hidden;
   }
 
@@ -328,7 +331,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 <script>
   import { animate, hover } from "motion";
   import { createProjectsTransition } from "../scripts/projects-transition";
-  import { mountMusicPreviews } from "../scripts/music-preview";
+  import { mountMusicPreviews, pauseMusicPreviews } from "../scripts/music-preview";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const instant = { duration: 0 } as const;
@@ -382,6 +385,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     closing: boolean;
     uses: boolean;
     projects: boolean;
+    music: boolean;
   } | null = null;
 
   /* ------------------------------------------------------------------ */
@@ -517,7 +521,11 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     folder.addEventListener("focusout", () => !stage && setOpen(false));
 
     folder.addEventListener("click", (event) => {
-      if (folder.dataset.layout === "music") return;
+      if (
+        folder.dataset.layout === "music" &&
+        (event.target as HTMLElement).closest("[data-folder-item]")
+      )
+        return;
       event.preventDefault();
       if (stage?.c === controllers.get(slug) && !stage.closing) {
         // On stage, clicking a side card steps to it; anywhere else closes.
@@ -569,6 +577,20 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const projectsTransition = projectsOverlay
     ? createProjectsTransition(projectsOverlay)
     : null;
+  const musicOverlay = document.querySelector<HTMLElement>('[data-music-stage="overlay"]');
+  const musicTargets = new Map(
+    musicOverlay
+      ? [...musicOverlay.querySelectorAll<HTMLElement>("[data-music-visual-target]")].map(
+          (target) => [target.dataset.musicVisualTarget ?? "", target] as const,
+        )
+      : [],
+  );
+  const musicReveals = musicOverlay
+    ? [...musicOverlay.querySelectorAll<HTMLElement>("[data-music-reveal]")]
+    : [];
+  const musicVideos = musicOverlay
+    ? [...musicOverlay.querySelectorAll<HTMLVideoElement>("video")]
+    : [];
 
   const isNote = (c: Controller, i: number) => c.items[i].dataset.kind === "note";
 
@@ -587,7 +609,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      straight, neighbours at 60% with their tilt back, everything on one
      vertical centreline. All in px - the stage is viewport-space. */
   const render = (opts: object, stagger = 0) => {
-    if (!stage || stage.uses || stage.projects) return;
+    if (!stage || stage.uses || stage.projects || stage.music) return;
     const { c, active, base } = stage;
     const unit = Math.min(innerWidth * 0.46, innerHeight * 0.52);
 
@@ -678,13 +700,68 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     void projectsTransition.open({ folder: stage.c.folder, items: stage.c.items });
   };
 
+  const musicTargetFor = (item: HTMLElement) =>
+    musicTargets.get(item.dataset.musicTrack ?? "");
+
+  const openMusic = async () => {
+    if (!stage || !stage.music || !musicOverlay) return;
+    const openingStage = stage;
+    const { c, base } = openingStage;
+
+    musicOverlay.scrollTop = 0;
+    musicOverlay.classList.add("is-carrying", "is-open");
+    musicOverlay.setAttribute("aria-hidden", "false");
+    musicOverlay.inert = false;
+    mountMusicPreviews(musicOverlay);
+    musicVideos.forEach((video) => void video.play().catch(() => undefined));
+
+    musicReveals.forEach((item) => animate(item, { opacity: 0, y: 10 }, instant));
+    musicReveals.forEach((item, index) =>
+      animate(
+        item,
+        { opacity: 1, y: 0 },
+        { duration: 0.26, ease: [0.23, 1, 0.32, 1], delay: 0.12 + index * 0.035 },
+      ),
+    );
+
+    const flights = c.items.map((item, index) => {
+      const target = musicTargetFor(item);
+      if (!target) return Promise.resolve();
+      const rect = target.getBoundingClientRect();
+      item.style.zIndex = String(70 + index);
+      return animate(
+        item,
+        {
+          x: rect.left + rect.width / 2 - base[index].x,
+          y: rect.top + rect.height / 2 - base[index].y,
+          scale: rect.width / item.offsetWidth,
+          rotate: 0,
+          opacity: 1,
+        },
+        { ...stageSpring, delay: Math.abs(c.offset(index)) * 0.035 },
+      ).finished.catch(() => undefined);
+    });
+
+    await Promise.all(flights);
+    if (stage !== openingStage || stage.closing) return;
+    musicOverlay.classList.remove("is-carrying");
+    await Promise.all(
+      c.items.map((item) =>
+        animate(item, { opacity: 0 }, { duration: 0.1 }).finished.catch(() => undefined),
+      ),
+    );
+    if (stage !== openingStage || stage.closing) return;
+    c.folder.classList.add("is-landed");
+  };
+
   const openStage = (slug: string, push: boolean) => {
     const c = controllers.get(slug);
     if (!c || stage) return;
     const uses = c.folder.dataset.layout === "uses";
     const projects = c.folder.dataset.layout === "projects";
-    const carried = uses || projects;
-    stage = { slug, c, active: 0, base: [], closing: false, uses, projects };
+    const music = c.folder.dataset.layout === "music";
+    const carried = uses || projects || music;
+    stage = { slug, c, active: 0, base: [], closing: false, uses, projects, music };
 
     if (push) history.pushState({ folder: slug }, "", `/${slug}`);
     if (!carried) {
@@ -718,6 +795,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
     if (uses) openUses();
     else if (projects) openProjects();
+    else if (music) void openMusic();
     else render(spring(stageSpring), 0.05);
   };
 
@@ -726,7 +804,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     stage.closing = true;
     const { c } = stage;
 
-    if (!stage.uses && !stage.projects) overlay.classList.remove("is-open");
+    if (!stage.uses && !stage.projects && !stage.music) overlay.classList.remove("is-open");
     document.documentElement.style.overflow = "";
     // Radius starts easing back now, in step with the shrink about to start —
     // not after it, once the cards have already landed.
@@ -761,6 +839,38 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       });
     }
 
+    if (stage.music && musicOverlay) {
+      pauseMusicPreviews();
+      c.folder.classList.remove("is-landed");
+      musicOverlay.scrollTop = 0;
+      await new Promise(requestAnimationFrame);
+      musicReveals.forEach((item) =>
+        animate(item, { opacity: 0, y: 8 }, { duration: 0.14, ease: [0.23, 1, 0.32, 1] }),
+      );
+      c.items.forEach((item, index) => {
+        const target = musicTargetFor(item);
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+        animate(
+          item,
+          {
+            x: rect.left + rect.width / 2 - stage!.base[index].x,
+            y: rect.top + rect.height / 2 - stage!.base[index].y,
+            scale: rect.width / item.offsetWidth,
+            rotate: 0,
+            opacity: 0,
+          },
+          instant,
+        );
+      });
+      await Promise.all(
+        c.items.map((item) =>
+          animate(item, { opacity: 1 }, { duration: 0.1 }).finished.catch(() => undefined),
+        ),
+      );
+      musicOverlay.classList.add("is-carrying");
+    }
+
     const w = c.wrap.offsetWidth;
     if (stage.projects && projectsOverlay && projectsTransition) {
       projectsOverlay.scrollTop = 0;
@@ -786,7 +896,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
                 opacity: 1,
               },
               {
-                ...(stage!.uses ? homeSpring : spring(homeSpring)),
+                ...(stage!.uses || stage!.music ? homeSpring : spring(homeSpring)),
                 delay: Math.abs(c.offset(i)) * 0.03,
               },
             ).finished,
@@ -799,10 +909,17 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       usesOverlay.setAttribute("aria-hidden", "true");
     }
 
+    if (stage.music && musicOverlay) {
+      musicOverlay.classList.remove("is-open", "is-carrying");
+      musicOverlay.setAttribute("aria-hidden", "true");
+      musicOverlay.inert = true;
+      musicVideos.forEach((video) => video.pause());
+    }
+
     await animate(
       c.flap,
       { rotateX: 0, opacity: 1 },
-      stage.uses || stage.projects ? shutSpring : spring(shutSpring),
+      stage.uses || stage.projects || stage.music ? shutSpring : spring(shutSpring),
     ).finished;
 
     /* Hand the cards back to the hover system in its own units - same pose.
@@ -816,7 +933,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   };
 
   const go = (next: number) => {
-    if (!stage || stage.closing || stage.uses || stage.projects) return;
+    if (!stage || stage.closing || stage.uses || stage.projects || stage.music) return;
     const clamped = Math.max(0, Math.min(stage.c.items.length - 1, next));
     if (clamped === stage.active) return;
     stage.active = clamped;
@@ -843,10 +960,16 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ?.querySelector<HTMLElement>("[data-projects-close]")
     ?.addEventListener("click", requestClose);
 
+  musicOverlay
+    ?.querySelector<HTMLElement>("[data-music-close]")
+    ?.addEventListener("click", requestClose);
+
   addEventListener("keydown", (event) => {
     if (!stage || stage.closing) return;
-    if (!stage.uses && !stage.projects && event.key === "ArrowRight") go(stage.active + 1);
-    else if (!stage.uses && !stage.projects && event.key === "ArrowLeft") go(stage.active - 1);
+    if (!stage.uses && !stage.projects && !stage.music && event.key === "ArrowRight")
+      go(stage.active + 1);
+    else if (!stage.uses && !stage.projects && !stage.music && event.key === "ArrowLeft")
+      go(stage.active - 1);
     else if (event.key === "Escape") requestClose();
     else return;
     event.preventDefault();
@@ -867,7 +990,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   addEventListener("resize", () => {
     if (!stage || stage.closing) return;
     stage.base = stage.c.items.map((_, i) => baseCenter(stage.c, i));
-    if (!stage.uses && !stage.projects) render(instant);
+    if (!stage.uses && !stage.projects && !stage.music) render(instant);
   });
 
   mountMusicPreviews(document);

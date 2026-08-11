@@ -16,6 +16,8 @@ type PreviewPlayer = {
 };
 
 const players = new Map<string, PreviewPlayer>();
+const mountedTargets = new WeakSet<MusicTarget>();
+const preloadRoots = new WeakSet<ParentNode>();
 let active: ActivePreview | null = null;
 let request = 0;
 
@@ -63,6 +65,8 @@ const pause = (target = active?.target) => {
   active.audio.pause();
   setState(target, "idle");
 };
+
+export const pauseMusicPreviews = () => pause();
 
 const play = async (target: MusicTarget) => {
   const slug = target.dataset.musicTrack;
@@ -123,6 +127,8 @@ export const mountMusicPreviews = (root: ParentNode = document) => {
   const targets = [...root.querySelectorAll<MusicTarget>("[data-music-track]")];
 
   targets.forEach((target) => {
+    if (mountedTargets.has(target)) return;
+    mountedTargets.add(target);
     target.dataset.musicState = "idle";
 
     target.addEventListener("pointerenter", () => {
@@ -150,8 +156,15 @@ export const mountMusicPreviews = (root: ParentNode = document) => {
     });
   });
 
-  if (root.querySelector("[data-music-folder]")) preloadHomeFolder(targets);
-  else preloadUpcomingTracks(targets);
+  if (preloadRoots.has(root)) return;
+  preloadRoots.add(root);
+
+  const folder = root.querySelector("[data-music-folder]");
+  if (folder) {
+    preloadHomeFolder(targets.filter((target) => target.closest("[data-music-folder]")));
+  } else {
+    preloadUpcomingTracks(targets);
+  }
 };
 
 addEventListener("pagehide", () => pause());
