@@ -30,6 +30,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   data-layout={collection.layout ?? "carousel"}
   data-title={title}
   data-meta={meta}
+  data-music-folder={collection.layout === "music" ? "" : undefined}
   class:list={["folder group block", className]}
 >
   <div class="relative aspect-20/17 w-full [perspective:1000px]">
@@ -47,11 +48,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     {/* contents - sized in % of the folder so cards keep their own shape */}
     <div class="absolute inset-0 z-0">
       {
-        cards.map((card, i) => (
+        cards.map((card) => (
           <div
             data-folder-item
             data-w={card.w}
             data-kind={card.kind}
+            data-music-track={card.music?.slug}
+            data-music-title={card.music ? `${card.music.title} by ${card.music.artist}` : undefined}
+            data-preview-url={card.music?.previewUrl}
             class="item absolute left-1/2"
             style={`top:${card.top}%;width:${card.w}%;margin-left:${-card.w / 2}%;aspect-ratio:${card.ratio}`}
           >
@@ -68,7 +72,16 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     >
       <div class="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
         <div class="min-w-0">
-          <p class="truncate text-sm font-medium text-neutral-800">{title}</p>
+          <div class="flex items-center gap-2">
+            <p class="truncate text-sm font-medium text-neutral-800">{title}</p>
+            {
+              collection.layout === "music" && (
+                <span class="folder-music-eq" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </span>
+              )
+            }
+          </div>
           {meta && <p class="mt-0.5 truncate text-xs text-neutral-500">{meta}</p>}
         </div>
         <Icon name="ph:arrow-up-right-bold" class="size-4 shrink-0 text-neutral-400" />
@@ -107,6 +120,37 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       rgb(255 255 255 / 0.38)
     );
     backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  .folder-music-eq {
+    display: flex;
+    align-items: center;
+    gap: 1.5px;
+    width: 0.8rem;
+    height: 0.7rem;
+    opacity: 0;
+    transition: opacity 180ms var(--ease-out);
+  }
+
+  .folder-music-eq span {
+    width: 1.5px;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--color-neutral-500);
+    transform: scaleY(0.35);
+    animation: folder-music-bar 680ms ease-in-out infinite alternate;
+  }
+
+  .folder-music-eq span:nth-child(2) { animation-delay: -360ms; }
+  .folder-music-eq span:nth-child(3) { animation-delay: -160ms; }
+
+  .folder:has([data-music-state="playing"]) .folder-music-eq {
+    opacity: 1;
+  }
+
+  @keyframes folder-music-bar {
+    from { transform: scaleY(0.25); }
+    to { transform: scaleY(1); }
   }
 
   /* Presses should feel heard, but only where there's a real pointer. */
@@ -284,6 +328,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 <script>
   import { animate, hover } from "motion";
   import { createProjectsTransition } from "../scripts/projects-transition";
+  import { mountMusicPreviews } from "../scripts/music-preview";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const instant = { duration: 0 } as const;
@@ -472,6 +517,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     folder.addEventListener("focusout", () => !stage && setOpen(false));
 
     folder.addEventListener("click", (event) => {
+      if (folder.dataset.layout === "music") return;
       event.preventDefault();
       if (stage?.c === controllers.get(slug) && !stage.closing) {
         // On stage, clicking a side card steps to it; anywhere else closes.
@@ -823,4 +869,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     stage.base = stage.c.items.map((_, i) => baseCenter(stage.c, i));
     if (!stage.uses && !stage.projects) render(instant);
   });
+
+  mountMusicPreviews(document);
 </script>

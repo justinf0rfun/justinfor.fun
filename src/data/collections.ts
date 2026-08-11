@@ -1,12 +1,14 @@
 import { folderPreviewUses } from "./uses";
+import { musicTracks, type MusicTrack } from "./music";
 
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
 export type Shape = { w?: number; ratio?: string; top?: number };
+type MusicPreview = Pick<MusicTrack, "slug" | "title" | "artist" | "previewUrl">;
 
 export type CollectionItem =
   | string
-  | ({ src: string } & Shape)
+  | ({ src: string; motion?: string; music?: MusicPreview } & Shape)
   | ({ logo: string; label?: string } & Shape)
   | ({ note: string; body?: string[] } & Shape);
 
@@ -15,7 +17,7 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
-  layout?: "carousel" | "uses" | "projects";
+  layout?: "carousel" | "uses" | "projects" | "music";
 }
 
 export const collections: Collection[] = [
@@ -45,6 +47,25 @@ export const collections: Collection[] = [
         top: 4,
       },
     ],
+  },
+  {
+    slug: "music",
+    title: "Music",
+    meta: `${musicTracks.length} tracks on repeat`,
+    layout: "music",
+    items: musicTracks.map((track) => ({
+      src: track.artwork,
+      motion: track.motionArtwork,
+      music: {
+        slug: track.slug,
+        title: track.title,
+        artist: track.artist,
+        previewUrl: track.previewUrl,
+      },
+      w: 34,
+      ratio: "1/1",
+      top: 5,
+    })),
   },
   {
     slug: "writing",
@@ -144,10 +165,12 @@ export function normalise(items: CollectionItem[]) {
       ratio: string;
       top: number;
       src?: string;
+      motion?: string;
       logo?: string;
       label?: string;
       note?: string;
       body?: string[];
+      music?: MusicPreview;
     };
   });
 }

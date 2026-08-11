@@ -1,0 +1,415 @@
+---
+import { musicTracks } from "../data/music";
+---
+
+<main class="music-page" data-music-preview>
+  <header class="music-header">
+    <div>
+      <h1>Music</h1>
+      <p>{musicTracks.length} tracks on repeat</p>
+    </div>
+    <a class="music-close" href="/" aria-label="Back to home">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+      </svg>
+    </a>
+  </header>
+
+  <div class="music-content">
+    <div class="music-intro">
+      <h2>On repeat lately.</h2>
+      <p>Hover a cover or tap play to listen. The preview pauses when you leave.</p>
+    </div>
+
+    <ol class="music-list">
+      {
+        musicTracks.map((track, index) => (
+          <li
+            class="music-track"
+            data-music-track={track.slug}
+            data-music-title={`${track.title} by ${track.artist}`}
+            data-preview-url={track.previewUrl}
+            data-music-state="idle"
+          >
+            <div class="music-artwork-wrap">
+              <img class="music-glow" src={track.artwork} alt="" aria-hidden="true" />
+              {
+                track.motionArtwork ? (
+                  <video
+                    class="music-artwork"
+                    src={track.motionArtwork}
+                    poster={track.artwork}
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    aria-label={`${track.album} animated album cover`}
+                  />
+                ) : (
+                  <img
+                    class="music-artwork"
+                    src={track.artwork}
+                    alt={`${track.album} album cover`}
+                    loading={index === 0 ? "eager" : "lazy"}
+                  />
+                )
+              }
+              <button
+                class="music-play"
+                data-music-action
+                type="button"
+                aria-label={`Play ${track.title} by ${track.artist}`}
+              >
+                <svg class="music-play-icon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M5.4 3.4a.8.8 0 0 1 1.2-.68l5.2 4.6a.9.9 0 0 1 0 1.36l-5.2 4.6a.8.8 0 0 1-1.2-.68V3.4Z" />
+                </svg>
+                <span class="music-eq" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span>
+                </span>
+              </button>
+            </div>
+
+            <div class="music-copy">
+              <h3>{track.title}</h3>
+              <p>{track.artist}</p>
+              <p class="music-album">{track.album}</p>
+              <span class="music-blocked">Tap the play button to enable sound.</span>
+              <a href={track.appleMusicUrl} target="_blank" rel="noreferrer">
+                Apple Music
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M5 11 11 5M6 5h5v5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</main>
+
+<style>
+  .music-page {
+    min-height: 100vh;
+    color: var(--color-neutral-800);
+    background: var(--color-neutral-50);
+  }
+
+  .music-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 10;
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    padding: 1.5rem 1.5rem 2rem;
+    background: linear-gradient(
+      to bottom,
+      rgb(250 250 250) 0%,
+      rgb(250 250 250 / 0.96) 68%,
+      transparent 100%
+    );
+  }
+
+  .music-header h1 {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .music-header p {
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+  }
+
+  .music-close {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--color-neutral-500);
+    background: rgb(255 255 255 / 0.78);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    outline: none;
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
+  }
+
+  .music-close svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .music-close:active {
+    transform: scale(0.94);
+  }
+
+  .music-content {
+    width: min(100% - 3rem, 68rem);
+    margin-inline: auto;
+    padding-block: 8.5rem 6rem;
+  }
+
+  .music-intro {
+    max-width: 31rem;
+  }
+
+  .music-intro h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .music-intro p {
+    margin-top: 0.8rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-neutral-500);
+  }
+
+  .music-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: clamp(1.75rem, 4vw, 3rem);
+    margin-top: clamp(3.5rem, 8vw, 6rem);
+  }
+
+  .music-track {
+    min-width: 0;
+  }
+
+  .music-artwork-wrap {
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 1;
+  }
+
+  .music-glow {
+    position: absolute;
+    inset: 14%;
+    z-index: -1;
+    width: 72%;
+    height: 72%;
+    object-fit: cover;
+    filter: blur(34px) saturate(120%);
+    opacity: 0.14;
+    transform: translateY(10%) scale(0.92);
+    transition: opacity 360ms var(--ease-out), transform 360ms var(--ease-out);
+  }
+
+  .music-artwork {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 14px 42px rgb(0 0 0 / 0.09);
+    transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
+  }
+
+  .music-play {
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0.8rem;
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    place-items: center;
+    border-radius: 999px;
+    color: white;
+    background: rgb(17 17 17 / 0.78);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    outline: none;
+    transition: transform 160ms var(--ease-out), background-color 160ms var(--ease-out);
+  }
+
+  .music-play:active {
+    transform: scale(0.92);
+  }
+
+  .music-play-icon {
+    width: 1rem;
+    height: 1rem;
+    fill: currentColor;
+  }
+
+  .music-eq {
+    display: none;
+    align-items: center;
+    gap: 2px;
+    height: 1rem;
+  }
+
+  .music-eq span {
+    width: 2px;
+    height: 90%;
+    border-radius: 999px;
+    background: currentColor;
+    transform: scaleY(0.35);
+    transform-origin: center;
+    animation: music-bar 760ms ease-in-out infinite alternate;
+  }
+
+  .music-eq span:nth-child(2) { animation-delay: -420ms; }
+  .music-eq span:nth-child(3) { animation-delay: -180ms; }
+  .music-eq span:nth-child(4) { animation-delay: -580ms; }
+
+  .music-copy {
+    padding: 1.15rem 0.2rem 0;
+  }
+
+  .music-copy h3 {
+    overflow: hidden;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .music-copy > p {
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-neutral-500);
+  }
+
+  .music-copy .music-album {
+    overflow: hidden;
+    color: var(--color-neutral-400);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .music-copy a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+    padding-bottom: 0.12rem;
+    border-bottom: 1px solid var(--color-neutral-300);
+    font-size: 0.75rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 160ms var(--ease-out), color 160ms var(--ease-out);
+  }
+
+  .music-copy a svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .music-blocked {
+    display: none;
+    margin-top: 0.65rem;
+    font-size: 0.625rem;
+    color: var(--color-neutral-500);
+  }
+
+  .music-track[data-music-state="playing"] .music-play-icon {
+    display: none;
+  }
+
+  .music-track[data-music-state="playing"] .music-eq {
+    display: flex;
+  }
+
+  .music-track[data-music-state="playing"] .music-glow {
+    opacity: 0.36;
+    transform: translateY(14%) scale(1.08);
+  }
+
+  .music-track[data-music-state="blocked"] .music-blocked {
+    display: block;
+  }
+
+  .music-play:focus-visible,
+  .music-copy a:focus-visible,
+  .music-close:focus-visible {
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: 3px;
+  }
+
+  @keyframes music-bar {
+    from { transform: scaleY(0.28); }
+    to { transform: scaleY(1); }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .music-close:hover {
+      color: var(--color-neutral-800);
+    }
+
+    .music-track:hover .music-artwork {
+      transform: translateY(-3px);
+      box-shadow: 0 2px 4px rgb(0 0 0 / 0.05), 0 22px 54px rgb(0 0 0 / 0.12);
+    }
+
+    .music-play:hover {
+      background: rgb(17 17 17 / 0.92);
+    }
+
+    .music-copy a:hover {
+      color: var(--color-neutral-950);
+      border-color: var(--color-neutral-700);
+    }
+  }
+
+  @media (max-width: 960px) and (min-width: 681px) {
+    .music-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 680px) {
+    .music-content {
+      width: min(100% - 2rem, 38rem);
+      padding-block: 6.75rem 4rem;
+    }
+
+    .music-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-top: 3.25rem;
+    }
+
+    .music-track {
+      display: grid;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .music-artwork,
+    .music-glow {
+      border-radius: 0.75rem;
+    }
+
+    .music-play {
+      right: 0.45rem;
+      bottom: 0.45rem;
+      width: 2.2rem;
+      height: 2.2rem;
+    }
+
+    .music-copy {
+      min-width: 0;
+      padding: 0;
+    }
+  }
+</style>
+
+<script>
+  import { mountMusicPreviews } from "../scripts/music-preview";
+
+  const root = document.querySelector<HTMLElement>("[data-music-preview]");
+  if (root) mountMusicPreviews(root);
+
+  addEventListener("keydown", (event) => {
+    if (event.key === "Escape") location.assign("/");
+  });
+</script>

@@ -16,7 +16,19 @@ const { card } = Astro.props;
   {
     card.kind === "photo" && (
       <figure class="photo shadow">
-        <img src={card.src} alt="" loading="lazy" />
+        {card.motion ? (
+          <video
+            src={card.motion}
+            poster={card.src}
+            autoplay
+            loop
+            muted
+            playsinline
+            aria-hidden="true"
+          />
+        ) : (
+          <img src={card.src} alt="" loading="lazy" />
+        )}
       </figure>
     )
   }
@@ -81,7 +93,9 @@ const { card } = Astro.props;
 
   /* Concentric corners: the inner radius is the outer minus the gap between
      them. Matching the two makes the matte look pinched at the corners. */
-  .photo img {
+  .photo img,
+  .photo video {
+    display: block;
     height: 100%;
     width: 100%;
     object-fit: cover;
