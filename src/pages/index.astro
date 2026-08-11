@@ -12,9 +12,12 @@ import { folderMusicTracks } from "../data/music";
 <Layout>
   <Fragment slot="head">
     {
-      folderMusicTracks.map((track) => (
-        <link rel="preload" as="fetch" href={track.previewUrl} crossorigin="anonymous" />
-      ))
+      folderMusicTracks.map(
+        (track) =>
+          track.previewUrl && (
+            <link rel="preload" as="fetch" href={track.previewUrl} crossorigin="anonymous" />
+          ),
+      )
     }
   </Fragment>
   <main class="space-y-16 pt-20 pb-8">

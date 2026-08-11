@@ -1,5 +1,5 @@
 ---
-import { musicTracks } from "../data/music";
+import { musicTracks, type MusicService } from "../data/music";
 
 interface Props {
   mode?: "standalone" | "overlay";
@@ -7,6 +7,10 @@ interface Props {
 
 const { mode = "standalone" } = Astro.props;
 const isOverlay = mode === "overlay";
+const serviceNames: Record<MusicService, string> = {
+  "apple-music": "Apple Music",
+  spotify: "Spotify",
+};
 ---
 
 <main
@@ -54,7 +58,7 @@ const isOverlay = mode === "overlay";
               data-music-track={track.slug}
               data-music-title={`${track.title} by ${track.artist}`}
               data-preview-url={track.previewUrl}
-              data-music-state="idle"
+              data-music-state={track.previewUrl ? "idle" : undefined}
             >
               <img class="music-glow" src={track.artwork} alt="" aria-hidden="true" />
               {
@@ -79,28 +83,32 @@ const isOverlay = mode === "overlay";
                   />
                 )
               }
-              <button
-                class="music-play"
-                data-music-action
-                type="button"
-                aria-label={`Play ${track.title} by ${track.artist}`}
-              >
-                <svg class="music-play-icon" viewBox="0 0 16 16" aria-hidden="true">
-                  <path d="M5.4 3.4a.8.8 0 0 1 1.2-.68l5.2 4.6a.9.9 0 0 1 0 1.36l-5.2 4.6a.8.8 0 0 1-1.2-.68V3.4Z" />
-                </svg>
-                <span class="music-eq" aria-hidden="true">
-                  <span></span><span></span><span></span><span></span>
-                </span>
-              </button>
+              {
+                track.previewUrl && (
+                  <button
+                    class="music-play"
+                    data-music-action
+                    type="button"
+                    aria-label={`Play ${track.title} by ${track.artist}`}
+                  >
+                    <svg class="music-play-icon" viewBox="0 0 16 16" aria-hidden="true">
+                      <path d="M5.4 3.4a.8.8 0 0 1 1.2-.68l5.2 4.6a.9.9 0 0 1 0 1.36l-5.2 4.6a.8.8 0 0 1-1.2-.68V3.4Z" />
+                    </svg>
+                    <span class="music-eq" aria-hidden="true">
+                      <span></span><span></span><span></span><span></span>
+                    </span>
+                  </button>
+                )
+              }
             </div>
 
             <a
               class="music-copy"
               data-music-reveal
-              href={track.appleMusicUrl}
+              href={track.externalUrl}
               target="_blank"
               rel="noreferrer"
-              aria-label={`Open ${track.title} by ${track.artist} on Apple Music`}
+              aria-label={`Open ${track.title} by ${track.artist} on ${serviceNames[track.service]}`}
             >
               <span class="music-copy-text">
                 <h3>{track.title}</h3>
@@ -122,7 +130,7 @@ const isOverlay = mode === "overlay";
                 />
               </svg>
             </a>
-            <span class="music-blocked">Tap the play button to enable sound.</span>
+            {track.previewUrl && <span class="music-blocked">Tap the play button to enable sound.</span>}
           </li>
         ))
       }

@@ -1,3 +1,5 @@
+export type MusicService = "apple-music" | "spotify";
+
 export interface MusicTrack {
   slug: string;
   title: string;
@@ -6,11 +8,14 @@ export interface MusicTrack {
   artwork: string;
   motionArtwork?: string;
   folderPreview?: true;
-  previewUrl: string;
-  appleMusicUrl: string;
+  service: MusicService;
+  previewUrl?: string;
+  externalUrl: string;
 }
 
-export const musicTracks: MusicTrack[] = [
+type MusicTrackInput = Omit<MusicTrack, "service"> & { service?: MusicService };
+
+const tracks = [
   {
     slug: "about-you",
     title: "About You",
@@ -20,7 +25,7 @@ export const musicTracks: MusicTrack[] = [
     folderPreview: true,
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d0/8c/64/d08c6440-e727-10ab-589c-e36d5afea47e/mzaf_15879604028025493401.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/being-funny-in-a-foreign-language/1850018862",
   },
   {
@@ -32,7 +37,7 @@ export const musicTracks: MusicTrack[] = [
     folderPreview: true,
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fc/61/1d/fc611d36-b2da-9136-27fc-dbbdd08f1a67/mzaf_10399162366792067543.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/swag/1825998885",
   },
   {
@@ -44,7 +49,7 @@ export const musicTracks: MusicTrack[] = [
     folderPreview: true,
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/06/cf/21/06cf2152-070a-0ff6-9e1b-47356188411e/mzaf_4585109618303849355.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/purpose/1440825845",
   },
   {
@@ -56,7 +61,7 @@ export const musicTracks: MusicTrack[] = [
     folderPreview: true,
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f6/f7/88/f6f788f9-a8c7-81ec-d096-8a87f158315d/mzaf_16388568819097888365.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/happily-painfully-after/1682457852",
   },
   {
@@ -69,7 +74,7 @@ export const musicTracks: MusicTrack[] = [
     folderPreview: true,
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0a/a3/b4/0aa3b4c6-1fc5-591f-754b-f2a942fc887e/mzaf_1820546648211498378.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/the-dark-side-of-the-moon-50th-anniversary-remastered/1665303755",
   },
   {
@@ -80,7 +85,7 @@ export const musicTracks: MusicTrack[] = [
     artwork: "/music/no-surprises.jpg",
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ef/02/b7/ef02b776-f887-f1f0-acfb-e7d9776ba503/mzaf_2515606267255808294.plus.aac.p.m4a",
-    appleMusicUrl: "https://embed.music.apple.com/us/album/ok-computer/1097861387",
+    externalUrl: "https://embed.music.apple.com/us/album/ok-computer/1097861387",
   },
   {
     slug: "barbaric",
@@ -90,7 +95,7 @@ export const musicTracks: MusicTrack[] = [
     artwork: "/music/barbaric.jpg",
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5b/0d/63/5b0d6395-3498-acae-c0f2-43d3c878b16f/mzaf_10838268799492084449.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/the-ballad-of-darren/1688020024",
   },
   {
@@ -101,7 +106,7 @@ export const musicTracks: MusicTrack[] = [
     artwork: "/music/always.jpg",
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/22/23/14/2223148f-33e3-2216-83b0-fcde1a9f7d64/mzaf_12958338383522354070.plus.aac.p.m4a",
-    appleMusicUrl: "https://embed.music.apple.com/us/album/never-enough/1671667136",
+    externalUrl: "https://embed.music.apple.com/us/album/never-enough/1671667136",
   },
   {
     slug: "sundays",
@@ -111,7 +116,7 @@ export const musicTracks: MusicTrack[] = [
     artwork: "/music/sundays.jpg",
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b4/5b/22/b45b227e-4ccd-b090-ed0a-87c1a81b2d39/mzaf_1007767853152797983.plus.aac.p.m4a",
-    appleMusicUrl: "https://embed.music.apple.com/us/album/just-piano/1886491568",
+    externalUrl: "https://embed.music.apple.com/us/album/just-piano/1886491568",
   },
   {
     slug: "monsoon",
@@ -121,9 +126,14 @@ export const musicTracks: MusicTrack[] = [
     artwork: "/music/monsoon.jpg",
     previewUrl:
       "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/c1/75/0dc17547-1efa-bbe2-4001-a55f5802c7cb/mzaf_13269093057407749938.plus.aac.p.m4a",
-    appleMusicUrl:
+    externalUrl:
       "https://embed.music.apple.com/us/album/%E9%9B%A8%E5%AD%A3-monsoon-single/1841316651",
   },
-];
+] satisfies MusicTrackInput[];
+
+export const musicTracks: MusicTrack[] = tracks.map((track) => ({
+  ...track,
+  service: track.service ?? "apple-music",
+}));
 
 export const folderMusicTracks = musicTracks.filter((track) => track.folderPreview);
