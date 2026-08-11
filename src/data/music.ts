@@ -129,6 +129,17 @@ const tracks = [
     externalUrl:
       "https://embed.music.apple.com/us/album/%E9%9B%A8%E5%AD%A3-monsoon-single/1841316651",
   },
+  {
+    slug: "grand-theft-autumn",
+    title: "Grand Theft Autumn",
+    artist: "Dream Tunes",
+    album: "Grand Theft Autumn",
+    artwork: "/music/grand-theft-autumn.jpg",
+    service: "spotify",
+    previewUrl:
+      "https://p.scdn.co/mp3-preview/67440a4144c851f194513610c63cb7e228e852fd",
+    externalUrl: "https://open.spotify.com/track/0RRTf8bU7Z3Xgn9PLeXMsT",
+  },
 ] satisfies MusicTrackInput[];
 
 export const musicTracks: MusicTrack[] = tracks.map((track) => ({

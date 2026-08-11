@@ -1,4 +1,5 @@
 ---
+import { Icon } from "astro-icon/components";
 import { musicTracks, type MusicService } from "../data/music";
 
 interface Props {
@@ -7,9 +8,9 @@ interface Props {
 
 const { mode = "standalone" } = Astro.props;
 const isOverlay = mode === "overlay";
-const serviceNames: Record<MusicService, string> = {
-  "apple-music": "Apple Music",
-  spotify: "Spotify",
+const services: Record<MusicService, { name: string; icon: string }> = {
+  "apple-music": { name: "Apple Music", icon: "ph:apple-logo-fill" },
+  spotify: { name: "Spotify", icon: "ph:spotify-logo-fill" },
 };
 ---
 
@@ -108,27 +109,29 @@ const serviceNames: Record<MusicService, string> = {
               href={track.externalUrl}
               target="_blank"
               rel="noreferrer"
-              aria-label={`Open ${track.title} by ${track.artist} on ${serviceNames[track.service]}`}
+              aria-label={`Open ${track.title} by ${track.artist} on ${services[track.service].name}`}
             >
               <span class="music-copy-text">
                 <h3>{track.title}</h3>
                 <p>{track.artist}</p>
                 <p class="music-album">{track.album}</p>
               </span>
-              <svg
-                class="music-link-icon"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                aria-hidden="true"
-              >
-                <path
-                  d="M5 11 11 5M6 5h5v5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <span class="music-link-meta" aria-hidden="true">
+                <Icon name={services[track.service].icon} class="music-service-icon" />
+                <svg
+                  class="music-link-icon"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M5 11 11 5M6 5h5v5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
             </a>
             {track.previewUrl && <span class="music-blocked">Tap the play button to enable sound.</span>}
           </li>
@@ -372,12 +375,24 @@ const serviceNames: Record<MusicService, string> = {
     white-space: nowrap;
   }
 
+  .music-link-meta {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.08rem;
+    color: var(--color-neutral-400);
+  }
+
+  .music-service-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
   .music-link-icon {
     width: 0.9rem;
     height: 0.9rem;
     flex: none;
-    margin-top: 0.12rem;
-    color: var(--color-neutral-400);
     transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
   }
 
