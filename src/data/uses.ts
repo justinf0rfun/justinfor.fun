@@ -74,6 +74,12 @@ export const useSections: UseSection[] = [
             href: "https://herdr.dev/",
           },
           {
+            name: "Orca",
+            slogan: "Ship 100x with the Agent IDE.",
+            logo: "/uses/ai/orca.png",
+            href: "https://www.onorca.dev/",
+          },
+          {
             name: "ChatCut",
             slogan: "Your AI Video Editing Assistant.",
             logo: "/uses/ai/chatcut.svg",
