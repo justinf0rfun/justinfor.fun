@@ -208,19 +208,47 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   /* The uses view lands its logos in real grid cards. Only those carried
      items stay above the overlay; the folder shell itself must not cover the
      grid while it remains at its home position underneath them. */
-  a.folder.is-stage[data-layout="uses"] .back {
+  a.folder.is-stage[data-layout="uses"] .back,
+  a.folder.is-stage[data-layout="projects"] .back {
     opacity: 0;
   }
 
-  a.folder.is-stage[data-layout="uses"] {
+  a.folder.is-stage[data-layout="uses"],
+  a.folder.is-stage[data-layout="projects"] {
     pointer-events: none;
   }
 
   /* Once the carried logos have landed, the source folder has no visual job.
      Removing it from painting avoids stale compositing tiles in iOS Safari;
      its layout box stays intact so the reverse flight keeps the same geometry. */
-  a.folder.is-stage[data-layout="uses"].is-landed {
+  a.folder.is-stage[data-layout="uses"].is-landed,
+  a.folder.is-stage[data-layout="projects"].is-landed {
     visibility: hidden;
+  }
+
+  a.folder.is-stage[data-layout="projects"].is-project-source-hidden
+    [data-folder-item] {
+    visibility: hidden;
+  }
+
+  .project-flight-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .project-flight .frame {
+    --pad: 1.3cqw;
+    --radius: 3.5cqw;
+  }
+
+  /* Project covers land in large white image mats rather than the generic
+     carousel. Tightening their stage padding makes the carried card and its
+     destination share the same visual proportions at full size. */
+  a.folder.is-stage[data-layout="projects"] .frame {
+    --pad: 1.3cqw;
+    --radius: 3.5cqw;
   }
 
   .folder.is-stage [data-folder-flap] {
@@ -255,6 +283,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
 <script>
   import { animate, hover } from "motion";
+  import { createProjectsTransition } from "../scripts/projects-transition";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const instant = { duration: 0 } as const;
@@ -307,6 +336,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     base: { x: number; y: number }[];
     closing: boolean;
     uses: boolean;
+    projects: boolean;
   } | null = null;
 
   /* ------------------------------------------------------------------ */
@@ -316,7 +346,9 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   document.querySelectorAll<HTMLElement>("[data-folder]").forEach((folder) => {
     const slug = folder.dataset.folder ?? "";
     const folderSpring = (s: object) =>
-      folder.dataset.layout === "uses" ? s : spring(s);
+      folder.dataset.layout === "uses" || folder.dataset.layout === "projects"
+        ? s
+        : spring(s);
     const flap = folder.querySelector<HTMLElement>("[data-folder-flap]")!;
     const wrap = flap.parentElement!;
     const items = [...folder.querySelectorAll<HTMLElement>("[data-folder-item]")];
@@ -475,6 +507,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const overlayTitle = overlay.querySelector<HTMLElement>(".fstage-title")!;
   const overlayMeta = overlay.querySelector<HTMLElement>(".fstage-meta")!;
   const usesOverlay = document.querySelector<HTMLElement>('[data-uses-stage="overlay"]');
+  const usesContent = usesOverlay?.querySelector<HTMLElement>(".uses-content");
   const usesTargets = usesOverlay
     ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-logo-target]")]
     : [];
@@ -484,6 +517,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const usesReveal = usesOverlay
     ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-reveal]")]
     : [];
+  const projectsOverlay = document.querySelector<HTMLElement>(
+    '[data-projects-stage="overlay"]',
+  );
+  const projectsTransition = projectsOverlay
+    ? createProjectsTransition(projectsOverlay)
+    : null;
 
   const isNote = (c: Controller, i: number) => c.items[i].dataset.kind === "note";
 
@@ -502,7 +541,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      straight, neighbours at 60% with their tilt back, everything on one
      vertical centreline. All in px - the stage is viewport-space. */
   const render = (opts: object, stagger = 0) => {
-    if (!stage || stage.uses) return;
+    if (!stage || stage.uses || stage.projects) return;
     const { c, active, base } = stage;
     const unit = Math.min(innerWidth * 0.46, innerHeight * 0.52);
 
@@ -551,6 +590,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     const { c, base } = stage;
 
     usesOverlay.scrollTop = 0;
+    if (usesContent) animate(usesContent, { opacity: 1 }, instant);
     usesReveal.forEach((item) => animate(item, { opacity: 0, y: 12 }, instant));
     usesOverlay.classList.add("is-carrying", "is-open");
     usesOverlay.setAttribute("aria-hidden", "false");
@@ -586,14 +626,22 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
   };
 
+  const openProjects = () => {
+    if (!stage || !stage.projects || !projectsOverlay || !projectsTransition) return;
+    projectsOverlay.scrollTop = 0;
+    void projectsTransition.open({ folder: stage.c.folder, items: stage.c.items });
+  };
+
   const openStage = (slug: string, push: boolean) => {
     const c = controllers.get(slug);
     if (!c || stage) return;
     const uses = c.folder.dataset.layout === "uses";
-    stage = { slug, c, active: 0, base: [], closing: false, uses };
+    const projects = c.folder.dataset.layout === "projects";
+    const carried = uses || projects;
+    stage = { slug, c, active: 0, base: [], closing: false, uses, projects };
 
     if (push) history.pushState({ folder: slug }, "", `/${slug}`);
-    if (!uses) {
+    if (!carried) {
       overlayTitle.textContent = c.folder.dataset.title ?? "";
       overlayMeta.textContent = c.folder.dataset.meta ?? "";
       overlay.classList.add("is-open");
@@ -621,8 +669,9 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
 
     // The flap flings right out of the way and vanishes; the cards pour out.
-    animate(c.flap, { rotateX: -80, opacity: 0 }, uses ? flingSpring : spring(flingSpring));
+    animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
     if (uses) openUses();
+    else if (projects) openProjects();
     else render(spring(stageSpring), 0.05);
   };
 
@@ -631,7 +680,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     stage.closing = true;
     const { c } = stage;
 
-    if (!stage.uses) overlay.classList.remove("is-open");
+    if (!stage.uses && !stage.projects) overlay.classList.remove("is-open");
     document.documentElement.style.overflow = "";
     // Radius starts easing back now, in step with the shrink about to start —
     // not after it, once the cards have already landed.
@@ -646,6 +695,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       usesOverlay.scrollTop = 0;
       await new Promise(requestAnimationFrame);
       usesOverlay.classList.add("is-carrying");
+      if (usesContent) animate(usesContent, { opacity: 0 }, { duration: 0.18 });
       usesPreviewLogos.forEach((logo) => (logo.style.opacity = ""));
       c.items.forEach((item, i) => {
         const target = usesTargets[i];
@@ -663,42 +713,50 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
           instant,
         );
       });
-      usesReveal.forEach((item, i) =>
-        animate(item, { opacity: 0, y: 12 }, { duration: 0.22, delay: i * 0.03 }),
-      );
     }
 
     const w = c.wrap.offsetWidth;
-    await Promise.all(
-      c.items.map(
-        (item, i) =>
-          animate(
-            item,
-            {
-              x: ((c.offset(i) * 6) / 100) * w,
-              y: 0,
-              rotate: c.closedRotate(i),
-              scale: 1,
-              opacity: 1,
-            },
-            {
-              ...(stage!.uses ? homeSpring : spring(homeSpring)),
-              delay: Math.abs(c.offset(i)) * 0.03,
-            },
-          ).finished,
-      ),
-    );
+    if (stage.projects && projectsOverlay && projectsTransition) {
+      projectsOverlay.scrollTop = 0;
+      // Originals are hidden while their disposable twins fly home. Put them
+      // in their final geometry first so the twins have stable destinations.
+      c.items.forEach((item, i) => {
+        const x = ((c.offset(i) * 6) / 100) * w;
+        item.style.opacity = "1";
+        item.style.transform = `translateX(${x}px) translateY(0) rotate(${c.closedRotate(i)}deg) scale(1)`;
+      });
+      await projectsTransition.close();
+    } else {
+      await Promise.all(
+        c.items.map(
+          (item, i) =>
+            animate(
+              item,
+              {
+                x: ((c.offset(i) * 6) / 100) * w,
+                y: 0,
+                rotate: c.closedRotate(i),
+                scale: 1,
+                opacity: 1,
+              },
+              {
+                ...(stage!.uses ? homeSpring : spring(homeSpring)),
+                delay: Math.abs(c.offset(i)) * 0.03,
+              },
+            ).finished,
+        ),
+      );
+    }
 
     if (stage.uses && usesOverlay) {
       usesOverlay.classList.remove("is-open", "is-carrying");
       usesOverlay.setAttribute("aria-hidden", "true");
-      usesReveal.forEach((item) => animate(item, { opacity: 1, y: 0 }, instant));
     }
 
     await animate(
       c.flap,
       { rotateX: 0, opacity: 1 },
-      stage.uses ? shutSpring : spring(shutSpring),
+      stage.uses || stage.projects ? shutSpring : spring(shutSpring),
     ).finished;
 
     /* Hand the cards back to the hover system in its own units - same pose.
@@ -712,7 +770,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   };
 
   const go = (next: number) => {
-    if (!stage || stage.closing || stage.uses) return;
+    if (!stage || stage.closing || stage.uses || stage.projects) return;
     const clamped = Math.max(0, Math.min(stage.c.items.length - 1, next));
     if (clamped === stage.active) return;
     stage.active = clamped;
@@ -735,10 +793,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ?.querySelector<HTMLElement>("[data-uses-close]")
     ?.addEventListener("click", requestClose);
 
+  projectsOverlay
+    ?.querySelector<HTMLElement>("[data-projects-close]")
+    ?.addEventListener("click", requestClose);
+
   addEventListener("keydown", (event) => {
     if (!stage || stage.closing) return;
-    if (!stage.uses && event.key === "ArrowRight") go(stage.active + 1);
-    else if (!stage.uses && event.key === "ArrowLeft") go(stage.active - 1);
+    if (!stage.uses && !stage.projects && event.key === "ArrowRight") go(stage.active + 1);
+    else if (!stage.uses && !stage.projects && event.key === "ArrowLeft") go(stage.active - 1);
     else if (event.key === "Escape") requestClose();
     else return;
     event.preventDefault();
@@ -759,6 +821,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   addEventListener("resize", () => {
     if (!stage || stage.closing) return;
     stage.base = stage.c.items.map((_, i) => baseCenter(stage.c, i));
-    if (!stage.uses) render(instant);
+    if (!stage.uses && !stage.projects) render(instant);
   });
 </script>

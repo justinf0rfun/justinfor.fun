@@ -1,4 +1,11 @@
 ---
+interface Props {
+  mode: "overlay" | "standalone";
+}
+
+const { mode } = Astro.props;
+const isOverlay = mode === "overlay";
+
 const projects = [
   {
     name: "Huoban",
@@ -33,17 +40,33 @@ const projects = [
 ] as const;
 ---
 
-<div class="projects-stage">
+<div
+  class:list={["projects-stage", isOverlay && "is-overlay", !isOverlay && "is-open"]}
+  data-projects-stage={mode}
+  data-project-state={isOverlay ? "closed" : "open"}
+  aria-hidden={isOverlay ? "true" : undefined}
+  inert={isOverlay ? true : undefined}
+>
   <header class="projects-bar">
     <div>
       <h1>Projects</h1>
       <p>2 shipped projects</p>
     </div>
-    <a class="projects-close" href="/" aria-label="Back to home">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-      </svg>
-    </a>
+    {
+      isOverlay ? (
+        <button class="projects-close" data-projects-close type="button" aria-label="Close">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </button>
+      ) : (
+        <a class="projects-close" href="/" aria-label="Back to home">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
+          </svg>
+        </a>
+      )
+    }
   </header>
 
   <main class="projects-content">
@@ -52,15 +75,24 @@ const projects = [
         <article class:list={["project", index % 2 === 1 && "project-reversed"]}>
           <a
             class="project-visual"
+            data-project-visual-target={String(index)}
             href={project.href}
             target="_blank"
             rel="noreferrer"
             aria-label={`Visit ${project.name}`}
           >
-            <img src={project.image} alt={project.alt} loading={index === 0 ? "eager" : "lazy"} />
+            <img
+              src={project.image}
+              alt={project.alt}
+              loading={index === 0 ? "eager" : "lazy"}
+            />
           </a>
 
-          <div class="project-copy">
+          <div
+            class="project-copy"
+            data-project-reveal
+            style={`--project-delay: ${80 + index * 50}ms`}
+          >
             <p class:list={["project-status", `is-${project.accent}`]}>{project.status}</p>
             <h2>{project.name}</h2>
             <p class="project-description">{project.description}</p>
@@ -85,6 +117,64 @@ const projects = [
     min-height: 100vh;
     color: var(--color-neutral-800);
     background: rgb(250 250 250);
+  }
+
+  .projects-stage.is-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    isolation: isolate;
+    overflow-y: auto;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .projects-stage.is-overlay::before {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: rgb(250 250 250);
+    opacity: 0;
+    transition: opacity 0ms;
+    content: "";
+  }
+
+  .projects-stage.is-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .projects-stage.is-overlay.is-open::before {
+    opacity: 1;
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  .projects-stage.is-overlay[data-project-state="opening"] .project-visual,
+  .projects-stage.is-overlay[data-project-state="closing"] .project-visual {
+    visibility: hidden;
+  }
+
+  .projects-stage.is-overlay[data-project-state="closed"] .project-copy {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+
+  .projects-stage.is-overlay[data-project-state="opening"] .project-copy {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 280ms var(--ease-out) var(--project-delay),
+      transform 280ms var(--ease-out) var(--project-delay);
+  }
+
+  .projects-stage.is-overlay[data-project-state="closing"] .project-copy {
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity 160ms var(--ease-out),
+      transform 160ms var(--ease-out);
   }
 
   .projects-bar {
@@ -136,6 +226,8 @@ const projects = [
   }
 
   .projects-content {
+    position: relative;
+    z-index: 1;
     width: min(100% - 3rem, 72rem);
     margin-inline: auto;
     padding-block: 8.5rem 6rem;
@@ -175,6 +267,8 @@ const projects = [
   .project-visual {
     display: block;
     overflow: hidden;
+    aspect-ratio: 1200 / 630;
+    padding: clamp(0.45rem, 0.8vw, 0.65rem);
     border-radius: 1.25rem;
     background: white;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 14px 42px rgb(0 0 0 / 0.09);
@@ -185,8 +279,9 @@ const projects = [
   .project-visual img {
     display: block;
     width: 100%;
-    aspect-ratio: 1200 / 630;
+    height: 100%;
     object-fit: cover;
+    border-radius: calc(1.25rem - clamp(0.45rem, 0.8vw, 0.65rem));
   }
 
   .project-copy {
@@ -335,7 +430,9 @@ const projects = [
 </style>
 
 <script>
-  addEventListener("keydown", (event) => {
-    if (event.key === "Escape") location.assign("/");
-  });
+  if (document.querySelector('[data-projects-stage="standalone"]')) {
+    addEventListener("keydown", (event) => {
+      if (event.key === "Escape") location.assign("/");
+    });
+  }
 </script>

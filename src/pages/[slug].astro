@@ -22,7 +22,7 @@ const isProjects = collection.layout === "projects";
     isUses ? (
       <UsesGrid mode="standalone" />
     ) : isProjects ? (
-      <ProjectsShowcase />
+      <ProjectsShowcase mode="standalone" />
     ) : (
       <Carousel collection={collection} />
     )
