@@ -68,7 +68,7 @@ export const musicTracks: MusicTrack[] = [
     motionArtwork: "/music/time-motion.mp4",
     folderPreview: true,
     previewUrl:
-      "https://p.scdn.co/mp3-preview/516bcfab09ad9d9b2a8696f34885cfbebf6fb8c1",
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0a/a3/b4/0aa3b4c6-1fc5-591f-754b-f2a942fc887e/mzaf_1820546648211498378.plus.aac.p.m4a",
     appleMusicUrl:
       "https://embed.music.apple.com/us/album/the-dark-side-of-the-moon-50th-anniversary-remastered/1665303755",
   },
