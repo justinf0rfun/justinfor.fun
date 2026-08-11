@@ -10,7 +10,12 @@ type ActivePreview = {
   audio: HTMLAudioElement;
 };
 
-const players = new Map<string, HTMLAudioElement>();
+type PreviewPlayer = {
+  audio: HTMLAudioElement;
+  ready: Promise<void>;
+};
+
+const players = new Map<string, PreviewPlayer>();
 let active: ActivePreview | null = null;
 let request = 0;
 
@@ -23,11 +28,24 @@ const getPlayer = (target: MusicTarget) => {
 
   const audio = new Audio();
   audio.loop = true;
-  audio.preload = "auto";
-  audio.src = src;
-  audio.load();
-  players.set(src, audio);
-  return audio;
+  const ready = fetch(src, { credentials: "omit", mode: "cors" })
+    .then((response) => {
+      if (!response.ok) throw new Error(`Unable to preload music preview: ${response.status}`);
+      return response.blob();
+    })
+    .then((blob) => {
+      audio.src = URL.createObjectURL(blob);
+      audio.load();
+    })
+    .catch(() => {
+      audio.preload = "auto";
+      audio.src = src;
+      audio.load();
+    });
+
+  const player = { audio, ready };
+  players.set(src, player);
+  return player;
 };
 
 const setState = (target: MusicTarget, state: "idle" | "loading" | "playing" | "blocked") => {
@@ -48,18 +66,21 @@ const pause = (target = active?.target) => {
 
 const play = async (target: MusicTarget) => {
   const slug = target.dataset.musicTrack;
-  const audio = getPlayer(target);
-  if (!slug || !audio) return;
+  const player = getPlayer(target);
+  if (!slug || !player) return;
 
   if (active && active.target !== target) pause(active.target);
   const currentRequest = ++request;
-  active = { target, audio };
+  active = { target, audio: player.audio };
   setState(target, "loading");
 
   try {
-    await audio.play();
+    await player.ready;
+    if (currentRequest !== request || active?.target !== target) return;
+
+    await player.audio.play();
     if (currentRequest !== request || active?.target !== target) {
-      audio.pause();
+      player.audio.pause();
       return;
     }
     setState(target, "playing");

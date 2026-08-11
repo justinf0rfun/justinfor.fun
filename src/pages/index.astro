@@ -5,9 +5,17 @@ import Folder from "../components/Folder.astro";
 import ProjectsShowcase from "../components/ProjectsShowcase.astro";
 import UsesGrid from "../components/UsesGrid.astro";
 import { collections } from "../data/collections";
+import { folderMusicTracks } from "../data/music";
 ---
 
 <Layout>
+  <Fragment slot="head">
+    {
+      folderMusicTracks.map((track) => (
+        <link rel="preload" as="fetch" href={track.previewUrl} crossorigin="anonymous" />
+      ))
+    }
+  </Fragment>
   <main class="space-y-16 py-8">
     <About />
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">

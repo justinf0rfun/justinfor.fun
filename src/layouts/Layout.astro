@@ -20,6 +20,7 @@ const { title = "Justin", full = false, surface } = Astro.props;
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body class:list={[!full && "max-w-xl mx-auto px-4 md:px-0", "bg-neutral-50"]}>
     {
