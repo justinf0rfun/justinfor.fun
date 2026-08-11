@@ -910,7 +910,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     }
 
     if (stage.music && musicOverlay) {
-      musicOverlay.classList.remove("is-open", "is-carrying");
+      // Keep the page artwork hidden while the overlay fades. Revealing it here
+      // makes the original covers flash back underneath the cards that already
+      // flew home.
+      musicOverlay.classList.remove("is-open");
       musicOverlay.setAttribute("aria-hidden", "true");
       musicOverlay.inert = true;
       musicVideos.forEach((video) => video.pause());
@@ -921,6 +924,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       { rotateX: 0, opacity: 1 },
       stage.uses || stage.projects || stage.music ? shutSpring : spring(shutSpring),
     ).finished;
+
+    if (stage.music && musicOverlay) musicOverlay.classList.remove("is-carrying");
 
     /* Hand the cards back to the hover system in its own units - same pose.
        Deliberately NOT restacking: the card you were just looking at keeps the
