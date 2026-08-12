@@ -173,6 +173,82 @@ const tracks = [
     externalUrl:
       "https://embed.music.apple.com/us/album/anchor/1501719742?i=1501719745",
   },
+  {
+    slug: "good-riddance",
+    title: "Good Riddance (Time of Your Life)",
+    artist: "Green Day",
+    album: "Nimrod",
+    artwork: "/music/good-riddance.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d9/67/c4/d967c49e-7482-8c81-6961-9d7b640e5aa5/mzaf_11204935824115736508.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/good-riddance-time-of-your-life/1159778204?i=1159778603",
+  },
+  {
+    slug: "song-2",
+    title: "Song 2",
+    artist: "Blur",
+    album: "Blur (2012 Remaster)",
+    artwork: "/music/song-2.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/cc/ad/26/ccad2689-b748-54fa-245f-010e2fcc5b9b/mzaf_9639125266026347910.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/song-2/787069899?i=787069924",
+  },
+  {
+    slug: "wait-for-her",
+    title: "Wait for Her",
+    artist: "Roger Waters",
+    album: "Is This the Life We Really Want?",
+    artwork: "/music/wait-for-her.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/12/cf/35/12cf350c-8d5d-4cf4-0807-f3ef487e8dc7/mzaf_16359897238300896318.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/wait-for-her/1227077689?i=1227077903",
+  },
+  {
+    slug: "hey",
+    title: "Hey",
+    artist: "Pixies",
+    album: "Doolittle",
+    artwork: "/music/hey.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5c/b9/ec/5cb9ec4a-a687-7e22-c1b2-269c938b040b/mzaf_9883427498137094488.plus.aac.p.m4a",
+    externalUrl: "https://embed.music.apple.com/us/album/hey/7060469?i=7060463",
+  },
+  {
+    slug: "blue-monday",
+    title: "Blue Monday",
+    artist: "New Order",
+    album: "Blue Monday (2023 Digital Master) - Single",
+    artwork: "/music/blue-monday.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b5/e2/8f/b5e28fba-a548-4aa9-2131-bd97739c3d1f/mzaf_12595885010476524905.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/blue-monday-2023-digital-master/1768084461?i=1768084466",
+  },
+  {
+    slug: "love-will-tear-us-apart",
+    title: "Love Will Tear Us Apart",
+    artist: "Joy Division",
+    album: "Love Will Tear Us Apart (2020 Digital Remaster) - Single",
+    artwork: "/music/love-will-tear-us-apart.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c3/0a/76/c30a76c3-a2b1-b27f-0fed-3e86d2303225/mzaf_4666448702799715339.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/love-will-tear-us-apart-2020-remaster/1511732884?i=1511732885",
+  },
+  {
+    slug: "in-my-secret-life",
+    title: "In My Secret Life",
+    artist: "Leonard Cohen",
+    album: "Ten New Songs",
+    artwork: "/music/in-my-secret-life.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b9/3d/73/b93d73ce-7347-e288-d753-5b50f705a2ef/mzaf_10696606905516394987.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/in-my-secret-life/511074815?i=511074817",
+  },
 ] satisfies MusicTrackInput[];
 
 export const musicTracks: MusicTrack[] = tracks.map((track) => ({
