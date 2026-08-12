@@ -17,7 +17,7 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
-  layout?: "carousel" | "uses" | "projects" | "music";
+  layout?: "carousel" | "uses" | "projects" | "music" | "writing";
 }
 
 export const collections: Collection[] = [
@@ -70,40 +70,13 @@ export const collections: Collection[] = [
   {
     slug: "writing",
     title: "Writing",
-    meta: "23 posts",
+    meta: "1 post",
+    layout: "writing",
     items: [
       {
-        note: "How tanstack start became my default framework",
+        note: "How TanStack Start became my default framework",
         body: [
-          "Personally I have always been picky about my tech stack, but I saw a tweet from Kitze stating - 'It doesn't matter anymore'",
-          "As much as I disagreed with the statement, it's actually true.",
-          "Nobody's writing code the way they used to, just throw something at your agent and let it figure out.",
-          "But this meant everytime I made a new project - the stack was quite random",
-          "I had to ground my agent with this little oss template I made - agent first.",
-        ],
-      },
-      {
-        note: "Shipping a side project in a weekend",
-        body: [
-          "The trick isn't working faster. It's deciding smaller. A weekend project survives on the ruthlessness of what you refuse to build.",
-          "No auth, no settings page, no dark mode, no database if a JSON file will limp through. Every one of those is a weekend on its own, disguised as an afternoon.",
-          "What you get in exchange is the thing that actually matters: something real in front of real people while you still care about it. Momentum compounds; polish can be retrofitted onto momentum, but momentum can't be retrofitted onto polish.",
-        ],
-      },
-      {
-        note: "The unreasonable effectiveness of boring CSS",
-        body: [
-          "Grid, custom properties, container queries, :has(). The platform quietly shipped almost everything we used to need tooling for, and it did it while nobody was updating their assumptions.",
-          "The most maintainable stylesheets I've worked in lately are the most boring ones. Plain selectors, custom properties as the API, media queries doing what they were designed to do.",
-          "Boring is a feature. Boring means the next person - including future you - reads it without a decoder ring.",
-        ],
-      },
-      {
-        note: "Notes on building for the edge",
-        body: [
-          "The mental model shift is small but real: your code doesn't live somewhere, it lives everywhere, and it starts cold in under a millisecond.",
-          "That kills a whole category of pattern - the warm in-memory cache, the connection pool, the singleton that assumes it survives between requests - and replaces it with something honest: state lives in storage, compute is disposable.",
-          "Once the model clicks, the constraint feels like a gift. Systems built this way have nothing to leak, nothing to drain, and nothing to restart at 3am.",
+          "The framework matters less than it used to. A legible application model matters more — especially when agents are doing part of the building.",
         ],
       },
     ],

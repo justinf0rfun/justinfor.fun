@@ -1,0 +1,205 @@
+---
+import { getCollection } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  mode: "overlay" | "standalone";
+}
+
+const { mode } = Astro.props;
+const isOverlay = mode === "overlay";
+const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
+);
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeZone: "UTC",
+  }).format(date);
+---
+
+<main
+  class:list={["writing-stage", isOverlay && "is-overlay", !isOverlay && "is-open"]}
+  data-writing-stage={mode}
+  data-writing-state={isOverlay ? "closed" : "open"}
+  aria-hidden={isOverlay ? "true" : undefined}
+  inert={isOverlay ? true : undefined}
+>
+  <div class="writing-index">
+    <header class="writing-header">
+      <div data-writing-reveal>
+        <h1>Writing</h1>
+        <p>{posts.length} {posts.length === 1 ? "post" : "posts"}</p>
+      </div>
+      {
+        isOverlay ? (
+          <button class="writing-close" data-writing-close type="button" aria-label="Close">
+            <Icon name="ph:x" />
+          </button>
+        ) : (
+          <a class="writing-close" href="/" aria-label="Back to home">
+            <Icon name="ph:x" />
+          </a>
+        )
+      }
+    </header>
+
+    <div class="writing-list">
+      {posts.map((post, index) => (
+        <article
+          data-writing-reveal
+          data-writing-paper-target={index === 0 ? "" : undefined}
+        >
+          <a href={`/writing/${post.id}`}>
+            <div>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.description}</p>
+            </div>
+            <time datetime={post.data.publishedAt.toISOString()}>
+              {formatDate(post.data.publishedAt)}
+            </time>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</main>
+
+<style>
+  .writing-stage {
+    min-height: 100vh;
+    color: var(--color-neutral-800);
+    background: var(--color-neutral-50);
+  }
+
+  .writing-stage.is-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    overflow-y: auto;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms var(--ease-out), visibility 0s linear 220ms;
+  }
+
+  .writing-stage.is-overlay.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+
+  .writing-index {
+    width: min(100% - 3rem, 43.25rem);
+    min-height: 100vh;
+    margin-inline: auto;
+    padding-block: 6rem;
+  }
+
+  .writing-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 4.5rem;
+  }
+
+  .writing-header h1 {
+    color: var(--color-neutral-800);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .writing-header p {
+    margin-top: 0.125rem;
+    color: var(--color-neutral-500);
+    font-size: 0.75rem;
+  }
+
+  .writing-close {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border-radius: 999px;
+    color: var(--color-neutral-500);
+    background: rgb(255 255 255 / 0.78);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
+  }
+
+  .writing-close :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .writing-close:active {
+    transform: scale(0.94);
+  }
+
+  .writing-list article + article {
+    border-top: 1px solid var(--color-neutral-200);
+  }
+
+  .writing-list a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2rem;
+    padding-block: 1.25rem;
+    outline: none;
+  }
+
+  .writing-list h2 {
+    color: var(--color-neutral-800);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .writing-list p {
+    max-width: 36rem;
+    margin-top: 0.35rem;
+    color: var(--color-neutral-500);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .writing-list time {
+    padding-top: 0.125rem;
+    color: var(--color-neutral-400);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .writing-list a:focus-visible {
+    border-radius: 0.5rem;
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: 0.4rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .writing-close:hover {
+      color: var(--color-neutral-800);
+    }
+
+    .writing-list a:hover h2 {
+      color: var(--color-neutral-950);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .writing-index {
+      width: min(100% - 2rem, 43.25rem);
+      padding-block: 1.5rem 4rem;
+    }
+
+    .writing-header {
+      margin-bottom: 3.5rem;
+    }
+
+    .writing-list a {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+  }
+</style>

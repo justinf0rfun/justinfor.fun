@@ -1,0 +1,244 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+import ArticleToc from "../../components/ArticleToc.astro";
+import Layout from "../../layouts/Layout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("writing", ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: CollectionEntry<"writing">;
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+---
+
+<Layout title={`${post.data.title} - Justin`} full>
+  <Fragment slot="head">
+    <meta name="description" content={post.data.description} />
+    <meta property="og:type" content="article" />
+    <meta property="article:published_time" content={post.data.publishedAt.toISOString()} />
+  </Fragment>
+
+  <a class="article-home" href="/writing" aria-label="Back to writing">
+    <span class="article-home-icon" aria-hidden="true">
+      <span class="article-home-avatar">
+        <img src="/justin-avatar.png" alt="" width="32" height="32" />
+      </span>
+      <Icon class="article-home-arrow" name="ph:arrow-left-bold" />
+    </span>
+    <span class="article-home-label">Writing</span>
+  </a>
+
+  <ArticleToc headings={headings} />
+
+  <main class="article-shell">
+    <article class="article-prose">
+      <header>
+        <h1>{post.data.title}</h1>
+        <p>{post.data.description}</p>
+      </header>
+      <Content />
+    </article>
+  </main>
+</Layout>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .article-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 2.5rem 1rem 0;
+    padding: 0.375rem;
+    border-radius: 0.875rem;
+    color: #747474;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    outline: none;
+    transition: color 160ms var(--ease-out);
+  }
+
+  .article-home-icon {
+    position: relative;
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    overflow: hidden;
+    border-radius: 0.75rem;
+  }
+
+  .article-home-avatar {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transform-origin: center;
+    transition:
+      transform 300ms var(--ease-out) 50ms,
+      opacity 300ms var(--ease-out) 50ms;
+  }
+
+  .article-home-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: scale(1.05);
+  }
+
+  .article-home-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #202020;
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate(-42%, -50%) scale(0.5);
+    transform-origin: right center;
+    transition:
+      transform 300ms var(--ease-out),
+      opacity 300ms var(--ease-out),
+      filter 300ms var(--ease-out);
+  }
+
+  .article-home-label {
+    padding-right: 0.25rem;
+  }
+
+  .article-home:focus-visible {
+    color: #202020;
+    outline: 2px solid #747474;
+    outline-offset: 2px;
+  }
+
+  .article-shell {
+    width: min(100% - 3rem, 43.25rem);
+    margin-inline: auto;
+    padding-block: 4rem 8rem;
+  }
+
+  .article-prose {
+    color: #424242;
+    font-size: 1rem;
+    line-height: 1.625;
+  }
+
+  .article-prose > header {
+    margin-bottom: 2rem;
+  }
+
+  .article-prose > header h1 {
+    color: #202020;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.333;
+    letter-spacing: -0.02em;
+  }
+
+  .article-prose > header p {
+    margin-top: 0.5rem;
+    color: #646464;
+  }
+
+  .article-prose > p {
+    margin-bottom: 1rem;
+  }
+
+  .article-prose > h2 {
+    scroll-margin-top: 5rem;
+    margin-top: 4rem;
+    margin-bottom: 0.5rem;
+    color: #202020;
+    font-weight: 550;
+  }
+
+  .article-prose > h3 {
+    scroll-margin-top: 5rem;
+    margin-top: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #202020;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .article-prose a {
+    color: #202020;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: #d9d9d9;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 160ms ease-out;
+  }
+
+  .article-prose strong {
+    color: #202020;
+    font-weight: 600;
+  }
+
+  .article-prose code {
+    padding: 0.12rem 0.3rem;
+    border-radius: 0.3rem;
+    color: #202020;
+    background: #f0f0f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875em;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .article-home:hover {
+      color: #202020;
+    }
+
+    .article-home:hover .article-home-avatar,
+    .article-home:focus-visible .article-home-avatar {
+      opacity: 0.25;
+      transform: translateX(-100%) scaleX(0.5) scaleY(0.75);
+      transition-delay: 0ms;
+    }
+
+    .article-home:hover .article-home-arrow,
+    .article-home:focus-visible .article-home-arrow {
+      opacity: 1;
+      filter: blur(0);
+      transform: translate(-50%, -50%) scale(1);
+      transition-delay: 50ms;
+    }
+
+    .article-prose a:hover {
+      text-decoration-color: #747474;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .article-home {
+      position: fixed;
+      top: 4.5rem;
+      left: 2rem;
+      margin: 0;
+    }
+
+    .article-shell {
+      padding-block: 6rem 10rem;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .article-home {
+      margin-top: 1rem;
+    }
+
+    .article-shell {
+      width: min(100% - 2rem, 43.25rem);
+      padding-block: 3rem 6rem;
+    }
+  }
+</style>

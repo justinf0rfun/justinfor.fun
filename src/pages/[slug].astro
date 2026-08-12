@@ -7,7 +7,7 @@ import UsesGrid from "../components/UsesGrid.astro";
 import { collections } from "../data/collections";
 
 export function getStaticPaths() {
-  return collections.map((collection) => ({
+  return collections.filter(({ slug }) => slug !== "writing").map((collection) => ({
     params: { slug: collection.slug },
     props: { collection },
   }));
