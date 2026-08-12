@@ -140,6 +140,39 @@ const tracks = [
       "https://p.scdn.co/mp3-preview/67440a4144c851f194513610c63cb7e228e852fd",
     externalUrl: "https://open.spotify.com/track/0RRTf8bU7Z3Xgn9PLeXMsT",
   },
+  {
+    slug: "reign",
+    title: "Reign",
+    artist: "Prinzhorn Dance School",
+    album: "Home Economics",
+    artwork: "/music/reign.jpg",
+    service: "spotify",
+    previewUrl:
+      "https://p.scdn.co/mp3-preview/0a6eac02bbe9aec47b36b7126d1c0d1c142768be",
+    externalUrl: "https://open.spotify.com/track/7G8lzrLvkupGmAVs7lATlg",
+  },
+  {
+    slug: "never-knows-tomorrow",
+    title: "Never Knows Tomorrow",
+    artist: "朴树",
+    album: "猎户星座",
+    artwork: "/music/never-knows-tomorrow.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bf/58/3a/bf583a3c-bf38-ee35-35a8-ebafe175a70f/mzaf_14974285625998992908.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/never-knows-tomorrow/1438421718?i=1438421731",
+  },
+  {
+    slug: "anchor",
+    title: "Anchor",
+    artist: "Motorama",
+    album: "Horse - EP",
+    artwork: "/music/anchor.jpg",
+    previewUrl:
+      "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a9/ef/a9/a9efa998-68cb-9b64-852b-a9ce3348701b/mzaf_328478585562106662.plus.aac.p.m4a",
+    externalUrl:
+      "https://embed.music.apple.com/us/album/anchor/1501719742?i=1501719745",
+  },
 ] satisfies MusicTrackInput[];
 
 export const musicTracks: MusicTrack[] = tracks.map((track) => ({

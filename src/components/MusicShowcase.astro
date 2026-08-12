@@ -10,7 +10,7 @@ const { mode = "standalone" } = Astro.props;
 const isOverlay = mode === "overlay";
 const services: Record<MusicService, { name: string; icon: string }> = {
   "apple-music": { name: "Apple Music", icon: "ph:apple-logo-fill" },
-  spotify: { name: "Spotify", icon: "ph:spotify-logo-fill" },
+  spotify: { name: "Spotify", icon: "simple-icons:spotify" },
 };
 ---
 
@@ -385,8 +385,10 @@ const services: Record<MusicService, { name: string; icon: string }> = {
   }
 
   .music-service-icon {
-    width: 0.9rem;
-    height: 0.9rem;
+    display: block;
+    width: 0.85rem;
+    height: 0.85rem;
+    flex: 0 0 0.85rem;
   }
 
   .music-link-icon {
