@@ -14,6 +14,17 @@ pnpm install
 pnpm run deploy
 ```
 
+The homepage contribution calendar reads GitHub data through the Worker. Add a
+`GITHUB_TOKEN` secret to the `justinfor-fun` Worker before deploying. The token
+is never sent to the browser. Wrangler provisions the KV namespace declared in
+`wrangler.jsonc`, and the included Cron Trigger refreshes it daily at 00:17 UTC.
+
+For local Worker development, place the token in an ignored `.dev.vars` file:
+
+```ini
+GITHUB_TOKEN=github_pat_...
+```
+
 ## Getting Started
 
 ```sh

@@ -1,0 +1,236 @@
+---
+const githubUrl = "https://github.com/justinf0rfun";
+const placeholderWeeks = Array.from({ length: 53 }, () =>
+  Array.from({ length: 7 }, (_, weekday) => weekday),
+);
+---
+
+<section class="contributions" data-contributions aria-labelledby="contributions-title">
+  <div class="contributions-heading">
+    <h2 id="contributions-title">Contributions</h2>
+    <span data-contributions-updated aria-live="polite"></span>
+  </div>
+
+  <a
+    class="contributions-link"
+    href={githubUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="View Justin's contributions on GitHub"
+  >
+    <div
+      class="contributions-graph"
+      data-contributions-graph
+      role="img"
+      aria-label="Loading Justin's GitHub contribution activity"
+    >
+      {
+        placeholderWeeks.map((week) => (
+          <span class="contributions-week">
+            {week.map((weekday) => (
+              <span
+                class="contributions-day is-placeholder"
+                style={`grid-row:${weekday + 1}`}
+              />
+            ))}
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="contributions-footer">
+      <p data-contributions-total>GitHub activity in the last year</p>
+      <span class="contributions-legend" aria-hidden="true">
+        <span>Less</span>
+        <i class="level-0"></i>
+        <i class="level-1"></i>
+        <i class="level-2"></i>
+        <i class="level-3"></i>
+        <i class="level-4"></i>
+        <span>More</span>
+      </span>
+    </div>
+  </a>
+</section>
+
+<script>
+  interface ContributionDay {
+    color: string;
+    contributionCount: number;
+    date: string;
+    weekday: number;
+  }
+
+  interface ContributionWeek {
+    contributionDays: ContributionDay[];
+  }
+
+  interface ContributionData {
+    totalContributions: number;
+    updatedAt: string;
+    weeks: ContributionWeek[];
+  }
+
+  const formatDay = (date: string) =>
+    new Intl.DateTimeFormat("en", {
+      dateStyle: "long",
+      timeZone: "UTC",
+    }).format(new Date(`${date}T00:00:00Z`));
+
+  const renderContributions = (root: HTMLElement, data: ContributionData) => {
+    const graph = root.querySelector<HTMLElement>("[data-contributions-graph]");
+    const total = root.querySelector<HTMLElement>("[data-contributions-total]");
+    const updated = root.querySelector<HTMLElement>("[data-contributions-updated]");
+    if (!graph || !total || !updated) return;
+
+    const fragment = document.createDocumentFragment();
+
+    for (const week of data.weeks) {
+      const weekElement = document.createElement("span");
+      weekElement.className = "contributions-week";
+
+      for (const day of week.contributionDays) {
+        const dayElement = document.createElement("span");
+        dayElement.className = "contributions-day";
+        dayElement.style.backgroundColor = day.color;
+        dayElement.style.gridRow = String(day.weekday + 1);
+        dayElement.title = `${day.contributionCount} contribution${day.contributionCount === 1 ? "" : "s"} on ${formatDay(day.date)}`;
+        weekElement.append(dayElement);
+      }
+
+      fragment.append(weekElement);
+    }
+
+    graph.replaceChildren(fragment);
+    graph.style.setProperty("--contribution-weeks", String(data.weeks.length));
+    graph.setAttribute(
+      "aria-label",
+      `${data.totalContributions.toLocaleString("en-US")} GitHub contributions in the last year`,
+    );
+    total.textContent = `${data.totalContributions.toLocaleString("en-US")} contributions in the last year`;
+    updated.textContent = "GitHub";
+    root.dataset.state = "ready";
+  };
+
+  const loadContributions = async (root: HTMLElement) => {
+    try {
+      const response = await fetch("/api/contributions", {
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) throw new Error(`GitHub contributions request failed: ${response.status}`);
+      renderContributions(root, await response.json());
+    } catch {
+      const graph = root.querySelector<HTMLElement>("[data-contributions-graph]");
+      const total = root.querySelector<HTMLElement>("[data-contributions-total]");
+      if (graph) graph.setAttribute("aria-label", "GitHub contribution activity is temporarily unavailable");
+      if (total) total.textContent = "View contribution activity on GitHub";
+      root.dataset.state = "unavailable";
+    }
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-contributions]").forEach(loadContributions);
+</script>
+
+<style is:global>
+  .contributions-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--color-neutral-500);
+  }
+
+  .contributions-heading span {
+    font-size: 0.6875rem;
+    color: var(--color-neutral-400);
+  }
+
+  .contributions-link {
+    display: block;
+    margin-inline: -0.75rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    outline: none;
+    transition: background-color 180ms var(--ease-out);
+  }
+
+  .contributions-graph {
+    --contribution-weeks: 53;
+    display: grid;
+    grid-template-columns: repeat(var(--contribution-weeks), minmax(0, 1fr));
+    gap: clamp(1px, 0.25vw, 3px);
+    width: 100%;
+  }
+
+  .contributions-week {
+    display: grid;
+    grid-template-rows: repeat(7, minmax(0, 1fr));
+    gap: clamp(1px, 0.25vw, 3px);
+  }
+
+  .contributions-day {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: clamp(1px, 0.18vw, 2px);
+    background: var(--color-neutral-200);
+  }
+
+  .contributions-day.is-placeholder {
+    opacity: 0.72;
+  }
+
+  .contributions-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+  }
+
+  .contributions-legend {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .contributions-legend i {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 1px;
+    background: var(--color-neutral-200);
+  }
+
+  .contributions-legend .level-1 { background: #9be9a8; }
+  .contributions-legend .level-2 { background: #40c463; }
+  .contributions-legend .level-3 { background: #30a14e; }
+  .contributions-legend .level-4 { background: #216e39; }
+
+  .contributions[data-state="unavailable"] .contributions-graph {
+    opacity: 0.48;
+  }
+
+  .contributions-link:focus-visible {
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: 3px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .contributions-link:hover {
+      background: rgb(255 255 255 / 0.72);
+    }
+  }
+
+  @media (max-width: 420px) {
+    .contributions-footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>

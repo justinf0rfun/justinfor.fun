@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
 import Folder from "../components/Folder.astro";
+import GitHubContributions from "../components/GitHubContributions.astro";
 import MusicShowcase from "../components/MusicShowcase.astro";
 import ProjectsShowcase from "../components/ProjectsShowcase.astro";
 import UsesGrid from "../components/UsesGrid.astro";
@@ -22,6 +23,7 @@ import { folderMusicTracks } from "../data/music";
   </Fragment>
   <main class="space-y-16 pt-20 pb-8">
     <About />
+    <GitHubContributions />
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}
     </div>

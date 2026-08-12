@@ -1,9 +1,22 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "justinfor-fun",
+  "main": "./src/worker.js",
   "compatibility_date": "2026-08-01",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "CONTRIBUTIONS"
+    }
+  ],
+  "vars": {
+    "GITHUB_USERNAME": "justinf0rfun"
+  },
+  "triggers": {
+    "crons": ["17 0 * * *"]
   }
 }
