@@ -17,7 +17,7 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
-  layout?: "carousel" | "uses" | "projects" | "music" | "writing";
+  layout?: "carousel" | "uses" | "projects" | "music" | "writing" | "memory";
 }
 
 export const collections: Collection[] = [
@@ -66,6 +66,19 @@ export const collections: Collection[] = [
       ratio: "1/1",
       top: 5,
     })),
+  },
+  {
+    slug: "memory",
+    title: "Memory",
+    meta: "Photographs I want to remember",
+    layout: "memory",
+    items: [
+      { src: "/memory/retro-01.jpg", w: 29, ratio: "2/3", top: 5 },
+      { src: "/memory/retro-02.jpg", w: 38, ratio: "3/2", top: 9 },
+      { src: "/memory/retro-03.jpg", w: 28, ratio: "2/3", top: 3 },
+      { src: "/memory/retro-04.jpg", w: 30, ratio: "2/3", top: 8 },
+      { src: "/memory/retro-05.jpg", w: 29, ratio: "2/3", top: 6 },
+    ],
   },
   {
     slug: "writing",

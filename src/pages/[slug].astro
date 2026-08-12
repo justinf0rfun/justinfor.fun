@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import Carousel from "../components/Carousel.astro";
 import MusicShowcase from "../components/MusicShowcase.astro";
+import MemoryShowcase from "../components/MemoryShowcase.astro";
 import ProjectsShowcase from "../components/ProjectsShowcase.astro";
 import UsesGrid from "../components/UsesGrid.astro";
 import { collections } from "../data/collections";
@@ -17,6 +18,7 @@ const { collection } = Astro.props;
 const isUses = collection.layout === "uses";
 const isProjects = collection.layout === "projects";
 const isMusic = collection.layout === "music";
+const isMemory = collection.layout === "memory";
 ---
 
 <Layout title={`${collection.title} - Justin`} full surface={isProjects ? "projects" : undefined}>
@@ -27,6 +29,8 @@ const isMusic = collection.layout === "music";
       <ProjectsShowcase mode="standalone" />
     ) : isMusic ? (
       <MusicShowcase />
+    ) : isMemory ? (
+      <MemoryShowcase />
     ) : (
       <Carousel collection={collection} />
     )

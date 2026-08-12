@@ -1,0 +1,217 @@
+---
+interface Props {
+  mode?: "overlay" | "standalone";
+}
+
+const { mode = "standalone" } = Astro.props;
+const isOverlay = mode === "overlay";
+const memories = [
+  { src: "/memory/retro-01.jpg", alt: "Night portrait beneath red light" },
+  { src: "/memory/retro-02.jpg", alt: "Subway platform under warm fluorescent light" },
+  { src: "/memory/retro-03.jpg", alt: "Passenger resting by a train window" },
+  { src: "/memory/retro-04.jpg", alt: "Quiet city street in soft daylight" },
+  { src: "/memory/retro-05.jpg", alt: "Figure walking through an illuminated station" },
+];
+---
+
+<section
+  class:list={["memory-page", isOverlay && "is-overlay", !isOverlay && "is-open"]}
+  data-memory-stage={mode}
+  aria-hidden={isOverlay ? "true" : undefined}
+  inert={isOverlay ? true : undefined}
+>
+  <header class="memory-header" data-memory-reveal>
+    <div>
+      <h1>Memory</h1>
+      <p>{memories.length} photographs</p>
+    </div>
+    {
+      isOverlay ? (
+        <button class="memory-close" data-memory-close type="button" aria-label="Close">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 4l8 8M12 4l-8 8"></path>
+          </svg>
+        </button>
+      ) : (
+        <a class="memory-close" href="/" aria-label="Back to home">
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M4 4l8 8M12 4l-8 8"></path>
+          </svg>
+        </a>
+      )
+    }
+  </header>
+
+  <div class="memory-intro" data-memory-reveal>
+    <h2>Photographs I want to remember.</h2>
+    <p>A temporary roll while I gather my own archive.</p>
+  </div>
+
+  <ol class="memory-strip" aria-label="Photography collection">
+    {
+      memories.map((memory, index) => (
+        <li
+          class:list={["memory-item", index === 1 && "is-landscape"]}
+          data-memory-visual-target={index}
+        >
+          <figure class="memory-frame">
+            <img src={memory.src} alt={memory.alt} loading={index < 3 ? "eager" : "lazy"} />
+          </figure>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .memory-page {
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: var(--color-neutral-50);
+    color: var(--color-neutral-800);
+  }
+
+  .memory-page.is-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms var(--ease-out);
+  }
+
+  .memory-page.is-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .memory-page.is-overlay.is-carrying [data-memory-visual-target] {
+    visibility: hidden;
+  }
+
+  .memory-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 1.5rem clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .memory-header h1 {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .memory-header p {
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-500);
+  }
+
+  .memory-close {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    color: var(--color-neutral-500);
+    background: rgb(255 255 255 / 0.7);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
+    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
+  }
+
+  .memory-close:active {
+    transform: scale(0.94);
+  }
+
+  .memory-close svg {
+    width: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.5;
+  }
+
+  .memory-intro {
+    max-width: 76rem;
+    margin: clamp(2.75rem, 7vh, 5.5rem) auto 0;
+    padding: 0 clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .memory-intro h2 {
+    max-width: 18ch;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+
+  .memory-intro p {
+    margin-top: 1rem;
+    font-size: 0.925rem;
+    color: var(--color-neutral-500);
+  }
+
+  .memory-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    max-width: 76rem;
+    margin: clamp(3rem, 8vh, 7rem) auto 0;
+    padding: 0 clamp(1.25rem, 4vw, 3rem) 5rem;
+    list-style: none;
+  }
+
+  .memory-item {
+    min-width: 0;
+  }
+
+  .memory-item.is-landscape {
+    grid-column: span 2;
+  }
+
+  .memory-frame {
+    overflow: hidden;
+    border-radius: clamp(0.75rem, 1.4vw, 1.25rem);
+    background: var(--color-neutral-100);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 28px rgb(0 0 0 / 0.07);
+  }
+
+  .memory-frame img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    transition: transform 500ms var(--ease-out);
+  }
+
+  .is-landscape .memory-frame img {
+    aspect-ratio: 3 / 2;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .memory-close:hover { color: var(--color-neutral-800); }
+    .memory-frame:hover img { transform: scale(1.018); }
+  }
+
+  @media (min-width: 48rem) {
+    .memory-strip {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .memory-item { grid-column: span 4; }
+    .memory-item.is-landscape { grid-column: span 8; }
+    .memory-item:nth-child(4) { grid-column: 1 / span 4; }
+    .memory-item:nth-child(5) { grid-column: 5 / span 4; margin-top: 8vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .memory-page.is-overlay { transition-duration: 120ms; }
+    .memory-frame img { transition: none; }
+  }
+</style>
