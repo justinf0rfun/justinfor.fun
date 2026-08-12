@@ -1,0 +1,359 @@
+---
+import { GROK_EXPRESSIONS, GROK_HEAD_PATH } from "../data/grok-bot";
+---
+
+<svg
+  class="grok-bot-mark"
+  data-grok-bot-mark
+  data-state="waking"
+  viewBox="-15 -15 259 259"
+  role="img"
+  aria-label="Grok Bot"
+>
+  <defs>
+    <clipPath id="grok-bot-clip">
+      <path d={GROK_HEAD_PATH} />
+    </clipPath>
+  </defs>
+  <g data-grok-face>
+    <path d={GROK_HEAD_PATH} fill="currentColor" />
+    <g clip-path="url(#grok-bot-clip)">
+      <path data-grok-eye="0" d={GROK_EXPRESSIONS[0].eyes[0]} fill="white" />
+      <path data-grok-eye="1" d={GROK_EXPRESSIONS[0].eyes[1]} fill="white" />
+    </g>
+  </g>
+</svg>
+
+<script>
+  import { GROK_EXPRESSIONS } from "../data/grok-bot";
+  import { GROK_WAKING_EXPRESSION } from "../data/grok-bot-waking";
+
+  type ExpressionState = "waking" | "idle" | "happy" | "curious";
+  type Point = readonly [number, number];
+
+  interface Spring {
+    x: number;
+    velocity: number;
+    target: number;
+  }
+
+  const HEAD_CENTER = 114.2705;
+  const SPRING_STEP = 1 / 120;
+  const STATE_SEQUENCE: ReadonlyArray<{ state: ExpressionState; duration: number }> = [
+    { state: "waking", duration: 2200 },
+    { state: "idle", duration: 6800 },
+    { state: "happy", duration: 3200 },
+    { state: "idle", duration: 7400 },
+    { state: "curious", duration: 3600 },
+  ];
+  const EXPRESSION_POOLS: Record<ExpressionState, readonly number[]> = {
+    waking: [13],
+    idle: [0, 8],
+    happy: [2, 11, 17, 19],
+    curious: [3, 21, 0, 15],
+  };
+  const EXPRESSION_CADENCE: Record<ExpressionState, readonly [number, number]> = {
+    waking: [800, 800],
+    idle: [9000, 16000],
+    happy: [2500, 4500],
+    curious: [1800, 3200],
+  };
+  const BLINK_CADENCE: Record<ExpressionState, readonly [number, number] | null> = {
+    waking: null,
+    idle: [6000, 14000],
+    happy: [2500, 5000],
+    curious: [2500, 5500],
+  };
+
+  const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, value));
+  const spring = (value: number): Spring => ({ x: value, velocity: 0, target: value });
+
+  const stepSpring = (value: Spring, frequency: number, damping: number, delta: number) => {
+    value.velocity +=
+      (-2 * damping * frequency * value.velocity -
+        frequency * frequency * (value.x - value.target)) *
+      delta;
+    value.x += value.velocity * delta;
+  };
+
+  const pathToPoints = (path: string) =>
+    [...path.matchAll(/[ML](-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g)].map(
+      (match) => [Number(match[1]), Number(match[2])] as Point,
+    );
+
+  const ringPath = (points: ReadonlyArray<Point>) =>
+    `M${points.map(([x, y]) => `${x.toFixed(2)} ${y.toFixed(2)}`).join("L")}Z`;
+
+  const centroid = (points: ReadonlyArray<Point>) => {
+    const [x, y] = points.reduce(
+      (sum, point) => [sum[0] + point[0], sum[1] + point[1]],
+      [0, 0],
+    );
+    return [x / points.length, y / points.length] as Point;
+  };
+
+  const expressionRings = Object.fromEntries(
+    Object.entries({ ...GROK_EXPRESSIONS, 13: GROK_WAKING_EXPRESSION }).map(([key, expression]) => [
+      Number(key),
+      expression.eyes.map(pathToPoints),
+    ]),
+  ) as Record<number, Point[][]>;
+
+  const interpolateRing = (from: Point[], to: Point[], amount: number) =>
+    from.map(
+      ([x, y], index) =>
+        [x + (to[index][0] - x) * amount, y + (to[index][1] - y) * amount] as Point,
+    );
+
+  document.querySelectorAll<SVGSVGElement>("[data-grok-bot-mark]").forEach((svg) => {
+    if (svg.dataset.ready) return;
+    svg.dataset.ready = "true";
+
+    const face = svg.querySelector<SVGGElement>("[data-grok-face]");
+    const eyes = Array.from(svg.querySelectorAll<SVGPathElement>("[data-grok-eye]"));
+    if (!face || eyes.length !== 2) return;
+
+    let stateIndex = 0;
+    let state: ExpressionState = STATE_SEQUENCE[0].state;
+    let stateStartedAt = performance.now();
+    let nextStateAt = stateStartedAt + STATE_SEQUENCE[0].duration;
+    let expressionIndex = 0;
+    let currentRings = expressionRings[0].map((ring) => ring.slice());
+    let targetRings = expressionRings[0].map((ring) => ring.slice());
+    let expressionMix = spring(1);
+    let nextExpressionAt = stateStartedAt + randomBetween(...EXPRESSION_CADENCE[state]);
+    let nextBlinkAt = Infinity;
+    let blinkStartedAt = -Infinity;
+    let blinkEye = Math.random() < 0.5 ? 0 : 1;
+    let nextGazeAt = stateStartedAt;
+    let nextCuriousPopAt = Infinity;
+    let curiousPopStartedAt = -Infinity;
+    let wakingOpened = false;
+    let pointerTarget: Point | null = null;
+    let pointerX = 0;
+    let pointerY = 0;
+    let lastFrame = performance.now();
+    let frame = 0;
+    let visible = false;
+
+    const translateX = spring(0);
+    const translateY = spring(0);
+    const rotation = spring(0);
+    const scaleY = spring(1);
+    const expressionScale = spring(1);
+    const blinkScales = [spring(1), spring(1)];
+    const gazeX = spring(0);
+    const gazeY = spring(0);
+
+    currentRings = expressionRings[13].map((ring) => ring.slice());
+    targetRings = expressionRings[3].map((ring) => ring.slice());
+    expressionMix = spring(1);
+    blinkScales.forEach((value) => {
+      value.x = 0.07;
+      value.target = 0.07;
+    });
+
+    const setExpression = (index: number) => {
+      const amount = clamp(expressionMix.x, 0, 1);
+      currentRings = currentRings.map((ring, eyeIndex) =>
+        interpolateRing(ring, targetRings[eyeIndex], amount),
+      );
+      targetRings = expressionRings[index].map((ring) => ring.slice());
+      expressionMix = spring(0);
+      expressionMix.target = 1;
+      expressionIndex = index;
+    };
+
+    const changeState = (now: number) => {
+      stateIndex = stateIndex + 1 >= STATE_SEQUENCE.length ? 1 : stateIndex + 1;
+      state = STATE_SEQUENCE[stateIndex].state;
+      svg.dataset.state = state;
+      stateStartedAt = now;
+      nextStateAt = now + STATE_SEQUENCE[stateIndex].duration;
+      expressionIndex = 0;
+      setExpression(EXPRESSION_POOLS[state][0]);
+      nextExpressionAt = now + randomBetween(...EXPRESSION_CADENCE[state]);
+      const blinkCadence = BLINK_CADENCE[state];
+      nextBlinkAt = blinkCadence ? now + randomBetween(...blinkCadence) : Infinity;
+      nextGazeAt = now;
+      nextCuriousPopAt =
+        state === "curious" ? now + randomBetween(1200, 2200) : Infinity;
+    };
+
+    const updateGaze = (now: number) => {
+      let targetX = 0;
+      let targetY = 0;
+      let minimum = 2500;
+      let maximum = 5500;
+
+      if (state === "happy") {
+        targetX = 15 * randomBetween(-0.7, 0.7);
+        targetY = -9 * randomBetween(0, 0.6);
+        minimum = 1800;
+        maximum = 3400;
+      } else if (state === "curious") {
+        targetX = (Math.random() < 0.5 ? -1 : 1) * 15 * randomBetween(0.6, 1);
+        targetY = 9 * randomBetween(-1, 1);
+        minimum = 950;
+        maximum = 1900;
+      }
+
+      gazeX.target = targetX;
+      gazeY.target = targetY;
+      nextGazeAt = now + randomBetween(minimum, maximum);
+    };
+
+    const updatePointer = (event: PointerEvent) => {
+      if (!visible) return;
+      const bounds = svg.getBoundingClientRect();
+      pointerTarget = [
+        22 * clamp((event.clientX - (bounds.left + bounds.width / 2)) / bounds.width, -0.6, 0.6),
+        14 * clamp((event.clientY - (bounds.top + bounds.height / 2)) / bounds.height, -0.6, 0.6),
+      ];
+    };
+    window.addEventListener("pointermove", updatePointer, { passive: true });
+
+    const animate = (now: number) => {
+      if (!visible || document.hidden) {
+        frame = 0;
+        return;
+      }
+
+      if (now >= nextStateAt) changeState(now);
+      if (state !== "waking" && now >= nextExpressionAt) {
+        const pool = EXPRESSION_POOLS[state];
+        expressionIndex =
+          (expressionIndex + 1 + Math.floor(randomBetween(0, pool.length - 1))) % pool.length;
+        setExpression(pool[expressionIndex]);
+        nextExpressionAt = now + randomBetween(...EXPRESSION_CADENCE[state]);
+      }
+      if (now >= nextBlinkAt) {
+        blinkStartedAt = now;
+        blinkEye = Math.random() < 0.5 ? 0 : 1;
+        nextBlinkAt = now + randomBetween(...BLINK_CADENCE[state]);
+      }
+      if (state !== "waking" && now >= nextGazeAt) updateGaze(now);
+      if (now >= nextCuriousPopAt) {
+        curiousPopStartedAt = now;
+        nextCuriousPopAt = now + randomBetween(1600, 2800);
+      }
+
+      const seconds = now / 1000;
+      const stateElapsed = (now - stateStartedAt) / 1000;
+      let blinkScale = 1;
+      const blinkProgress = (now - blinkStartedAt) / 320;
+      if (blinkProgress >= 0 && blinkProgress <= 1) {
+        blinkScale = Math.max(
+          blinkProgress < 0.42
+            ? 1 - blinkProgress / 0.42
+            : (blinkProgress - 0.42) / 0.58,
+          0.04,
+        );
+      }
+
+      let wakingEyeScale = 1;
+      if (state === "waking") {
+        rotation.target = 0;
+        translateX.target = 0;
+        translateY.target = stateElapsed < 0.5 ? 6 : stateElapsed < 1.2 ? -5 : 0;
+        scaleY.target = stateElapsed < 0.5 ? 1 : stateElapsed < 1.2 ? 1.04 : 1;
+        expressionScale.target = stateElapsed >= 0.5 && stateElapsed < 1.2 ? 1.12 : 1;
+        wakingEyeScale = stateElapsed < 0.5 ? 0.07 : 1;
+        if (stateElapsed >= 1.2 && !wakingOpened) {
+          setExpression(0);
+          wakingOpened = true;
+        }
+      } else if (state === "idle") {
+        rotation.target = 1.5 * Math.sin(0.5 * seconds) + 0.6 * Math.sin(0.17 * seconds);
+        translateX.target = Math.sin(0.27 * seconds);
+        translateY.target = 1.2 * Math.sin(0.85 * seconds);
+        scaleY.target = 1 + 0.007 * Math.sin(0.85 * seconds);
+        expressionScale.target = 1;
+      } else if (state === "happy") {
+        const pulse = Math.sin(2.4 * seconds);
+        rotation.target = 3 * Math.sin(1.2 * seconds);
+        translateX.target = 2.5 * Math.sin(1.1 * seconds);
+        translateY.target = -3 * Math.abs(pulse);
+        scaleY.target = 1 + 0.02 * pulse;
+        expressionScale.target = 1.05;
+      } else {
+        rotation.target = 10 + 6 * Math.sin(0.7 * seconds);
+        translateX.target = 5 * Math.sin(0.6 * seconds);
+        translateY.target = -2 + 1.5 * Math.sin(0.9 * seconds);
+        scaleY.target = 1.01;
+        expressionScale.target = 1.08;
+        const popProgress = (now - curiousPopStartedAt) / 440;
+        if (popProgress >= 0 && popProgress <= 1) {
+          rotation.target += 5 * Math.sin(popProgress * Math.PI);
+          translateX.target += 8 * Math.sin(popProgress * Math.PI);
+        }
+      }
+      blinkScales.forEach((value, eyeIndex) => {
+        value.target =
+          state === "waking"
+            ? wakingEyeScale
+            : eyeIndex === blinkEye
+              ? Math.max(blinkScale, 0.04)
+              : 1;
+      });
+
+      const pointerSmoothing = 1 - Math.exp(60 * Math.log(0.91) * Math.min((now - lastFrame) / 1000, 0.1));
+      pointerX += ((pointerTarget?.[0] ?? 0) - pointerX) * pointerSmoothing;
+      pointerY += ((pointerTarget?.[1] ?? 0) - pointerY) * pointerSmoothing;
+
+      const delta = Math.min((now - lastFrame) / 1000, 0.1);
+      lastFrame = now;
+      const steps = Math.max(1, Math.ceil(delta / SPRING_STEP));
+      const step = delta / steps;
+      for (let index = 0; index < steps; index += 1) {
+        stepSpring(expressionMix, 7, 1, step);
+        stepSpring(rotation, 5, 0.9, step);
+        stepSpring(translateX, 3.5, 1, step);
+        stepSpring(translateY, 4, 1, step);
+        stepSpring(scaleY, 10, 0.8, step);
+        stepSpring(expressionScale, 9, 0.85, step);
+        blinkScales.forEach((value) => stepSpring(value, 26, 1, step));
+        stepSpring(gazeX, 13, 1, step);
+        stepSpring(gazeY, 13, 1, step);
+      }
+
+      const mix = clamp(expressionMix.x, 0, 1);
+      const randomGazeWeight = pointerTarget ? 0.4 : 1;
+      eyes.forEach((eye, eyeIndex) => {
+        const ring = interpolateRing(currentRings[eyeIndex], targetRings[eyeIndex], mix);
+        const [centerX, centerY] = centroid(ring);
+        eye.setAttribute("d", ringPath(ring));
+        eye.setAttribute(
+          "transform",
+          `translate(${(centerX + gazeX.x * randomGazeWeight + pointerX).toFixed(2)} ${(centerY + gazeY.x * randomGazeWeight + pointerY).toFixed(2)}) scale(${expressionScale.x.toFixed(4)} ${(expressionScale.x * blinkScales[eyeIndex].x).toFixed(4)}) translate(${(-centerX).toFixed(2)} ${(-centerY).toFixed(2)})`,
+        );
+      });
+      face.setAttribute(
+        "transform",
+        `translate(${(HEAD_CENTER + translateX.x).toFixed(2)} ${(HEAD_CENTER + translateY.x).toFixed(2)}) rotate(${rotation.x.toFixed(2)}) scale(1 ${scaleY.x.toFixed(4)}) translate(${-HEAD_CENTER} ${-HEAD_CENTER})`,
+      );
+      frame = requestAnimationFrame(animate);
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = Boolean(entry?.isIntersecting);
+      if (visible && !document.hidden && !frame) {
+        lastFrame = performance.now();
+        frame = requestAnimationFrame(animate);
+      } else if (!visible && frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+    });
+    observer.observe(svg);
+
+    document.addEventListener("visibilitychange", () => {
+      if (visible && !document.hidden && !frame) {
+        lastFrame = performance.now();
+        frame = requestAnimationFrame(animate);
+      }
+    });
+  });
+</script>

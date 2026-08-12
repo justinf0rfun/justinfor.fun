@@ -3,6 +3,7 @@ export interface UseItem {
   slogan: string;
   logo: string;
   href: string;
+  animatedLogo?: "grok-bot";
   badge?: string;
   featured?: boolean;
   visualTreatment?: "banner";
@@ -31,6 +32,13 @@ export const useSections: UseSection[] = [
       {
         title: "Products",
         items: [
+          {
+            name: "Grok Bot",
+            slogan: "AI teammates you can give real work to.",
+            logo: "/uses/ai/grok-bot.svg",
+            href: "https://x.ai/bot",
+            animatedLogo: "grok-bot",
+          },
           {
             name: "ChatGPT",
             slogan: "Helps you think, write, and solve problems.",

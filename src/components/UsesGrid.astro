@@ -1,5 +1,6 @@
 ---
 import { folderPreviewUses, hardwareUses, useSections } from "../data/uses";
+import GrokBotMark from "./GrokBotMark.astro";
 
 interface Props {
   mode: "overlay" | "standalone";
@@ -73,12 +74,16 @@ const isOverlay = mode === "overlay";
                           ]}
                           data-use-logo-target={isPreview ? String(previewIndex) : undefined}
                         >
-                          <img
-                            data-use-preview-logo={isPreview ? "" : undefined}
-                            src={item.logo}
-                            alt=""
-                            loading={isPreview ? "eager" : "lazy"}
-                          />
+                          {item.animatedLogo === "grok-bot" ? (
+                            <GrokBotMark />
+                          ) : (
+                            <img
+                              data-use-preview-logo={isPreview ? "" : undefined}
+                              src={item.logo}
+                              alt=""
+                              loading={isPreview ? "eager" : "lazy"}
+                            />
+                          )}
                         </span>
                         <span class="software-details">
                           <span class="software-copy">
@@ -232,8 +237,8 @@ const isOverlay = mode === "overlay";
     display: flex;
     gap: 1rem;
     overflow-x: auto;
-    margin-block: -0.25rem;
-    padding: 0.25rem var(--uses-gutter) 0.25rem 0;
+    margin: -0.25rem 0 -1.5rem;
+    padding: 0.25rem var(--uses-gutter) 1.5rem 0;
     overscroll-behavior-inline: contain;
     scroll-padding-inline: 0.25rem;
     scroll-snap-type: inline proximity;
@@ -258,14 +263,12 @@ const isOverlay = mode === "overlay";
     overflow: hidden;
     border-radius: 1.125rem;
     background: rgb(255 255 255 / 0.82);
-    box-shadow:
-      0 0 0 1px rgb(0 0 0 / 0.045),
-      0 2px 4px rgb(0 0 0 / 0.035),
-      0 10px 22px rgb(0 0 0 / 0.05);
+    border: 1px solid var(--color-neutral-300);
   }
 
   .software-card {
     position: relative;
+    z-index: 0;
     display: flex;
     min-height: 7.25rem;
     flex-direction: column;
@@ -292,6 +295,14 @@ const isOverlay = mode === "overlay";
     width: 100%;
     height: 100%;
     object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.1));
+  }
+
+  :global(.grok-bot-mark) {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    color: #0a0a0a;
     filter: drop-shadow(0 2px 5px rgb(0 0 0 / 0.1));
   }
 
@@ -457,11 +468,9 @@ const isOverlay = mode === "overlay";
 
     .software-card:hover,
     .software-card:focus-visible {
+      z-index: 1;
       transform: translateY(-2px);
-      box-shadow:
-        0 0 0 1px rgb(0 0 0 / 0.05),
-        0 4px 9px rgb(0 0 0 / 0.05),
-        0 20px 38px rgb(0 0 0 / 0.08);
+      box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.2);
     }
   }
 
