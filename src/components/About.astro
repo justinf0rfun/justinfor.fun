@@ -26,40 +26,46 @@
       <p class="mt-0.5 leading-tight text-neutral-500">AI Agent Engineer</p>
     </div>
   </div>
-  <div class="mt-6 space-y-2 text-pretty text-[#646464] leading-relaxed">
-    <p>
-      AI-era builder | Indie builder Rethinking building and roles in the age of AI.
-    </p>
-    <p>
-      I’m currently an AI agent engineer based in
-      {" "}
-      <span class="location-preview">
-        <a
-          href="https://www.openstreetmap.org/?mlat=39.9042&mlon=116.4074#map=12/39.9042/116.4074"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="location-link font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
-        >Beijing</a>
-        <span class="location-card" aria-hidden="true">
-          <iframe
-            class="location-map"
-            title="Map of Beijing, China"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=116.25%2C39.78%2C116.55%2C40.02&layer=mapnik&marker=39.9042%2C116.4074"
-            loading="eager"
-            tabindex="-1"
-          ></iframe>
-          <span class="location-caption">
-            <span>
-              <strong>Beijing</strong>
-              <small>北京 · China</small>
+  <div class="about-points">
+    <section>
+      <h2>AI-era builder. Indie builder.</h2>
+      <p>Rethinking building and roles in the age of AI.</p>
+    </section>
+
+    <section>
+      <h2>
+        Currently building agents in{" "}
+        <span class="location-preview">
+          <a
+            href="https://www.openstreetmap.org/?mlat=39.9042&mlon=116.4074#map=12/39.9042/116.4074"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="location-link underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
+          >Beijing</a>
+          <span class="location-card" aria-hidden="true">
+            <iframe
+              class="location-map"
+              title="Map of Beijing, China"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=116.25%2C39.78%2C116.55%2C40.02&layer=mapnik&marker=39.9042%2C116.4074"
+              loading="eager"
+              tabindex="-1"
+            ></iframe>
+            <span class="location-caption">
+              <span>
+                <strong>Beijing</strong>
+                <small>北京 · China</small>
+              </span>
+              <span class="location-coordinates">39.9042° N<br />116.4074° E</span>
             </span>
-            <span class="location-coordinates">39.9042° N<br />116.4074° E</span>
           </span>
-        </span>
-      </span>, China. I love music and building playful things.
-    </p>
-    <p>
-      Previously, I worked at{" "}
+        </span>, China.
+      </h2>
+      <p>I’m an AI agent engineer who loves music and building playful things.</p>
+    </section>
+
+    <section>
+      <h2>
+        Previously, I worked at{" "}
       <a
         href="https://www.didiglobal.com/"
         target="_blank"
@@ -75,26 +81,50 @@
         />
         DiDi
       </a>{" "}
-      and a few other companies. You can reach me on
-      {" "}
-      <a
-        href="https://x.com/justinforfun"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
-      >X</a>, or see my code on
-      {" "}
-      <a
-        href="https://github.com/justinf0rfun"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
-      >GitHub</a>.
-    </p>
+        and a few other companies.
+      </h2>
+      <p>
+        You can reach me on{" "}
+        <a
+          href="https://x.com/justinforfun"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
+        >X</a>, or see my code on{" "}
+        <a
+          href="https://github.com/justinf0rfun"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-medium text-neutral-800 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-neutral-950"
+        >GitHub</a>.
+      </p>
+    </section>
   </div>
 </div>
 
 <style>
+  .about-points {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+    text-wrap: pretty;
+  }
+
+  .about-points h2,
+  .about-points p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .about-points h2 {
+    color: #282828;
+    font-weight: 500;
+  }
+
+  .about-points p {
+    color: #717171;
+  }
+
   .location-preview {
     position: relative;
     display: inline-block;
@@ -193,6 +223,12 @@
     .location-preview:focus-within .location-card,
     .location-preview:hover .location-card {
       transform: none;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .about-points {
+      gap: 1rem;
     }
   }
 </style>

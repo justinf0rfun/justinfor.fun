@@ -83,7 +83,7 @@ export const collections: Collection[] = [
   {
     slug: "writing",
     title: "Writing",
-    meta: "1 post",
+    meta: "4 posts",
     layout: "writing",
     items: [
       {

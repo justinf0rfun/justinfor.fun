@@ -14,7 +14,8 @@ const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
+    month: "short",
+    day: "numeric",
     timeZone: "UTC",
   }).format(date);
 ---
@@ -45,20 +46,20 @@ const formatDate = (date: Date) =>
       }
     </header>
 
-    <div class="writing-list">
+    <div class="writing-timeline">
       {posts.map((post, index) => (
         <article
+          class="writing-entry"
           data-writing-reveal
           data-writing-paper-target={index === 0 ? "" : undefined}
         >
+          <time datetime={post.data.publishedAt.toISOString()}>
+            <span>{formatDate(post.data.publishedAt)}</span>
+            <span>{post.data.publishedAt.getUTCFullYear()}</span>
+          </time>
           <a href={`/writing/${post.id}`}>
-            <div>
-              <h2>{post.data.title}</h2>
-              <p>{post.data.description}</p>
-            </div>
-            <time datetime={post.data.publishedAt.toISOString()}>
-              {formatDate(post.data.publishedAt)}
-            </time>
+            <h2>{post.data.title}</h2>
+            <p>{post.data.description}</p>
           </a>
         </article>
       ))}
@@ -138,25 +139,72 @@ const formatDate = (date: Date) =>
     transform: scale(0.94);
   }
 
-  .writing-list article + article {
-    border-top: 1px solid var(--color-neutral-200);
+  .writing-timeline {
+    position: relative;
   }
 
-  .writing-list a {
+  .writing-timeline::before {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 6.1rem;
+    width: 1px;
+    content: "";
+    background: var(--color-neutral-200);
+  }
+
+  .writing-entry {
+    position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2rem;
-    padding-block: 1.25rem;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: 2.25rem;
+    padding-block: 1.4rem;
+  }
+
+  .writing-entry::before {
+    position: absolute;
+    top: 1.82rem;
+    left: 5.84rem;
+    z-index: 1;
+    width: 0.5625rem;
+    height: 0.5625rem;
+    border: 2px solid var(--color-neutral-50);
+    border-radius: 999px;
+    content: "";
+    background: var(--color-neutral-300);
+  }
+
+  .writing-entry:first-child::before {
+    background: #dc6a4b;
+  }
+
+  .writing-entry > time {
+    display: grid;
+    align-content: start;
+    padding-top: 0.1rem;
+    color: var(--color-neutral-400);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    text-align: right;
+  }
+
+  .writing-entry > time span:last-child {
+    color: var(--color-neutral-300);
+  }
+
+  .writing-entry a {
+    display: block;
+    min-width: 0;
     outline: none;
   }
 
-  .writing-list h2 {
+  .writing-entry h2 {
     color: var(--color-neutral-800);
     font-size: 1rem;
     font-weight: 500;
   }
 
-  .writing-list p {
+  .writing-entry p {
     max-width: 36rem;
     margin-top: 0.35rem;
     color: var(--color-neutral-500);
@@ -164,14 +212,7 @@ const formatDate = (date: Date) =>
     line-height: 1.5;
   }
 
-  .writing-list time {
-    padding-top: 0.125rem;
-    color: var(--color-neutral-400);
-    font-size: 0.75rem;
-    white-space: nowrap;
-  }
-
-  .writing-list a:focus-visible {
+  .writing-entry a:focus-visible {
     border-radius: 0.5rem;
     outline: 2px solid var(--color-neutral-800);
     outline-offset: 0.4rem;
@@ -182,7 +223,7 @@ const formatDate = (date: Date) =>
       color: var(--color-neutral-800);
     }
 
-    .writing-list a:hover h2 {
+    .writing-entry a:hover h2 {
       color: var(--color-neutral-950);
     }
   }
@@ -197,9 +238,26 @@ const formatDate = (date: Date) =>
       margin-bottom: 3.5rem;
     }
 
-    .writing-list a {
-      grid-template-columns: 1fr;
-      gap: 0.6rem;
+    .writing-timeline::before {
+      left: 0.25rem;
+    }
+
+    .writing-entry {
+      display: block;
+      padding: 1.1rem 0 1.1rem 1.5rem;
+    }
+
+    .writing-entry::before {
+      top: 1.45rem;
+      left: 0;
+    }
+
+    .writing-entry > time {
+      display: flex;
+      gap: 0.3rem;
+      margin-bottom: 0.4rem;
+      padding: 0;
+      text-align: left;
     }
   }
 </style>

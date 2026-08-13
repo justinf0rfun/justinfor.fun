@@ -10,6 +10,7 @@ colors:
   neutral-body: "oklch(43.9% 0 0)"
   neutral-strong: "oklch(26.9% 0 0)"
   neutral-ink: "oklch(14.5% 0 0)"
+  timeline-accent: "#dc6a4b"
   alpha-ink: "#0d6b35"
   alpha-wash: "#e6f7ec"
   live-ink: "#126a5a"
@@ -96,6 +97,8 @@ The visual system is evidence-led: real interfaces and official project imagery 
 - Restrained system typography with compact labels and decisive, tightly tracked project titles.
 - Official imagery carries product identity; interface chrome remains quiet.
 - Small, truthful status cues and subtle press or lift feedback make state legible.
+- Personal statements use a dark point followed by a softer explanation, so conviction and context remain distinct.
+- Dated writing uses a quiet chronological rail; tools no longer in active use move to an explicit Archived shelf.
 
 ## Colors
 
@@ -113,6 +116,7 @@ The palette is an achromatic work surface with sparse semantic washes; project-s
 ### Tertiary
 
 - **Notice Amber:** A warm amber pairing is reserved for compact notices and badges.
+- **Timeline Terracotta:** A single muted warm marker identifies the newest writing entry.
 
 ### Neutral
 
@@ -145,6 +149,7 @@ The palette is an achromatic work surface with sparse semantic washes; project-s
 - **Body** (400, 1rem, 1.55): Short project summaries and primary descriptive prose; keep line lengths compact.
 - **Label** (500, 0.75rem, 1.25): Section labels, stage metadata, and terse navigation hints.
 - **Micro status** (600, 0.625rem, 0.035em): Compact maturity or state cues only.
+- **Point / explanation pair** (500 / 400, 1rem, 1.55): Dark strong-neutral viewpoint followed immediately by body-gray context.
 
 ### Named Rules
 
@@ -154,7 +159,7 @@ The palette is an achromatic work surface with sparse semantic washes; project-s
 
 ## Layout
 
-The home surface is a narrow centered column with a two-column folder grid. Full-screen collection surfaces replace that shell with edge-pinned stage chrome and content appropriate to the collection: centered carousel objects, horizontally scrollable tool rows, or editorial project sections.
+The home surface is a narrow centered column with a two-column folder grid. Its introduction stacks short point / explanation pairs before the contribution graph and folders. Full-screen collection surfaces replace that shell with edge-pinned stage chrome and content appropriate to the collection: centered carousel objects, horizontally scrollable tool rows, chronological writing, or editorial project sections.
 
 Use generous separation between independent content groups and tighter rhythm within a group. Stage headers sit 1.5rem from the viewport edges. Projects use a centered container capped at 72rem with three-rem total side clearance, then pair image and copy in an asymmetric 8/4 relationship. At 760px and below, each project becomes a single column with the official image above its copy. This alternating desktop composition is specific to Projects and should not be copied to unrelated surfaces.
 
@@ -165,6 +170,8 @@ Scrollable rows preserve a visible continuation beyond the viewport and use prox
 **The Artifact Chooses the Layout Rule.** Reuse the neutral stage and spatial restraint, then choose a composition that fits the evidence being shown.
 
 **The Image Leads on Mobile Rule.** On responsive project rows, place the product image before copy regardless of desktop alternation.
+
+**The Chronology Has a Spine Rule.** Writing dates sit beside a continuous quiet rail on wide screens and collapse into an inset left rail on phones; the newest entry receives the only warm marker.
 
 ## Elevation & Depth
 
@@ -239,6 +246,23 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 
 - **Style:** A fixed or edge-pinned header pairs a small title and muted metadata with a round close control.
 - **Background:** Use a near-white fade when content scrolls beneath the bar; use translucent blur only where an overlay stage requires spatial continuity.
+
+### Viewpoint Pairs
+
+- **Point:** One concise, medium-weight sentence in strong neutral.
+- **Explanation:** One immediately adjacent sentence in body gray; it adds evidence or personality without competing with the point.
+- **Rhythm:** Keep each pair tight internally and use a full body-leading gap between pairs.
+
+### Writing Timeline
+
+- **Wide screens:** Date and year sit in a narrow right-aligned column, separated from the article by a one-pixel rail and small round marker.
+- **Small screens:** The rail moves to the left edge; date, year, title, and summary stack in natural reading order.
+- **State:** Only the newest article uses the warm accent marker. Older entries stay neutral.
+
+### Archived Tools
+
+- **Meaning:** Archived contains products Justin used previously, not recommendations for his current setup.
+- **Presentation:** Reuse the compact software-card structure and official app icon, with concise past-tense-neutral descriptions and no featured state.
 
 ## Do's and Don'ts
 

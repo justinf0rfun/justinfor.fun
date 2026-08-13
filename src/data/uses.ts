@@ -189,6 +189,39 @@ export const useSections: UseSection[] = [
       },
     ],
   },
+  {
+    title: "Archived",
+    groups: [
+      {
+        items: [
+          {
+            name: "Amie Calendar",
+            slogan: "A joyful calendar for events, tasks, and email.",
+            logo: "/uses/archived/amie.jpg",
+            href: "https://amie.so/",
+          },
+          {
+            name: "Arc Browser",
+            slogan: "A browser built around spaces and vertical tabs.",
+            logo: "/uses/archived/arc.png",
+            href: "https://arc.net/",
+          },
+          {
+            name: "HEY Email",
+            slogan: "Email with screening, focused views, and fewer interruptions.",
+            logo: "/uses/archived/hey.png",
+            href: "https://www.hey.com/",
+          },
+          {
+            name: "Things 3",
+            slogan: "A calm personal task manager for Apple devices.",
+            logo: "/uses/archived/things-3.png",
+            href: "https://culturedcode.com/things/",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export const hardwareUses: HardwareUse[] = [

@@ -16,7 +16,10 @@ const { title = "Justin", full = false, surface } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/justin-avatar.png" />
+    <meta property="og:site_name" content="Justin" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <slot name="head" />
