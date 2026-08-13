@@ -247,6 +247,12 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 - **Style:** A fixed or edge-pinned header pairs a small title and muted metadata with a round close control.
 - **Background:** Use a near-white fade when content scrolls beneath the bar; use translucent blur only where an overlay stage requires spatial continuity.
 
+### Local Time Footer
+
+- **Purpose:** Close the home page, Writing index, and each article with Justin's live Beijing time, echoing the location preview in the introduction.
+- **Style:** A single left-aligned tabular label in muted neutral, written naturally as `11:25pm in Beijing, China` without a container or divider.
+- **Behavior:** Format in China Standard Time regardless of the visitor's location; update in place without drawing attention.
+
 ### Viewpoint Pairs
 
 - **Point:** One concise, medium-weight sentence in strong neutral.

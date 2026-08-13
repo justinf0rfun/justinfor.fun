@@ -1,0 +1,46 @@
+<footer class="local-time-footer" aria-label="Local time in Beijing">
+  <time data-beijing-time title="China Standard Time (UTC+8)">--:-- in Beijing, China</time>
+</footer>
+
+<style>
+  .local-time-footer {
+    width: 100%;
+    margin-inline: auto;
+    margin-top: 4rem;
+    color: var(--color-neutral-400);
+    font-size: 0.75rem;
+    line-height: 1.25;
+  }
+
+  .local-time-footer time {
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<script>
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  const updateBeijingTime = () => {
+    const now = new Date();
+    const parts = Object.fromEntries(
+      formatter
+        .formatToParts(now)
+        .filter(({ type }) => type !== "literal")
+        .map(({ type, value }) => [type, value]),
+    );
+    const localTime = `${parts.hour}:${parts.minute}${parts.dayPeriod.toLowerCase()}`;
+
+    document.querySelectorAll<HTMLTimeElement>("[data-beijing-time]").forEach((time) => {
+      time.dateTime = now.toISOString();
+      time.textContent = `${localTime} in Beijing, China`;
+    });
+  };
+
+  updateBeijingTime();
+  window.setInterval(updateBeijingTime, 30_000);
+</script>

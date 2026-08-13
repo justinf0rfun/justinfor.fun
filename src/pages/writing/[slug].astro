@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import ArticleToc from "../../components/ArticleToc.astro";
+import LocalTimeFooter from "../../components/LocalTimeFooter.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
@@ -44,6 +45,7 @@ const { Content, headings } = await render(post);
       </header>
       <Content />
     </article>
+    <LocalTimeFooter />
   </main>
 </Layout>
 

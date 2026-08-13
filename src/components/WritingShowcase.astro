@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { Icon } from "astro-icon/components";
+import LocalTimeFooter from "./LocalTimeFooter.astro";
 
 interface Props {
   mode: "overlay" | "standalone";
@@ -64,6 +65,8 @@ const formatDate = (date: Date) =>
         </article>
       ))}
     </div>
+
+    <LocalTimeFooter />
   </div>
 </main>
 
