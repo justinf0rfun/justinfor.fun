@@ -65,6 +65,12 @@ export const useSections: UseSection[] = [
         title: "Trying Now",
         items: [
           {
+            name: "Berd",
+            slogan: "Less chatting, more building.",
+            logo: "/uses/ai/berd.svg",
+            href: "https://berd.xyz/",
+          },
+          {
             name: "Avec",
             slogan: "The best way to write emails.",
             logo: "/uses/ai/avec.png",
