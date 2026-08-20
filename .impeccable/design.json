@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-08T09:08:29Z",
+  "generatedAt": "2026-08-20T17:34:08Z",
   "title": "Design System: Justin",
   "extensions": {
     "colorMeta": {
@@ -42,8 +42,10 @@
       { "name": "stage-fade", "value": "240ms cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Overlay stage opacity transitions." }
     ],
     "breakpoints": [
+      { "name": "narrow-single-column", "value": "352px" },
       { "name": "compact-card", "value": "480px" },
-      { "name": "project-stack", "value": "760px" }
+      { "name": "project-stack", "value": "760px" },
+      { "name": "responsive-collections", "value": "896px" }
     ]
   },
   "components": [
@@ -100,6 +102,20 @@
       "description": "Large official product image with quiet editorial lift.",
       "html": "<a class=\"ds-project-media\" href=\"#\"><span>Official product interface</span></a>",
       "css": ".ds-project-media { display:grid; width:100%; aspect-ratio:1200/630; place-items:center; overflow:hidden; border-radius:1.25rem; color:var(--color-neutral-500); background:white; box-shadow:0 1px 2px rgb(0 0 0 / .05),0 14px 42px rgb(0 0 0 / .09); font-size:.875rem; transition:transform 220ms var(--ease-out),box-shadow 220ms var(--ease-out); } .ds-project-media:hover { transform:translateY(-3px); box-shadow:0 2px 4px rgb(0 0 0 / .05),0 22px 54px rgb(0 0 0 / .12); } .ds-project-media:focus-visible { outline:2px solid var(--color-neutral-800); outline-offset:3px; }"
+    },
+    {
+      "name": "Monthly Film Roll",
+      "kind": "custom",
+      "description": "Month-scoped photography strip that becomes a two-column contact sheet on mobile and tablet.",
+      "html": "<section class=\"ds-film-roll\" aria-label=\"August 2026 photographs\"><img src=\"https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-bookstore.jpg\" alt=\"Bookstore on a Xiamen street\"><img src=\"https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-doorway.jpg\" alt=\"Sunlit doorway in Xiamen\"><img src=\"https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-street.jpg\" alt=\"Colorful Xiamen street\"><img src=\"https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-store.jpg\" alt=\"Neighborhood convenience store\"></section>",
+      "css": ".ds-film-roll { display:flex; gap:.3rem; overflow:hidden; border-radius:1.25rem; background:var(--color-neutral-100); box-shadow:0 0 0 1px rgb(0 0 0 / .04); } .ds-film-roll img { display:block; min-width:0; flex:1 1 0; aspect-ratio:4/3; object-fit:cover; } @media (max-width:56rem) { .ds-film-roll { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } .ds-film-roll img { width:100%; } } @media (max-width:22rem) { .ds-film-roll { grid-template-columns:1fr; } }"
+    },
+    {
+      "name": "Saved X Feed Item",
+      "kind": "custom",
+      "description": "Unboxed source post in a chronological saved-items feed, with room for Justin's optional editorial take above it.",
+      "html": "<article class=\"ds-x-post\"><header><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M14.234 10.162L22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299l-.929-1.329L3.076 1.56h3.182l5.965 8.532l.929 1.329l7.754 11.09h-3.182z\"/></svg><strong>Andrew Ng</strong><span>@AndrewYNg</span><time>Aug 14, 2026</time></header><p>New: A map of the most important skills in AI Engineering.</p><footer><span>Saved Aug 21, 2026</span><a href=\"#\">Open on X ↗</a></footer></article>",
+      "css": ".ds-x-post { max-width:38rem; padding:2rem 0; border-top:1px solid var(--color-neutral-200); color:var(--color-neutral-800); font-family:\"SF Compact\",-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif; } .ds-x-post header { display:flex; align-items:center; gap:.5rem; } .ds-x-post header svg { width:1.125rem; height:1.125rem; } .ds-x-post header strong { font-size:.875rem; font-weight:600; } .ds-x-post header span,.ds-x-post header time,.ds-x-post footer { color:var(--color-neutral-400); font-size:.75rem; } .ds-x-post header time { margin-left:auto; } .ds-x-post>p { margin:1rem 0 0; font-size:1rem; line-height:1.6; } .ds-x-post footer { display:flex; justify-content:space-between; margin-top:1rem; } .ds-x-post footer a { color:var(--color-neutral-500); font-weight:500; text-decoration:none; } .ds-x-post footer a:hover { color:var(--color-neutral-800); }"
     }
   ],
   "narrative": {
@@ -110,7 +126,9 @@
       "Soft physical depth assembled from faint edge, contact, form, and ambient shadows.",
       "Restrained system typography with compact labels and decisive, tightly tracked project titles.",
       "Official imagery carries product identity; interface chrome remains quiet.",
-      "Small, truthful status cues and subtle press or lift feedback make state legible."
+      "Small, truthful status cues and subtle press or lift feedback make state legible.",
+      "Personal statements use a dark point followed by a softer explanation, so conviction and context remain distinct.",
+      "Dated writing uses a quiet chronological rail; tools no longer in active use move to an explicit Archived shelf."
     ],
     "rules": [
       { "name": "The Borrowed Color Rule", "body": "Let official product imagery carry product color; keep shared site chrome neutral and use semantic hues only for precise status communication.", "section": "colors" },
@@ -119,6 +137,7 @@
       { "name": "The Small Chrome Rule", "body": "Persistent stage chrome stays between 0.75rem and 0.875rem so the artifact remains the visual subject.", "section": "typography" },
       { "name": "The Artifact Chooses the Layout Rule", "body": "Reuse the neutral stage and spatial restraint, then choose a composition that fits the evidence being shown.", "section": "layout" },
       { "name": "The Image Leads on Mobile Rule", "body": "On responsive project rows, place the product image before copy regardless of desktop alternation.", "section": "layout" },
+      { "name": "The Chronology Has a Spine Rule", "body": "Writing dates sit beside a continuous quiet rail on wide screens and collapse into an inset left rail on phones; the newest entry receives the only warm marker.", "section": "layout" },
       { "name": "The Three-Layer Light Rule", "body": "For major physical objects, combine faint contact, form, and ambient layers; one dark drop shadow is outside the system.", "section": "elevation" },
       { "name": "The Quiet at Rest Rule", "body": "Lift becomes more legible on hover or active state, while resting surfaces stay calm.", "section": "elevation" },
       { "name": "The Object, Not Container Rule", "body": "A logo already has a silhouette and should not be boxed in a second arbitrary card shape.", "section": "shapes" },

@@ -5,6 +5,7 @@ import MusicShowcase from "../components/MusicShowcase.astro";
 import MemoryShowcase from "../components/MemoryShowcase.astro";
 import ProjectsShowcase from "../components/ProjectsShowcase.astro";
 import UsesGrid from "../components/UsesGrid.astro";
+import XBookmarksShowcase from "../components/XBookmarksShowcase.astro";
 import { collections } from "../data/collections";
 
 export function getStaticPaths() {
@@ -19,6 +20,7 @@ const isUses = collection.layout === "uses";
 const isProjects = collection.layout === "projects";
 const isMusic = collection.layout === "music";
 const isMemory = collection.layout === "memory";
+const isXBookmarks = collection.layout === "x-bookmarks";
 ---
 
 <Layout title={`${collection.title} - Justin`} full surface={isProjects ? "projects" : undefined}>
@@ -31,6 +33,8 @@ const isMemory = collection.layout === "memory";
       <MusicShowcase />
     ) : isMemory ? (
       <MemoryShowcase />
+    ) : isXBookmarks ? (
+      <XBookmarksShowcase mode="standalone" />
     ) : (
       <Carousel collection={collection} />
     )

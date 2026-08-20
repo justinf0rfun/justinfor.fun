@@ -285,6 +285,14 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 - **Mobile and tablet:** Shelves become a two-column grid with no horizontal overflow; exceptionally narrow screens collapse to one column.
 - **Type:** Preserve the normal card hierarchy on mobile instead of shrinking secondary copy below the readable small-text step.
 
+### Saved X Feed
+
+- **Sequence:** Saved posts form one centered reading column ordered by the time Justin saved them, not by the original publication date.
+- **Personal layer:** Justin's optional `My take` appears before the source post and carries the strongest editorial emphasis; never fabricate it when absent.
+- **Source layer:** Preserve author name, handle, publication date, post text, and a direct link to the canonical X URL. Media-only posts resolve to an honest source link rather than a fake preview.
+- **Structure:** Entries are separated by rhythm and hairlines, not boxed into a card grid. Desktop and mobile keep the same information order.
+- **Failure:** If an original becomes unavailable, keep Justin's thought and replace the source snapshot with a concise unavailable state.
+
 ## Do's and Don'ts
 
 ### Do:

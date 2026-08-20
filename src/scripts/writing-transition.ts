@@ -7,6 +7,13 @@ interface WritingSource {
   items: HTMLElement[];
 }
 
+interface PaperTransitionOptions {
+  targetSelector: string;
+  revealSelector: string;
+  stateKey: string;
+  sourceHiddenClass: string;
+}
+
 interface Pose {
   x: number;
   y: number;
@@ -60,11 +67,11 @@ const readingPose = (target: HTMLElement, size: Size): Pose => {
   };
 };
 
-/** Carries the folder's paper into the Writing list and back again. */
-export function createWritingTransition(overlay: HTMLElement) {
-  const target = overlay.querySelector<HTMLElement>("[data-writing-paper-target]");
+/** Carries one folder paper into a reading list and back again. */
+function createPaperTransition(overlay: HTMLElement, options: PaperTransitionOptions) {
+  const target = overlay.querySelector<HTMLElement>(options.targetSelector);
   const reveals = [
-    ...overlay.querySelectorAll<HTMLElement>("[data-writing-reveal]"),
+    ...overlay.querySelectorAll<HTMLElement>(options.revealSelector),
   ];
   const layer = document.createElement("div");
   layer.className = "writing-flight-layer";
@@ -78,7 +85,7 @@ export function createWritingTransition(overlay: HTMLElement) {
 
   const setState = (next: WritingState) => {
     state = next;
-    overlay.dataset.writingState = next;
+    overlay.dataset[options.stateKey] = next;
     const visible = next !== "closed";
     overlay.classList.toggle("is-open", visible);
     overlay.setAttribute("aria-hidden", String(!visible));
@@ -129,7 +136,7 @@ export function createWritingTransition(overlay: HTMLElement) {
     const start = poseOf(item, size);
     const end = readingPose(target, size);
     paper = makePaper(item, size, start);
-    source.folder.classList.add("is-writing-source-hidden");
+    source.folder.classList.add(options.sourceHiddenClass);
     setState("opening");
 
     flight = animate(paper, { transform: transformFor(end) }, paperSpring);
@@ -189,7 +196,7 @@ export function createWritingTransition(overlay: HTMLElement) {
     await flight.finished.catch(() => undefined);
     if (run !== generation || state !== "closing") return false;
 
-    source.folder.classList.remove("is-writing-source-hidden");
+    source.folder.classList.remove(options.sourceHiddenClass);
     clearPaper();
     setState("closed");
     return true;
@@ -198,3 +205,19 @@ export function createWritingTransition(overlay: HTMLElement) {
   setState("closed");
   return { open, close };
 }
+
+export const createWritingTransition = (overlay: HTMLElement) =>
+  createPaperTransition(overlay, {
+    targetSelector: "[data-writing-paper-target]",
+    revealSelector: "[data-writing-reveal]",
+    stateKey: "writingState",
+    sourceHiddenClass: "is-writing-source-hidden",
+  });
+
+export const createXBookmarksTransition = (overlay: HTMLElement) =>
+  createPaperTransition(overlay, {
+    targetSelector: "[data-x-bookmark-paper-target]",
+    revealSelector: "[data-x-bookmark-reveal]",
+    stateKey: "xBookmarksState",
+    sourceHiddenClass: "is-x-bookmarks-source-hidden",
+  });

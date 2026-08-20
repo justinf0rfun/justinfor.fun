@@ -275,13 +275,16 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   a.folder.is-stage[data-layout="projects"].is-landed,
   a.folder.is-stage[data-layout="music"].is-landed,
   a.folder.is-stage[data-layout="memory"].is-landed,
-  a.folder.is-stage[data-layout="writing"].is-landed {
+  a.folder.is-stage[data-layout="writing"].is-landed,
+  a.folder.is-stage[data-layout="x-bookmarks"].is-landed {
     visibility: hidden;
   }
 
   a.folder.is-stage[data-layout="projects"].is-project-source-hidden
     [data-folder-item],
   a.folder.is-stage[data-layout="writing"].is-writing-source-hidden
+    [data-folder-item],
+  a.folder.is-stage[data-layout="x-bookmarks"].is-x-bookmarks-source-hidden
     [data-folder-item] {
     visibility: hidden;
   }
@@ -341,7 +344,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 <script>
   import { animate, hover } from "motion";
   import { createProjectsTransition } from "../scripts/projects-transition";
-  import { createWritingTransition } from "../scripts/writing-transition";
+  import {
+    createWritingTransition,
+    createXBookmarksTransition,
+  } from "../scripts/writing-transition";
   import { mountMusicPreviews, pauseMusicPreviews } from "../scripts/music-preview";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -399,6 +405,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     music: boolean;
     memory: boolean;
     writing: boolean;
+    xBookmarks: boolean;
   } | null = null;
 
   /* ------------------------------------------------------------------ */
@@ -596,6 +603,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const writingTransition = writingOverlay
     ? createWritingTransition(writingOverlay)
     : null;
+  const xBookmarksOverlay = document.querySelector<HTMLElement>(
+    '[data-x-bookmarks-stage="overlay"]',
+  );
+  const xBookmarksTransition = xBookmarksOverlay
+    ? createXBookmarksTransition(xBookmarksOverlay)
+    : null;
   const musicOverlay = document.querySelector<HTMLElement>('[data-music-stage="overlay"]');
   const musicTargets = new Map(
     musicOverlay
@@ -635,7 +648,15 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      straight, neighbours at 60% with their tilt back, everything on one
      vertical centreline. All in px - the stage is viewport-space. */
   const render = (opts: object, stagger = 0) => {
-    if (!stage || stage.uses || stage.projects || stage.music || stage.memory || stage.writing)
+    if (
+      !stage ||
+      stage.uses ||
+      stage.projects ||
+      stage.music ||
+      stage.memory ||
+      stage.writing ||
+      stage.xBookmarks
+    )
       return;
     const { c, active, base } = stage;
     const unit = Math.min(innerWidth * 0.46, innerHeight * 0.52);
@@ -730,6 +751,11 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const openWriting = () => {
     if (!stage || !stage.writing || !writingTransition) return;
     void writingTransition.open({ folder: stage.c.folder, items: stage.c.items });
+  };
+
+  const openXBookmarks = () => {
+    if (!stage || !stage.xBookmarks || !xBookmarksTransition) return;
+    void xBookmarksTransition.open({ folder: stage.c.folder, items: stage.c.items });
   };
 
   const musicTargetFor = (item: HTMLElement) =>
@@ -843,7 +869,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     const music = c.folder.dataset.layout === "music";
     const memory = c.folder.dataset.layout === "memory";
     const writing = c.folder.dataset.layout === "writing";
-    const carried = uses || projects || music || memory || writing;
+    const xBookmarks = c.folder.dataset.layout === "x-bookmarks";
+    const carried = uses || projects || music || memory || writing || xBookmarks;
     stage = {
       slug,
       c,
@@ -855,6 +882,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       music,
       memory,
       writing,
+      xBookmarks,
     };
 
     if (push) history.pushState({ folder: slug }, "", `/${slug}`);
@@ -892,6 +920,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     else if (music) void openMusic();
     else if (memory) void openMemory();
     else if (writing) openWriting();
+    else if (xBookmarks) openXBookmarks();
     else render(spring(stageSpring), 0.05);
   };
 
@@ -900,7 +929,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     stage.closing = true;
     const { c } = stage;
 
-    if (!stage.uses && !stage.projects && !stage.music && !stage.memory && !stage.writing)
+    if (
+      !stage.uses &&
+      !stage.projects &&
+      !stage.music &&
+      !stage.memory &&
+      !stage.writing &&
+      !stage.xBookmarks
+    )
       overlay.classList.remove("is-open");
     document.documentElement.style.overflow = "";
     // Radius starts easing back now, in step with the shrink about to start —
@@ -1020,6 +1056,13 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         item.style.transform = `translateX(${x}px) translateY(0) rotate(${c.closedRotate(i)}deg) scale(1)`;
       });
       await writingTransition.close();
+    } else if (stage.xBookmarks && xBookmarksTransition) {
+      c.items.forEach((item, i) => {
+        const x = ((c.offset(i) * 6) / 100) * w;
+        item.style.opacity = "1";
+        item.style.transform = `translateX(${x}px) translateY(0) rotate(${c.closedRotate(i)}deg) scale(1)`;
+      });
+      await xBookmarksTransition.close();
     } else {
       await Promise.all(
         c.items.map(
@@ -1068,7 +1111,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     await animate(
       c.flap,
       { rotateX: 0, opacity: 1 },
-      stage.uses || stage.projects || stage.music || stage.memory || stage.writing
+      stage.uses ||
+        stage.projects ||
+        stage.music ||
+        stage.memory ||
+        stage.writing ||
+        stage.xBookmarks
         ? shutSpring
         : spring(shutSpring),
     ).finished;
@@ -1094,7 +1142,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       stage.projects ||
       stage.music ||
       stage.memory ||
-      stage.writing
+      stage.writing ||
+      stage.xBookmarks
     )
       return;
     const clamped = Math.max(0, Math.min(stage.c.items.length - 1, next));
@@ -1135,6 +1184,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ?.querySelector<HTMLElement>("[data-writing-close]")
     ?.addEventListener("click", requestClose);
 
+  xBookmarksOverlay
+    ?.querySelector<HTMLElement>("[data-x-bookmarks-close]")
+    ?.addEventListener("click", requestClose);
+
   addEventListener("keydown", (event) => {
     if (!stage || stage.closing) return;
     if (
@@ -1143,6 +1196,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       !stage.music &&
       !stage.memory &&
       !stage.writing &&
+      !stage.xBookmarks &&
       event.key === "ArrowRight"
     )
       go(stage.active + 1);
@@ -1152,6 +1206,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       !stage.music &&
       !stage.memory &&
       !stage.writing &&
+      !stage.xBookmarks &&
       event.key === "ArrowLeft"
     )
       go(stage.active - 1);
@@ -1175,7 +1230,14 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   addEventListener("resize", () => {
     if (!stage || stage.closing) return;
     stage.base = stage.c.items.map((_, i) => baseCenter(stage.c, i));
-    if (!stage.uses && !stage.projects && !stage.music && !stage.memory && !stage.writing)
+    if (
+      !stage.uses &&
+      !stage.projects &&
+      !stage.music &&
+      !stage.memory &&
+      !stage.writing &&
+      !stage.xBookmarks
+    )
       render(instant);
   });
 

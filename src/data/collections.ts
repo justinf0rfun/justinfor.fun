@@ -1,6 +1,7 @@
 import { folderPreviewUses } from "./uses";
 import { folderMusicTracks, musicTracks, type MusicTrack } from "./music";
 import { folderMemoryPhotos } from "./memories";
+import { folderXBookmarks } from "./x-bookmarks";
 
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
@@ -25,7 +26,7 @@ export interface Collection {
   title: string;
   meta: string;
   items: CollectionItem[];
-  layout?: "carousel" | "uses" | "projects" | "music" | "writing" | "memory";
+  layout?: "carousel" | "uses" | "projects" | "music" | "writing" | "memory" | "x-bookmarks";
 }
 
 export const collections: Collection[] = [
@@ -103,15 +104,16 @@ export const collections: Collection[] = [
   {
     slug: "x-threads",
     title: "X Threads",
-    meta: "Thoughts shared on X",
-    items: [
-      "https://picsum.photos/seed/delta/900/1200",
-      "https://picsum.photos/seed/epsilon/1200/900",
-      "https://picsum.photos/seed/zeta/1000/1000",
-      "https://picsum.photos/seed/eta/1200/800",
-      "https://picsum.photos/seed/theta/900/1200",
-      "https://picsum.photos/seed/iota/1200/900",
-    ],
+    meta: "Posts I saved on X",
+    layout: "x-bookmarks",
+    items: folderXBookmarks.map((bookmark) => ({
+      note: `@${bookmark.snapshot.authorHandle}`,
+      body: [
+        bookmark.snapshot.text.startsWith("https://t.co/")
+          ? "Media post saved from X."
+          : bookmark.snapshot.text,
+      ],
+    })),
   },
 ];
 
