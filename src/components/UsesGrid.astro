@@ -474,6 +474,40 @@ const isOverlay = mode === "overlay";
     }
   }
 
+  @media (max-width: 56rem) {
+    .uses-stage {
+      overflow-x: hidden;
+    }
+
+    .uses-content {
+      --uses-gutter: clamp(0.875rem, 4vw, 1.5rem);
+
+      padding: 6rem var(--uses-gutter) 4rem;
+    }
+
+    .uses-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      overflow: visible;
+      margin: 0;
+      padding: 0;
+      scroll-snap-type: none;
+    }
+
+    .uses-row > .uses-card {
+      width: auto;
+      min-width: 0;
+      flex: none;
+      scroll-snap-align: none;
+    }
+
+    .software-slogan {
+      font-size: 0.75rem;
+      line-height: 1.35;
+    }
+  }
+
   @media (max-width: 480px) {
     .uses-content {
       padding-top: 5.75rem;
@@ -499,17 +533,11 @@ const isOverlay = mode === "overlay";
       right: 0.75rem;
       bottom: 0.75rem;
     }
+  }
 
-    .card-label {
-      font-size: 0.8125rem;
-    }
-
-    .software-name {
-      font-size: 0.8125rem;
-    }
-
-    .software-slogan {
-      font-size: 0.625rem;
+  @media (max-width: 22rem) {
+    .uses-row {
+      grid-template-columns: 1fr;
     }
   }
 </style>

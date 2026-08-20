@@ -274,10 +274,16 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 
 - **Structure:** Memory is a vertical archive ordered by month. Each month may contain several finite film rolls rather than one endless horizontal strip.
 - **Desktop:** A roll fits four to six photographs into one shared row. Frames keep one visual height and derive their width from the source aspect ratio.
-- **Mobile:** Each finite roll becomes a native horizontal scroller with the next frame left partially visible; months still progress vertically.
+- **Mobile:** Each finite roll reflows into a two-column contact sheet, then one column only on exceptionally narrow screens; months still progress vertically without sideways browsing.
 - **Shape:** Only the outside ends of a roll receive the large capsule radius. Interior frames meet at a four-to-six-pixel seam and do not become separate cards.
 - **Depth:** The roll gets at most a hairline edge. Individual photographs do not receive shadows or floating-card treatment.
 - **Viewing:** Selecting a photograph opens a focused dark viewing room. Native dialog focus, backdrop dismissal, and Escape return the visitor to the same place in the roll.
+
+### Responsive Tool Shelves
+
+- **Desktop:** Tool groups remain horizontal shelves with proximity scrolling so the collection reads as continuing beyond the viewport.
+- **Mobile and tablet:** Shelves become a two-column grid with no horizontal overflow; exceptionally narrow screens collapse to one column.
+- **Type:** Preserve the normal card hierarchy on mobile instead of shrinking secondary copy below the readable small-text step.
 
 ## Do's and Don'ts
 
