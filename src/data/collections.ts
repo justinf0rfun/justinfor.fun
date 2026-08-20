@@ -1,10 +1,18 @@
 import { folderPreviewUses } from "./uses";
 import { folderMusicTracks, musicTracks, type MusicTrack } from "./music";
+import { folderMemoryPhotos } from "./memories";
 
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
 export type Shape = { w?: number; ratio?: string; top?: number };
 type MusicPreview = Pick<MusicTrack, "slug" | "title" | "artist" | "previewUrl">;
+const memoryPreviewShapes = [
+  { w: 34, top: 4 },
+  { w: 33, top: 8 },
+  { w: 34, top: 3 },
+  { w: 33, top: 7 },
+  { w: 34, top: 5 },
+];
 
 export type CollectionItem =
   | string
@@ -72,13 +80,11 @@ export const collections: Collection[] = [
     title: "Memory",
     meta: "Photographs I want to remember",
     layout: "memory",
-    items: [
-      { src: "/memory/retro-01.jpg", w: 29, ratio: "2/3", top: 5 },
-      { src: "/memory/retro-02.jpg", w: 38, ratio: "3/2", top: 9 },
-      { src: "/memory/retro-03.jpg", w: 28, ratio: "2/3", top: 3 },
-      { src: "/memory/retro-04.jpg", w: 30, ratio: "2/3", top: 8 },
-      { src: "/memory/retro-05.jpg", w: 29, ratio: "2/3", top: 6 },
-    ],
+    items: folderMemoryPhotos.map((photo, index) => ({
+      src: photo.src,
+      ratio: `${photo.width}/${photo.height}`,
+      ...memoryPreviewShapes[index],
+    })),
   },
   {
     slug: "writing",

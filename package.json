@@ -11,6 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "deploy": "astro build && wrangler deploy",
+    "memory:check": "node scripts/publish-memory.mjs --dry-run",
+    "memory:upload": "node scripts/publish-memory.mjs",
     "astro": "astro"
   },
   "dependencies": {

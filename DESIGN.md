@@ -270,6 +270,15 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 - **Meaning:** Archived contains products Justin used previously, not recommendations for his current setup.
 - **Presentation:** Reuse the compact software-card structure and official app icon, with concise past-tense-neutral descriptions and no featured state.
 
+### Monthly Film Rolls
+
+- **Structure:** Memory is a vertical archive ordered by month. Each month may contain several finite film rolls rather than one endless horizontal strip.
+- **Desktop:** A roll fits four to six photographs into one shared row. Frames keep one visual height and derive their width from the source aspect ratio.
+- **Mobile:** Each finite roll becomes a native horizontal scroller with the next frame left partially visible; months still progress vertically.
+- **Shape:** Only the outside ends of a roll receive the large capsule radius. Interior frames meet at a four-to-six-pixel seam and do not become separate cards.
+- **Depth:** The roll gets at most a hairline edge. Individual photographs do not receive shadows or floating-card treatment.
+- **Viewing:** Selecting a photograph opens a focused dark viewing room. Native dialog focus, backdrop dismissal, and Escape return the visitor to the same place in the roll.
+
 ## Do's and Don'ts
 
 ### Do:

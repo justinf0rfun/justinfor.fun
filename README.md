@@ -25,6 +25,31 @@ For local Worker development, place the token in an ignored `.dev.vars` file:
 GITHUB_TOKEN=github_pat_...
 ```
 
+## Memory Photos
+
+Memory reads its static metadata from `src/data/memories.json`. Images can stay
+local while editing, then be published to the `justin-memory` R2 bucket:
+
+```sh
+pnpm memory:check
+pnpm memory:upload
+```
+
+The upload command reads image files from `public/memory` by default. Pass a
+prepared export directory with `--source-dir`, or a different bucket with
+`--bucket`. Records whose `src` is already a public URL are skipped when their
+local source is absent, so a later batch does not re-upload the archive.
+After connecting the bucket to a production domain, publish and update the
+manifest URLs together:
+
+```sh
+pnpm memory:upload -- --public-base-url https://media.justinfor.fun
+```
+
+The command validates duplicate IDs, object keys, month values, dimensions, and
+source files before uploading. It rewrites manifest URLs only after every R2
+upload succeeds.
+
 ## Getting Started
 
 ```sh

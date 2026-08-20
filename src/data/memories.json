@@ -1,0 +1,98 @@
+[
+  {
+    "id": "xiamen-2026-08-day3-bookstore",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 1,
+    "order": 1,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-bookstore.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day3-bookstore.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Small Fish Island bookstore on a Xiamen street"
+  },
+  {
+    "id": "xiamen-2026-08-day3-doorway",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 1,
+    "order": 2,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-doorway.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day3-doorway.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Sunlit doorway and utility boxes on a Xiamen street"
+  },
+  {
+    "id": "xiamen-2026-08-day3-street",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 1,
+    "order": 3,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-street.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day3-street.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Colorful storefronts beneath a blue Xiamen sky"
+  },
+  {
+    "id": "xiamen-2026-08-day3-store",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 1,
+    "order": 4,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day3-store.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day3-store.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "A neighborhood convenience store in Xiamen"
+  },
+  {
+    "id": "xiamen-2026-08-day4-market",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 2,
+    "order": 1,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day4-market.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day4-market.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Market signs inside Yingping Market in Xiamen"
+  },
+  {
+    "id": "xiamen-2026-08-day4-food",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 2,
+    "order": 2,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day4-food.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day4-food.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Local dishes beside a sunlit window in Xiamen"
+  },
+  {
+    "id": "xiamen-2026-08-day4-xmu",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 2,
+    "order": 3,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day4-xmu.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day4-xmu.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Xiamen University gate at blue hour"
+  },
+  {
+    "id": "xiamen-2026-08-day4-towers",
+    "month": "2026-08",
+    "location": "Xiamen",
+    "roll": 2,
+    "order": 4,
+    "src": "https://media.justinfor.fun/memory/2026/08/xiamen-2026-08-day4-towers.jpg",
+    "objectKey": "memory/2026/08/xiamen-2026-08-day4-towers.jpg",
+    "width": 1170,
+    "height": 878,
+    "alt": "Xiamen Twin Towers illuminated at night"
+  }
+]

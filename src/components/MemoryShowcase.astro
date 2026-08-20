@@ -1,17 +1,12 @@
 ---
+import { memoryMonths, memoryPhotos as memories } from "../data/memories";
+
 interface Props {
   mode?: "overlay" | "standalone";
 }
 
 const { mode = "standalone" } = Astro.props;
 const isOverlay = mode === "overlay";
-const memories = [
-  { src: "/memory/retro-01.jpg", alt: "Night portrait beneath red light" },
-  { src: "/memory/retro-02.jpg", alt: "Subway platform under warm fluorescent light" },
-  { src: "/memory/retro-03.jpg", alt: "Passenger resting by a train window" },
-  { src: "/memory/retro-04.jpg", alt: "Quiet city street in soft daylight" },
-  { src: "/memory/retro-05.jpg", alt: "Figure walking through an illuminated station" },
-];
 ---
 
 <section
@@ -44,27 +39,81 @@ const memories = [
 
   <div class="memory-intro" data-memory-reveal>
     <h2>Photographs I want to remember.</h2>
-    <p>A temporary roll while I gather my own archive.</p>
+    <p>Places, light, and small details I want to keep.</p>
   </div>
 
-  <ol class="memory-strip" aria-label="Photography collection">
+  <div class="memory-archive">
     {
-      memories.map((memory, index) => (
-        <li
-          class:list={["memory-item", index === 1 && "is-landscape"]}
-          data-memory-visual-target={index}
-        >
-          <figure class="memory-frame">
-            <img src={memory.src} alt={memory.alt} loading={index < 3 ? "eager" : "lazy"} />
-          </figure>
-        </li>
+      memoryMonths.map((month) => (
+        <section class="memory-month" aria-labelledby={`memory-${month.dateTime}`}>
+          <header class="memory-month-header" data-memory-reveal>
+            <h3 id={`memory-${month.dateTime}`}>
+              <time datetime={month.dateTime}>{month.label}</time>
+            </h3>
+            <p>{month.location} · {month.rolls.flat().length} photographs</p>
+          </header>
+
+          <div class="memory-rolls">
+            {month.rolls.map((roll, rollIndex) => (
+              <ol
+                class="memory-roll"
+                aria-label={`${month.label}, ${month.location}, roll ${rollIndex + 1}`}
+              >
+                {roll.map((memory) => (
+                  <li
+                    class="memory-item"
+                    data-memory-visual-target={memory.index}
+                    style={`--photo-ratio: ${memory.ratio}`}
+                  >
+                    <button
+                      class="memory-photo"
+                      data-memory-photo
+                      data-memory-src={memory.src}
+                      data-memory-alt={memory.alt}
+                      type="button"
+                      aria-label={`Enlarge ${memory.alt}`}
+                    >
+                      <figure class="memory-frame">
+                        <img
+                          src={memory.src}
+                          alt={memory.alt}
+                          loading={memory.index < 4 ? "eager" : "lazy"}
+                        />
+                      </figure>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ))}
+          </div>
+        </section>
       ))
     }
-  </ol>
+  </div>
+
+  <dialog class="memory-lightbox" data-memory-lightbox aria-label="Photo preview">
+    <button
+      class="memory-lightbox-close"
+      data-memory-lightbox-close
+      type="button"
+      aria-label="Close photo preview"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 4l8 8M12 4l-8 8"></path>
+      </svg>
+    </button>
+    <img
+      class="memory-lightbox-image"
+      data-memory-lightbox-image
+      src={memories[0].src}
+      alt={memories[0].alt}
+    />
+  </dialog>
 </section>
 
 <style>
   .memory-page {
+    --memory-roll-radius: clamp(1.25rem, 3vw, 3.5rem);
     min-height: 100dvh;
     overflow-x: hidden;
     background: var(--color-neutral-50);
@@ -156,62 +205,252 @@ const memories = [
     color: var(--color-neutral-500);
   }
 
-  .memory-strip {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(0.75rem, 2vw, 1.5rem);
+  .memory-archive {
     max-width: 76rem;
     margin: clamp(3rem, 8vh, 7rem) auto 0;
     padding: 0 clamp(1.25rem, 4vw, 3rem) 5rem;
+  }
+
+  .memory-month + .memory-month {
+    margin-top: clamp(4.5rem, 10vw, 8rem);
+  }
+
+  .memory-month-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .memory-month-header h3 {
+    color: var(--color-neutral-800);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .memory-month-header p {
+    color: var(--color-neutral-500);
+    font-size: 0.75rem;
+  }
+
+  .memory-rolls {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .memory-roll {
+    display: flex;
+    gap: 0.3rem;
+    overflow: hidden;
+    border-radius: var(--memory-roll-radius);
+    background: var(--color-neutral-100);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04);
     list-style: none;
   }
 
   .memory-item {
     min-width: 0;
+    flex: var(--photo-ratio) 1 0;
+    aspect-ratio: var(--photo-ratio);
   }
 
-  .memory-item.is-landscape {
-    grid-column: span 2;
+  .memory-photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .memory-photo:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 2px solid var(--color-neutral-800);
+    outline-offset: -4px;
   }
 
   .memory-frame {
+    height: 100%;
     overflow: hidden;
-    border-radius: clamp(0.75rem, 1.4vw, 1.25rem);
     background: var(--color-neutral-100);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 28px rgb(0 0 0 / 0.07);
   }
 
   .memory-frame img {
     display: block;
     width: 100%;
-    aspect-ratio: 2 / 3;
+    height: 100%;
     object-fit: cover;
     transition: transform 500ms var(--ease-out);
   }
 
-  .is-landscape .memory-frame img {
-    aspect-ratio: 3 / 2;
+  .memory-lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: clamp(3.5rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem);
+    border: 0;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .memory-lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+
+  .memory-lightbox::backdrop {
+    background: rgb(10 10 10 / 0.9);
+    backdrop-filter: blur(14px);
+    animation: memory-backdrop-in 180ms ease-out both;
+  }
+
+  .memory-lightbox-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0.75rem;
+    object-fit: contain;
+    animation: memory-photo-in 240ms var(--ease-out) both;
+  }
+
+  .memory-lightbox-close {
+    position: fixed;
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: 999px;
+    color: rgb(255 255 255 / 0.72);
+    background: rgb(255 255 255 / 0.1);
+    cursor: pointer;
+    transition: color 160ms var(--ease-out), background 160ms var(--ease-out), transform 160ms var(--ease-out);
+  }
+
+  .memory-lightbox-close:active {
+    transform: scale(0.94);
+  }
+
+  .memory-lightbox-close:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 3px;
+  }
+
+  .memory-lightbox-close svg {
+    width: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.5;
+  }
+
+  @keyframes memory-backdrop-in {
+    from { background: rgb(10 10 10 / 0); }
+  }
+
+  @keyframes memory-photo-in {
+    from {
+      opacity: 0;
+      filter: blur(4px);
+      transform: scale(0.975);
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .memory-close:hover { color: var(--color-neutral-800); }
     .memory-frame:hover img { transform: scale(1.018); }
+    .memory-lightbox-close:hover {
+      color: white;
+      background: rgb(255 255 255 / 0.16);
+    }
   }
 
-  @media (min-width: 48rem) {
-    .memory-strip {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: start;
+  @media (max-width: 40rem) {
+    .memory-archive {
+      margin-top: 4rem;
+      padding-inline: 1rem;
     }
 
-    .memory-item { grid-column: span 4; }
-    .memory-item.is-landscape { grid-column: span 8; }
-    .memory-item:nth-child(4) { grid-column: 1 / span 4; }
-    .memory-item:nth-child(5) { grid-column: 5 / span 4; margin-top: 8vw; }
+    .memory-month-header {
+      padding-inline: 0.25rem;
+    }
+
+    .memory-rolls {
+      gap: 0.6rem;
+    }
+
+    .memory-roll {
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      scroll-snap-type: inline mandatory;
+      scrollbar-width: none;
+    }
+
+    .memory-roll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .memory-item {
+      flex: 0 0 min(78vw, 20rem);
+      scroll-snap-align: start;
+    }
+
+    .memory-item:first-child .memory-frame {
+      border-radius: var(--memory-roll-radius) 0 0 var(--memory-roll-radius);
+    }
+
+    .memory-item:last-child .memory-frame {
+      border-radius: 0 var(--memory-roll-radius) var(--memory-roll-radius) 0;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .memory-page.is-overlay { transition-duration: 120ms; }
     .memory-frame img { transition: none; }
+    .memory-lightbox::backdrop,
+    .memory-lightbox-image { animation: none; }
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-memory-stage]").forEach((stage) => {
+    const lightbox = stage.querySelector<HTMLDialogElement>("[data-memory-lightbox]");
+    const image = stage.querySelector<HTMLImageElement>("[data-memory-lightbox-image]");
+    const close = stage.querySelector<HTMLButtonElement>("[data-memory-lightbox-close]");
+    if (!lightbox || !image || !close) return;
+
+    stage.querySelectorAll<HTMLButtonElement>("[data-memory-photo]").forEach((photo) => {
+      photo.addEventListener("click", () => {
+        image.src = photo.dataset.memorySrc ?? "";
+        image.alt = photo.dataset.memoryAlt ?? "";
+        lightbox.showModal();
+      });
+    });
+
+    close.addEventListener("click", () => lightbox.close());
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) lightbox.close();
+    });
+    addEventListener(
+      "keydown",
+      (event) => {
+        if (!lightbox.open || event.key !== "Escape") return;
+        event.preventDefault();
+        event.stopPropagation();
+        lightbox.close();
+      },
+      { capture: true },
+    );
+  });
+</script>
