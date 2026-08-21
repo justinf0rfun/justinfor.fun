@@ -72,7 +72,14 @@ const formatPublishedAt = (value: string) =>
 
             <article class="x-post">
               <header class="x-post-author">
-                <Icon class="x-post-mark" name="simple-icons:x" />
+                <img
+                  class="x-post-avatar"
+                  src={bookmark.snapshot.avatarUrl}
+                  width="32"
+                  height="32"
+                  alt=""
+                  decoding="async"
+                />
                 <a href={bookmark.snapshot.authorUrl} target="_blank" rel="noreferrer">
                   <strong>{bookmark.snapshot.authorName}</strong>
                   <span>@{bookmark.snapshot.authorHandle}</span>
@@ -92,8 +99,13 @@ const formatPublishedAt = (value: string) =>
 
             <footer class="x-bookmark-meta">
               <time datetime={bookmark.savedAt}>Saved {formatSavedAt(bookmark.savedAt)}</time>
-              <a href={bookmark.url} target="_blank" rel="noreferrer">
-                Open on X
+              <a
+                class="x-bookmark-open"
+                href={bookmark.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`Open @${bookmark.snapshot.authorHandle}'s post on X`}
+              >
                 <Icon name="ph:arrow-up-right" />
               </a>
             </footer>
@@ -244,11 +256,12 @@ const formatPublishedAt = (value: string) =>
     gap: 0.625rem;
   }
 
-  .x-post-mark {
-    width: 1.125rem;
-    height: 1.125rem;
+  .x-post-avatar {
+    width: 2rem;
+    height: 2rem;
     flex: none;
-    color: var(--color-neutral-800);
+    border-radius: 50%;
+    object-fit: cover;
   }
 
   .x-post-author > a {
@@ -304,24 +317,30 @@ const formatPublishedAt = (value: string) =>
     font-size: 0.75rem;
   }
 
-  .x-bookmark-meta a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
+  .x-bookmark-open {
+    display: grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    place-items: center;
+    border-radius: 50%;
     color: var(--color-neutral-500);
-    font-weight: 500;
+    transition: color 160ms var(--ease-out), background-color 160ms var(--ease-out);
   }
 
-  .x-bookmark-meta a :global(svg) {
+  .x-bookmark-open :global(svg) {
     width: 0.875rem;
     height: 0.875rem;
   }
 
   @media (hover: hover) and (pointer: fine) {
     .x-bookmarks-close:hover,
-    .x-bookmark-meta a:hover,
+    .x-bookmark-open:hover,
     .x-post-author > a:hover strong {
       color: var(--color-neutral-800);
+    }
+
+    .x-bookmark-open:hover {
+      background: var(--color-neutral-100);
     }
   }
 
