@@ -82,6 +82,12 @@ export const useSections: UseSection[] = [
             logo: "/uses/ai/headlesstools.png",
             href: "https://hdls.tools/",
           },
+          {
+            name: "SlimSnap",
+            slogan: "Turn any screenshot into JSON your CLI agent can read.",
+            logo: "/uses/ai/slimsnap.png",
+            href: "https://slimsnap.ai/",
+          },
         ],
       },
       {
@@ -234,6 +240,18 @@ export const useSections: UseSection[] = [
             slogan: "Visually organize what you see, think and want to remember.",
             logo: "/uses/software/spatial.png",
             href: "https://www.get-spatial.com/",
+          },
+          {
+            name: "CleanShot X",
+            slogan: "Capture your Mac’s screen like a pro.",
+            logo: "/uses/software/cleanshot-x.png",
+            href: "https://cleanshot.com/",
+          },
+          {
+            name: "Screen Studio",
+            slogan: "Beautiful screen recordings in minutes.",
+            logo: "/uses/software/screen-studio.png",
+            href: "https://screen.studio/",
           },
         ],
       },
