@@ -262,6 +262,18 @@ export const useSections: UseSection[] = [
             logo: "/uses/archived/things-3.png",
             href: "https://culturedcode.com/things/",
           },
+          {
+            name: "Roam Research",
+            slogan: "A note-taking tool for networked thought.",
+            logo: "/uses/archived/roam-research.png",
+            href: "https://roamresearch.com/",
+          },
+          {
+            name: "Rize",
+            slogan: "Automatic time tracking for teams and individuals.",
+            logo: "/uses/archived/rize.png",
+            href: "https://rize.io/",
+          },
         ],
       },
     ],
