@@ -76,6 +76,43 @@ export const useSections: UseSection[] = [
             logo: "/uses/ai/avec.png",
             href: "https://www.avec.ai/",
           },
+          {
+            name: "headlesstools",
+            slogan: "MCP-first SaaS tools for AI agents.",
+            logo: "/uses/ai/headlesstools.png",
+            href: "https://hdls.tools/",
+          },
+        ],
+      },
+      {
+        title: "Browsers",
+        items: [
+          {
+            name: "Dia",
+            slogan: "A browser you won’t dread opening.",
+            logo: "/uses/ai/dia.png",
+            href: "https://www.diabrowser.com/",
+            badge: "Featured",
+            featured: true,
+          },
+          {
+            name: "Arc Browser",
+            slogan: "A browser built around spaces and vertical tabs.",
+            logo: "/uses/ai/arc.png",
+            href: "https://arc.net/",
+          },
+          {
+            name: "Aside",
+            slogan: "The browser built to do real work for you.",
+            logo: "/uses/ai/aside.png",
+            href: "https://aside.com/",
+          },
+          {
+            name: "Zen Browser",
+            slogan: "Welcome to a calmer internet.",
+            logo: "/uses/ai/zen-browser.svg",
+            href: "https://zen-browser.app/",
+          },
         ],
       },
       {
@@ -132,6 +169,20 @@ export const useSections: UseSection[] = [
             href: "https://jakub.kr/skills",
             visualTreatment: "banner",
           },
+          {
+            name: "Ponytail",
+            slogan: "The best code is the code you never wrote.",
+            logo: "/uses/ai/ponytail.png",
+            href: "https://github.com/DietrichGebert/ponytail",
+            visualTreatment: "banner",
+          },
+          {
+            name: "Understand Anything",
+            slogan: "Turn any codebase into an interactive knowledge graph.",
+            logo: "/uses/ai/understand-anything.jpg",
+            href: "https://github.com/Egonex-AI/Understand-Anything",
+            visualTreatment: "banner",
+          },
         ],
       },
     ],
@@ -141,13 +192,6 @@ export const useSections: UseSection[] = [
     groups: [
       {
         items: [
-          {
-            name: "Dia",
-            slogan: "A browser you won’t dread opening.",
-            logo: "/uses/software/dia.png",
-            href: "https://www.diabrowser.com/",
-            featured: true,
-          },
           {
             name: "Raycast",
             slogan: "Your shortcut to everything.",
@@ -205,12 +249,6 @@ export const useSections: UseSection[] = [
             slogan: "A joyful calendar for events, tasks, and email.",
             logo: "/uses/archived/amie.jpg",
             href: "https://amie.so/",
-          },
-          {
-            name: "Arc Browser",
-            slogan: "A browser built around spaces and vertical tabs.",
-            logo: "/uses/archived/arc.png",
-            href: "https://arc.net/",
           },
           {
             name: "HEY Email",
