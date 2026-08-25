@@ -88,6 +88,12 @@ export const useSections: UseSection[] = [
             logo: "/uses/ai/slimsnap.png",
             href: "https://slimsnap.ai/",
           },
+          {
+            name: "Omarchy",
+            slogan: "Beautiful, modern, and opinionated Linux by DHH.",
+            logo: "/uses/ai/omarchy.png",
+            href: "https://omarchy.org/",
+          },
         ],
       },
       {
