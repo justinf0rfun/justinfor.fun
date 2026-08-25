@@ -54,6 +54,12 @@ export const useSections: UseSection[] = [
             featured: true,
           },
           {
+            name: "Pi",
+            slogan: "There are many agent harnesses, but this one is yours.",
+            logo: "/uses/ai/pi.svg",
+            href: "https://pi.dev/",
+          },
+          {
             name: "Raft",
             slogan: "Where humans and AI agents build together.",
             logo: "/uses/ai/raft.png",
