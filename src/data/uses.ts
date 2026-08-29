@@ -100,6 +100,12 @@ export const useSections: UseSection[] = [
             logo: "/uses/ai/omarchy.png",
             href: "https://omarchy.org/",
           },
+          {
+            name: "Amp",
+            slogan: "The coding agent and development environment that runs anywhere and everywhere.",
+            logo: "/uses/ai/amp.svg",
+            href: "https://ampcode.com/app",
+          },
         ],
       },
       {
@@ -199,6 +205,13 @@ export const useSections: UseSection[] = [
             slogan: "Turn any codebase into an interactive knowledge graph.",
             logo: "/uses/ai/understand-anything.jpg",
             href: "https://github.com/Egonex-AI/Understand-Anything",
+            visualTreatment: "banner",
+          },
+          {
+            name: "Ian Xiaohei Illustrations",
+            slogan: "A Codex skill for hand-drawn illustrations in Chinese articles.",
+            logo: "/uses/ai/ian-xiaohei-illustrations.jpg",
+            href: "https://github.com/helloianneo/ian-xiaohei-illustrations",
             visualTreatment: "banner",
           },
         ],
