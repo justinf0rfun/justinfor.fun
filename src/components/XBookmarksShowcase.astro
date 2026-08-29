@@ -34,8 +34,8 @@ const formatPublishedAt = (value: string) =>
   <div class="x-bookmarks-index">
     <header class="x-bookmarks-header">
       <div data-x-bookmark-reveal>
-        <h1>X Threads</h1>
-        <p>{xBookmarks.length} saved posts</p>
+        <h1>Finds</h1>
+        <p>{xBookmarks.length} finds</p>
       </div>
       {
         isOverlay ? (
@@ -51,11 +51,11 @@ const formatPublishedAt = (value: string) =>
     </header>
 
     <section class="x-bookmarks-intro" data-x-bookmark-reveal>
-      <h2>Saved on X.</h2>
-      <p>Posts I want to return to, with my thoughts when I have them.</p>
+      <h2>Worth sharing.</h2>
+      <p>Things I want to return to, with my thoughts when I have them.</p>
     </section>
 
-    <ol class="x-bookmarks-feed" aria-label="Saved posts from X">
+    <ol class="x-bookmarks-feed" aria-label="Saved finds">
       {
         xBookmarks.map((bookmark, index) => (
           <li

@@ -25,14 +25,14 @@ const { Content, headings } = await render(post);
     <meta property="article:published_time" content={post.data.publishedAt.toISOString()} />
   </Fragment>
 
-  <a class="article-home" href="/writing" aria-label="Back to writing">
+  <a class="article-home" href="/writing" aria-label="Back to Thoughts">
     <span class="article-home-icon" aria-hidden="true">
       <span class="article-home-avatar">
         <img src="/justin-avatar.png" alt="" width="32" height="32" />
       </span>
       <Icon class="article-home-arrow" name="ph:arrow-left-bold" />
     </span>
-    <span class="article-home-label">Writing</span>
+    <span class="article-home-label">Thoughts</span>
   </a>
 
   <ArticleToc headings={headings} />

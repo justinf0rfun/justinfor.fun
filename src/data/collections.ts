@@ -89,8 +89,8 @@ export const collections: Collection[] = [
   },
   {
     slug: "writing",
-    title: "Writing",
-    meta: "4 posts",
+    title: "Thoughts",
+    meta: "Ideas I’m working through",
     layout: "writing",
     items: [
       {
@@ -103,8 +103,8 @@ export const collections: Collection[] = [
   },
   {
     slug: "x-threads",
-    title: "X Threads",
-    meta: "Posts I saved on X",
+    title: "Finds",
+    meta: "Threads, podcasts, and articles worth sharing",
     layout: "x-bookmarks",
     items: folderXBookmarks.map((bookmark) => ({
       note: `@${bookmark.snapshot.authorHandle}`,
