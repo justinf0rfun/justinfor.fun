@@ -29,6 +29,13 @@
     display: block;
   }
 
+  .belief-note > a {
+    transform-origin: 50% 9%;
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 300ms var(--ease-out);
+  }
+
   .belief-note > a:focus-visible {
     border-radius: 0.75rem;
     outline: 2px solid var(--color-neutral-800);
@@ -56,5 +63,26 @@
 
   .belief-note figcaption a:hover {
     color: var(--color-neutral-700);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .belief-note > a:hover {
+      filter: drop-shadow(0 0.7rem 0.8rem rgb(0 0 0 / 12%));
+      transform: translateY(-0.3rem) rotate(1.25deg) scale(1.01);
+    }
+  }
+
+  .belief-note > a:active {
+    transform: translateY(-0.08rem) rotate(0.35deg) scale(0.985);
+    transition-duration: 120ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .belief-note > a,
+    .belief-note > a:hover,
+    .belief-note > a:active {
+      transform: none;
+      transition-duration: 0ms;
+    }
   }
 </style>
