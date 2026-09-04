@@ -236,6 +236,12 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 - **Style:** A compact inline label with an external-link arrow and a soft lower rule.
 - **Hover / Focus:** Darken both text and rule on hover; pair the strong-neutral focus outline with a generous offset.
 
+### Living Underline
+
+- **Purpose:** Mark important inline destinations without turning prose into a field of heavy rules.
+- **Rest:** Use a one-pixel dotted underline at 35% opacity.
+- **Hover / Focus:** Replace the dotted trace with a solid line revealed from left to right over the `link-underline` motion token; keep focus behavior available to keyboard users and remove the transition under reduced motion.
+
 ### Project Media
 
 - **Style:** Official interface imagery fills a fixed-ratio white mat without decorative overlays.

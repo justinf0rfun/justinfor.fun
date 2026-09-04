@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
+import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
 import LocalTimeFooter from "../components/LocalTimeFooter.astro";
@@ -31,6 +32,7 @@ import { folderMusicTracks } from "../data/music";
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}
     </div>
+    <BeliefNote />
     <LocalTimeFooter />
     <UsesGrid mode="overlay" />
     <ProjectsShowcase mode="overlay" />
