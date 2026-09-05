@@ -71,6 +71,12 @@ export const useSections: UseSection[] = [
         title: "Trying Now",
         items: [
           {
+            name: "Delta",
+            slogan: "A multiplayer environment for coding with agents.",
+            logo: "/uses/ai/delta.svg",
+            href: "https://delta.dev/",
+          },
+          {
             name: "Berd",
             slogan: "Less chatting, more building.",
             logo: "/uses/ai/berd.svg",
