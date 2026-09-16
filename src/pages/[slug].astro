@@ -9,7 +9,7 @@ import XBookmarksShowcase from "../components/XBookmarksShowcase.astro";
 import { collections } from "../data/collections";
 
 export function getStaticPaths() {
-  return collections.filter(({ slug }) => slug !== "writing").map((collection) => ({
+  return collections.filter(({ layout }) => layout !== "writing").map((collection) => ({
     params: { slug: collection.slug },
     props: { collection },
   }));

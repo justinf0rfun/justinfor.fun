@@ -88,7 +88,7 @@ export const collections: Collection[] = [
     })),
   },
   {
-    slug: "writing",
+    slug: "thoughts",
     title: "Thoughts",
     meta: "Ideas I’m working through",
     layout: "writing",
