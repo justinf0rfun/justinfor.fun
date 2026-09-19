@@ -627,6 +627,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const memoryTargets = memoryOverlay
     ? [...memoryOverlay.querySelectorAll<HTMLElement>("[data-memory-visual-target]")]
     : [];
+  const resetMemoryRolls = () =>
+    memoryOverlay?.querySelectorAll<HTMLElement>("[data-memory-marquee]").forEach((roll) => {
+      roll.scrollLeft = 0;
+    });
   const memoryReveal = memoryOverlay
     ? [...memoryOverlay.querySelectorAll<HTMLElement>("[data-memory-reveal]")]
     : [];
@@ -818,6 +822,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     const { c, base } = openingStage;
 
     memoryOverlay.scrollTop = 0;
+    resetMemoryRolls();
     memoryOverlay.classList.add("is-carrying", "is-open");
     memoryOverlay.setAttribute("aria-hidden", "false");
     memoryOverlay.inert = false;
@@ -1007,10 +1012,17 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (stage.memory && memoryOverlay) {
       c.folder.classList.remove("is-landed");
       memoryOverlay.scrollTop = 0;
-      await new Promise(requestAnimationFrame);
+      resetMemoryRolls();
+      memoryOverlay.classList.add("is-positioning");
       memoryReveal.forEach((item) =>
         animate(item, { opacity: 0, y: 8 }, { duration: 0.14, ease: [0.23, 1, 0.32, 1] }),
       );
+      await new Promise(requestAnimationFrame);
+      if (
+        matchMedia("(min-width: 56.001rem) and (prefers-reduced-motion: no-preference)").matches
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 180));
+      }
       c.items.forEach((item, index) => {
         const target = memoryTargets[index];
         if (!target) return;
@@ -1034,6 +1046,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         ),
       );
       memoryOverlay.classList.add("is-carrying");
+      memoryOverlay.classList.remove("is-positioning");
     }
 
     const w = c.wrap.offsetWidth;
@@ -1122,7 +1135,9 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ).finished;
 
     if (stage.music && musicOverlay) musicOverlay.classList.remove("is-carrying");
-    if (stage.memory && memoryOverlay) memoryOverlay.classList.remove("is-carrying");
+    if (stage.memory && memoryOverlay) {
+      memoryOverlay.classList.remove("is-carrying", "is-positioning");
+    }
 
     /* Hand the cards back to the hover system in its own units - same pose.
        Deliberately NOT restacking: the card you were just looking at keeps the

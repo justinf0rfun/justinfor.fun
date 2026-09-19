@@ -278,11 +278,12 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 
 ### Monthly Film Rolls
 
-- **Structure:** Memory is a vertical archive ordered by month. Each month may contain several finite film rolls rather than one endless horizontal strip.
-- **Desktop:** A roll fits four to six photographs into one shared row. Frames keep one visual height and derive their width from the source aspect ratio.
-- **Mobile:** Each finite roll reflows into a two-column contact sheet, then one column only on exceptionally narrow screens; months still progress vertically without sideways browsing.
+- **Structure:** Memory is a vertical archive ordered by month. Months and source rolls remain finite and ordered; they never collapse into one endless cross-month strip.
+- **Desktop:** All photographs within a month form one continuous roll at one visual height, repeating only after the full month's sequence. It moves slowly, supports direct drag momentum and arrow-key paging, and pauses on interaction, offscreen, in the lightbox, or while the page is hidden.
+- **Mobile:** Each month reflows into a two-column contact sheet, then one column only on exceptionally narrow screens; months still progress vertically without sideways browsing.
 - **Shape:** Only the outside ends of a roll receive the large capsule radius. Interior frames meet at a four-to-six-pixel seam and do not become separate cards.
 - **Depth:** The roll gets at most a hairline edge. Individual photographs do not receive shadows or floating-card treatment.
+- **Accessibility:** Visual loop copies stay outside the accessibility and tab order. Reduced motion removes the copies and restores a static, natively scrollable roll.
 - **Viewing:** Selecting a photograph opens a focused dark viewing room. Native dialog focus, backdrop dismissal, and Escape return the visitor to the same place in the roll.
 
 ### Responsive Tool Shelves
