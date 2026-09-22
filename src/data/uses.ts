@@ -71,6 +71,12 @@ export const useSections: UseSection[] = [
         title: "Trying Now",
         items: [
           {
+            name: "Zeron",
+            slogan: "Access your agents from any device.",
+            logo: "/uses/ai/zeron.png",
+            href: "https://zeron.sh/",
+          },
+          {
             name: "Delta",
             slogan: "A multiplayer environment for coding with agents.",
             logo: "/uses/ai/delta.svg",
