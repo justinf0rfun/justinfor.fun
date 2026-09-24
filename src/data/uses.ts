@@ -71,6 +71,12 @@ export const useSections: UseSection[] = [
         title: "Trying Now",
         items: [
           {
+            name: "Paseo",
+            slogan: "Run any coding agent from anywhere.",
+            logo: "/uses/ai/paseo.svg",
+            href: "https://paseo.sh/",
+          },
+          {
             name: "Zeron",
             slogan: "Access your agents from any device.",
             logo: "/uses/ai/zeron.png",
