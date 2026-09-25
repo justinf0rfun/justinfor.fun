@@ -27,7 +27,8 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
         <button type="button" class="theme-button" data-home-mode={mode}
           aria-label={mode === "system" ? "Use system theme" : `Use ${mode} theme`}
           aria-pressed={mode === "system" ? "true" : "false"}>
-          <span aria-hidden="true" set:html={icons[mode]} />
+          <span class="theme-symbol" aria-hidden="true" set:html={icons[mode]} />
+          {mode === "dark" && <svg class="moon-filled" aria-hidden="true" viewBox="0 0 19 19"><path d="M 8.128 0 C 3.531 .665 0 4.62 0 9.402 C 0 14.648 4.253 18.902 9.5 18.902 C 13.401 18.902 16.751 16.55 18.214 13.191 L 17.048 11.909 C 16.368 12.131 15.641 12.252 14.883 12.252 C 11.036 12.252 7.917 9.133 7.917 5.285 C 7.917 3.872 8.337 2.559 9.058 1.462 Z" fill="currentColor" /></svg>}
         </button>
       ))}
     </div>
@@ -91,13 +92,18 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   .copied-icon :global(svg) { width: 22px; height: 22px; margin: -1px; }
   .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(rgb(255 255 255 / .39),rgb(255 255 255 / .39)) center / 1px 24px no-repeat; }
   .theme-options { display: flex; gap: 5px; }
-  .theme-button { display: grid; place-items: center; flex: none; width: 35px; height: 35px; border-radius: 7px; color: rgb(255 255 255 / .39); transition: color 160ms, background 160ms, transform 160ms; }
+  .theme-button { position: relative; display: grid; place-items: center; flex: none; width: 35px; height: 35px; border-radius: 7px; color: rgb(255 255 255 / .39); transition: color 160ms, background 160ms; }
   .theme-button :global(svg) { width: 19px; height: 19px; }
   .theme-button[aria-pressed="true"] { color: #fff; }
   .theme-button :global(.sun-center) { opacity: 0; }
   .theme-button[aria-pressed="true"] :global(.sun-center) { opacity: 1; }
-  .theme-button:hover, .theme-button:focus-visible { background: rgb(255 255 255 / .14); color: #fff; }
-  .theme-button:active { transform: scale(.92); }
+  .moon-filled { position: absolute; opacity: 0; }
+  .theme-button[data-home-mode="dark"][aria-pressed="true"] .theme-symbol { opacity: 0; }
+  .theme-button[aria-pressed="true"] .moon-filled { opacity: 1; }
+  .theme-button:focus-visible { background: rgb(255 255 255 / .19); }
+  @media (hover: hover) and (pointer: fine) {
+    .theme-button:hover { background: rgb(255 255 255 / .19); }
+  }
   @media (max-width: 400px) {
     .home-dock-wrap { bottom: max(20px, env(safe-area-inset-bottom)); }
     .home-dock { gap: 10px; padding-inline: 16px; }
@@ -129,9 +135,30 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
 </style>
 
 <script>
+  import { animate } from "motion";
+
   const root = document.documentElement;
   const system = matchMedia("(prefers-color-scheme: dark)");
-  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-home-mode]");
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".home-dock button[data-home-mode]");
+  const hoverMotion = matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)");
+  buttons.forEach((button) => {
+    let animation: ReturnType<typeof animate> | undefined;
+    const scaleTo = (scale: number) => {
+      animation?.stop();
+      animation = animate(button, { scale }, {
+        type: "spring",
+        stiffness: button.dataset.homeMode === "system" ? 500 : 390,
+        damping: button.dataset.homeMode === "system" ? 60 : 25,
+        mass: 1,
+      });
+    };
+    button.addEventListener("pointerenter", () => { if (hoverMotion.matches) scaleTo(1.2); });
+    button.addEventListener("pointerleave", () => { if (hoverMotion.matches) scaleTo(1); });
+    hoverMotion.addEventListener("change", () => {
+      animation?.stop();
+      button.style.removeProperty("transform");
+    });
+  });
   let mode = root.dataset.homeMode ?? "system";
   const apply = () => {
     root.dataset.homeMode = mode;
