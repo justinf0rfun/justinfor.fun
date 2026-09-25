@@ -1,0 +1,169 @@
+---
+import { Icon } from "astro-icon/components";
+const icons = {
+  "plane": "<svg width=\"19\" height=\"19\" viewBox=\"0 0 19 19\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M17.7838 0L0.0215456 6.34366L0 8.1279L7.72046 11.0973C7.80423 11.1295 7.87042 11.1957 7.90263 11.2795L10.872 18.9999L12.6563 18.9784L19 1.21615L17.7838 0ZM8.35275 9.30149L3.07822 7.27281L14.4388 3.21547L8.35275 9.30149ZM9.69845 10.6472L11.7271 15.9217L15.7845 4.56116L9.69845 10.6472Z\" fill=\"currentColor\"/>\n</svg>",
+  "copy": "<svg data-test height=\"16\" stroke-linejoin=\"round\" width=\"16\" style=\"color:currentcolor\" ><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.75.5A1.75 1.75 0 0 0 1 2.25v7.5c0 .966.784 1.75 1.75 1.75H4.5V10H2.75a.25.25 0 0 1-.25-.25v-7.5A.25.25 0 0 1 2.75 2h5.5a.25.25 0 0 1 .25.25V3H10v-.75A1.75 1.75 0 0 0 8.25.5h-5.5Zm5 4A1.75 1.75 0 0 0 6 6.25v7.5c0 .966.784 1.75 1.75 1.75h5.5A1.75 1.75 0 0 0 15 13.75v-7.5a1.75 1.75 0 0 0-1.75-1.75h-5.5ZM7.5 6.25A.25.25 0 0 1 7.75 6h5.5a.25.25 0 0 1 .25.25v7.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25v-7.5Z\" fill=\"currentColor\"/></svg>",
+  "system": "<svg width=\"16\" height=\"15\" viewBox=\"0 0 16 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M0 1C0 0.44772 0.447715 0 1 0H15C15.5523 0 16 0.44772 16 1V9.5C16 10.0523 15.5523 10.5 15 10.5H8.75V13.5H9.75H10.5V15H9.75H6.25H5.5V13.5H6.25H7.25V10.5H1C0.447714 10.5 0 10.0523 0 9.5V1ZM1.5 1.5V9H14.5V1.5H1.5Z\" fill=\"currentColor\"/>\n</svg>",
+  "light": "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8.75 0.75V0H7.25V0.75V2V2.75H8.75V2V0.75ZM11.182 3.75732L11.7123 3.22699L12.0659 2.87344L12.5962 2.34311L13.6569 3.40377L13.1265 3.9341L12.773 4.28765L12.2426 4.81798L11.182 3.75732ZM8 10.5C9.38071 10.5 10.5 9.38071 10.5 8C10.5 6.61929 9.38071 5.5 8 5.5C6.61929 5.5 5.5 6.61929 5.5 8C5.5 9.38071 6.61929 10.5 8 10.5ZM8 12C10.2091 12 12 10.2091 12 8C12 5.79086 10.2091 4 8 4C5.79086 4 4 5.79086 4 8C4 10.2091 5.79086 12 8 12ZM13.25 7.25H14H15.25H16V8.75H15.25H14H13.25V7.25ZM0.75 7.25H0V8.75H0.75H2H2.75V7.25H2H0.75ZM2.87348 12.0659L2.34315 12.5962L3.40381 13.6569L3.93414 13.1265L4.28769 12.773L4.81802 12.2426L3.75736 11.182L3.22703 11.7123L2.87348 12.0659ZM3.75735 4.81798L3.22702 4.28765L2.87347 3.9341L2.34314 3.40377L3.4038 2.34311L3.93413 2.87344L4.28768 3.22699L4.81802 3.75732L3.75735 4.81798ZM12.0659 13.1265L12.5962 13.6569L13.6569 12.5962L13.1265 12.0659L12.773 11.7123L12.2426 11.182L11.182 12.2426L11.7123 12.773L12.0659 13.1265ZM8.75 13.25V14V15.25V16H7.25V15.25V14V13.25H8.75Z\" fill=\"currentColor\"/>\n</svg>",
+  "dark": "<svg width=\"15\" height=\"15\" viewBox=\"0 0 15 15\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M1.5 7.42229C1.5 4.95313 2.99198 2.83156 5.12349 1.91113C4.88136 2.62082 4.75 3.3816 4.75 4.17234C4.75 8.03833 7.88401 11.1723 11.75 11.1723C11.8995 11.1723 12.048 11.1676 12.1953 11.1583C11.0955 12.5386 9.40047 13.4223 7.5 13.4223C4.18629 13.4223 1.5 10.736 1.5 7.42229ZM6.41706 0C2.78784 0.525341 0 3.6476 0 7.42229C0 11.5644 3.35786 14.9223 7.5 14.9223C10.5798 14.9223 13.2244 13.066 14.3792 10.4143L13.4588 9.40194C12.9218 9.57724 12.3478 9.67234 11.75 9.67234C8.71243 9.67234 6.25 7.20991 6.25 4.17234C6.25 3.05655 6.58146 2.02047 7.15111 1.15441L6.41706 0Z\" fill=\"currentColor\"/>\n</svg>"
+};
+const email = "hello@jiaq.ing";
+icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
+icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" cy="8" r="2.5" fill="currentColor" /></svg>');
+---
+<div class="home-dock-wrap">
+  <div class="home-dock" role="group" aria-label="Contact and appearance">
+    <button class="dock-email" type="button" aria-label={`Copy email address ${email}`} data-copy-email={email}>
+      <span class="email-text"><span class="email-label">Email me</span><span class="email-address">{email}</span><span class="email-copied">Copied</span></span>
+      <span class="email-icons" aria-hidden="true">
+        <span class="plane" set:html={icons.plane} />
+        <span class="copy" set:html={icons.copy} />
+        <span class="copied-icon"><Icon name="ph:check-circle-fill" /></span>
+      </span>
+    </button>
+    <span class="dock-divider" aria-hidden="true"></span>
+    <div class="theme-options" role="group" aria-label="Homepage theme">
+      {(["system", "light", "dark"] as const).map((mode) => (
+        <button type="button" class="theme-button" data-home-mode={mode}
+          aria-label={mode === "system" ? "Use system theme" : `Use ${mode} theme`}
+          aria-pressed={mode === "system" ? "true" : "false"}>
+          <span aria-hidden="true" set:html={icons[mode]} />
+        </button>
+      ))}
+    </div>
+  </div>
+  <span class="sr-only" role="status" data-dock-status></span>
+</div>
+
+<style>
+  .home-dock-wrap {
+    position: fixed;
+    z-index: 35;
+    bottom: max(38px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .home-dock {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 13px 20px 13px 24px;
+    border-radius: 39px;
+    background: #000;
+    box-shadow: 0 .602px .602px -1.25px rgb(0 0 0 / .281),
+      0 2.289px 2.289px -2.5px rgb(0 0 0 / .248),
+      0 10px 10px -3.75px rgb(0 0 0 / .098);
+    outline: 1.5px solid var(--home-dock-border, #000);
+    outline-offset: -1.5px;
+  }
+  .home-dock-wrap::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    bottom: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 130px;
+    backdrop-filter: blur(6px);
+    mask-image: linear-gradient(transparent, #000 75%);
+  }
+  button { border: 0; padding: 0; background: none; cursor: pointer; }
+  button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+  .dock-email { display: flex; align-items: center; gap: 16px; color: rgb(255 255 255 / .5); border-radius: 7px; }
+  .email-text { position: relative; width: 70px; height: 29px; transition: width 260ms cubic-bezier(.22,1,.36,1); }
+  .email-text > span { position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: 16px; line-height: 1.6; letter-spacing: .01em; transition: opacity 180ms, filter 180ms; }
+  .email-address, .email-copied { opacity: 0; filter: blur(3px); }
+  .email-icons { position: relative; width: 20px; height: 20px; color: white; }
+  .email-icons > span { position: absolute; inset: 0; transition: opacity 180ms, filter 180ms; }
+  .plane { opacity: .39; }
+  .copy, .copied-icon { opacity: 0; filter: blur(3px); }
+  .email-icons :global(svg) { width: 19px; height: 19px; }
+  .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-text { width: 124px; }
+  .dock-email:is(:hover, :focus-visible, [data-copied]) .email-label,
+  .dock-email:is(:hover, :focus-visible, [data-copied]) .plane { opacity: 0; filter: blur(3px); }
+  .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-address,
+  .dock-email:is(:hover, :focus-visible):not([data-copied]) .copy { opacity: 1; filter: none; }
+  .dock-email[data-copied] .email-text { width: 56px; }
+  .dock-email[data-copied] .email-copied,
+  .dock-email[data-copied] .copied-icon { opacity: 1; filter: none; }
+  .copied-icon :global(svg) { width: 22px; height: 22px; margin: -1px; }
+  .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(rgb(255 255 255 / .39),rgb(255 255 255 / .39)) center / 1px 24px no-repeat; }
+  .theme-options { display: flex; gap: 5px; }
+  .theme-button { display: grid; place-items: center; flex: none; width: 35px; height: 35px; border-radius: 7px; color: rgb(255 255 255 / .39); transition: color 160ms, background 160ms, transform 160ms; }
+  .theme-button :global(svg) { width: 19px; height: 19px; }
+  .theme-button[aria-pressed="true"] { color: #fff; }
+  .theme-button :global(.sun-center) { opacity: 0; }
+  .theme-button[aria-pressed="true"] :global(.sun-center) { opacity: 1; }
+  .theme-button:hover, .theme-button:focus-visible { background: rgb(255 255 255 / .14); color: #fff; }
+  .theme-button:active { transform: scale(.92); }
+  @media (max-width: 400px) {
+    .home-dock-wrap { bottom: max(20px, env(safe-area-inset-bottom)); }
+    .home-dock { gap: 10px; padding-inline: 16px; }
+    .dock-email { gap: 10px; }
+    .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-text { width: 112px; }
+    .email-address { font-size: 14px !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .email-text, .email-text > span, .email-icons > span, .theme-button { transition: none; }
+  }
+</style>
+
+<style is:global>
+  body.home-surface { --home-background: #f7f7f8; --home-ink: #202221; --home-muted: rgb(32 34 33 / .5); }
+  html[data-home-theme="dark"] body.home-surface {
+    --home-background: #000;
+    --home-ink: #f7f7f8;
+    --home-muted: rgb(255 255 255 / .5);
+    --home-dock-border: #232323;
+  }
+  .home-surface > main { padding-bottom: 9rem; }
+  html[data-home-theme="dark"] .home-surface > main .folder .back stop:first-child { stop-color: #303030; }
+  html[data-home-theme="dark"] .home-surface > main .folder .back stop:last-child { stop-color: #181818; }
+  html[data-home-theme="dark"] .home-surface > main .folder .back path[stroke] { stroke: #555; stroke-opacity: .5; }
+  html[data-home-theme="dark"] .home-surface > main .folder .flap { background-image: linear-gradient(rgb(30 30 30 / .65),rgb(20 20 20 / .7)); --tw-inset-ring-color: rgb(255 255 255 / .12); }
+  html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-800 { color: var(--home-ink); }
+  html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-500 { color: var(--home-muted); }
+  .home-surface:has(.uses-stage.is-open, .projects-page.is-open, .music-page.is-open, .memory-page.is-open, .writing-page.is-open, .x-bookmarks-page.is-open, .fstage.is-open) .home-dock-wrap { visibility: hidden; pointer-events: none; }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const system = matchMedia("(prefers-color-scheme: dark)");
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-home-mode]");
+  let mode = root.dataset.homeMode ?? "system";
+  const apply = () => {
+    root.dataset.homeMode = mode;
+    root.dataset.homeTheme = mode === "system" ? (system.matches ? "dark" : "light") : mode;
+    buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.homeMode === mode)));
+  };
+  buttons.forEach((button) => button.addEventListener("click", () => {
+    mode = button.dataset.homeMode!;
+    try { localStorage.setItem("home-theme", mode); } catch {}
+    apply();
+  }));
+  system.addEventListener("change", apply);
+  apply();
+
+  const emailButton = document.querySelector<HTMLButtonElement>("[data-copy-email]");
+  const address = emailButton?.querySelector<HTMLElement>(".email-address");
+  const status = document.querySelector<HTMLElement>("[data-dock-status]");
+  let reset = 0;
+  emailButton?.addEventListener("click", async () => {
+    const email = emailButton.dataset.copyEmail!;
+    try {
+      await navigator.clipboard.writeText(email);
+      clearTimeout(reset);
+      emailButton.dataset.copied = "true";
+      if (status) status.textContent = "Email address copied.";
+      reset = window.setTimeout(() => {
+        delete emailButton.dataset.copied;
+        if (status) status.textContent = "";
+      }, 1800);
+    } catch {
+      if (status) status.textContent = `Copy unavailable. Email ${email}.`;
+      if (address) address.textContent = email;
+    }
+  });
+</script>

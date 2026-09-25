@@ -1,0 +1,73 @@
+<svg
+  class="signature"
+  data-signature
+  viewBox="0 0 390 100"
+  role="img"
+  aria-label="Justin for Fun"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <g transform="rotate(-4 195 50)">
+    <path d="M12 34 C25 18 66 13 65 25 C64 36 37 46 25 40 C15 35 35 20 50 21 C49 38 44 70 30 80 C17 89 8 77 20 65 C30 55 48 50 59 48" />
+    <path d="M59 48 C54 59 50 70 57 69 C64 68 73 53 75 47 C71 58 66 70 74 68 L84 60" />
+    <path d="M84 60 C91 52 98 43 93 43 C86 43 82 51 89 58 C100 69 87 74 81 68 C77 64 94 65 103 56" />
+    <path d="M103 56 C112 45 125 20 119 20 C113 20 105 48 103 61 C100 76 114 66 121 57" />
+    <path d="M102 43 Q117 40 129 41" />
+    <path d="M128 48 C124 56 119 70 126 67 Q132 64 138 56" />
+    <path d="M132 35 L133 33" />
+    <path d="M138 56 L134 67 C141 53 155 42 153 52 C150 60 146 70 155 67 L166 57" />
+    <path d="M186 47 C204 32 208 17 201 18 C190 20 181 58 177 78 C174 91 181 89 186 81 C192 69 183 54 177 51 C181 48 193 48 200 48" />
+    <path d="M216 49 C211 40 198 51 198 61 C198 75 216 67 217 54 C217 46 210 49 216 53 Q221 56 227 49" />
+    <path d="M227 49 L222 66 C226 55 235 43 239 46 C241 48 236 54 234 52 Q239 56 246 50" />
+    <path d="M268 69 C270 51 278 29 288 23 C296 19 296 29 290 31 C282 33 262 32 260 27 C257 21 286 17 309 22" />
+    <path d="M267 48 Q283 43 297 45" />
+    <path d="M302 47 C296 59 293 70 301 67 C309 65 316 52 317 47 C313 58 309 69 317 66 L326 57" />
+    <path d="M326 57 L323 67 C331 52 344 43 342 53 C339 64 336 72 348 65 Q361 59 369 48" />
+    <path d="M96 85 C157 78 263 74 345 79 C357 80 361 83 350 86" stroke-width="1.4" />
+  </g>
+</svg>
+
+<style>
+  .signature {
+    display: block;
+    width: 13.5rem;
+    max-width: 100%;
+    height: auto;
+    margin-top: 1.5rem;
+    color: var(--home-muted, rgb(32 34 33 / 50%));
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+
+  gsap.registerPlugin(DrawSVGPlugin);
+
+  document.querySelectorAll<SVGSVGElement>("[data-signature]").forEach((signature) => {
+    const media = gsap.matchMedia();
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      const strokes = [...signature.querySelectorAll<SVGPathElement>("path")];
+      const totalLength = strokes.reduce((sum, stroke) => sum + stroke.getTotalLength(), 0);
+      const writing = gsap.timeline({ paused: true, defaults: { ease: "none" } });
+      gsap.set(strokes, { drawSVG: "0% 0%" });
+      strokes.forEach((stroke) => {
+        writing.to(stroke, {
+          drawSVG: "0% 100%",
+          duration: (stroke.getTotalLength() / totalLength) * 2.6,
+        });
+      });
+
+      const observer = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        writing.play();
+        observer.disconnect();
+      }, { threshold: 0.7 });
+      observer.observe(signature);
+      return () => observer.disconnect();
+    }, signature);
+  });
+</script>

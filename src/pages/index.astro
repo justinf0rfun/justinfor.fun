@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
+import HomeDock from "../components/HomeDock.astro";
 import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
@@ -15,8 +16,19 @@ import { collections } from "../data/collections";
 import { folderMusicTracks } from "../data/music";
 ---
 
-<Layout>
+<Layout surface="home">
   <Fragment slot="head">
+    <script is:inline>
+      let mode = "system";
+      try {
+        const saved = localStorage.getItem("home-theme");
+        if (["system", "light", "dark"].includes(saved)) mode = saved;
+      } catch {}
+      document.documentElement.dataset.homeMode = mode;
+      document.documentElement.dataset.homeTheme = mode === "system"
+        ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : mode;
+    </script>
     {
       folderMusicTracks.map(
         (track) =>
@@ -34,11 +46,12 @@ import { folderMusicTracks } from "../data/music";
     </div>
     <BeliefNote />
     <LocalTimeFooter />
-    <UsesGrid mode="overlay" />
-    <ProjectsShowcase mode="overlay" />
-    <MusicShowcase mode="overlay" />
-    <MemoryShowcase mode="overlay" />
-    <WritingShowcase mode="overlay" />
-    <XBookmarksShowcase mode="overlay" />
   </main>
+  <HomeDock />
+  <UsesGrid mode="overlay" />
+  <ProjectsShowcase mode="overlay" />
+  <MusicShowcase mode="overlay" />
+  <MemoryShowcase mode="overlay" />
+  <WritingShowcase mode="overlay" />
+  <XBookmarksShowcase mode="overlay" />
 </Layout>

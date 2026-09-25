@@ -1,4 +1,8 @@
-<div>
+---
+import Signature from "./Signature.astro";
+---
+
+<div class="about">
   <div class="flex items-center gap-3">
     <img
       src="/justin-avatar.png"
@@ -23,12 +27,12 @@
           ></path>
         </svg>
       </h1>
-      <p class="mt-0.5 leading-tight text-neutral-500">AI Agent Engineer</p>
+      <p class="about-role mt-0.5 leading-tight">AI Agent Engineer</p>
     </div>
   </div>
   <div class="about-points">
     <section>
-      <h2>AI-era builder. Indie builder.</h2>
+      <h2><span class="about-keyword">AI-era builder.</span> <span class="about-keyword">Indie builder.</span></h2>
       <p>Rethinking building and roles in the age of AI.</p>
     </section>
 
@@ -76,7 +80,7 @@
           </span>
         </span>, China.
       </h2>
-      <p>I’m an AI agent engineer who loves music and building playful things.</p>
+      <p>I’m an <span class="about-keyword">AI agent engineer</span> who loves <span class="about-keyword">music</span> and building playful things.</p>
     </section>
 
     <section>
@@ -116,9 +120,18 @@
       </p>
     </section>
   </div>
+  <Signature />
 </div>
 
 <style>
+  .about {
+    color: var(--home-ink, #202221);
+  }
+
+  .about-role {
+    color: var(--home-muted, rgb(32 34 33 / 50%));
+  }
+
   .about-points {
     display: grid;
     gap: 1.25rem;
@@ -133,12 +146,18 @@
   }
 
   .about-points h2 {
-    color: #282828;
-    font-weight: 500;
+    font-weight: 400;
   }
 
+  .about-points h2,
   .about-points p {
-    color: #717171;
+    color: var(--home-muted, rgb(32 34 33 / 50%));
+  }
+
+  .about-points .about-keyword,
+  .about-points a {
+    color: var(--home-ink, #202221);
+    font-weight: inherit;
   }
 
   .location-preview {
