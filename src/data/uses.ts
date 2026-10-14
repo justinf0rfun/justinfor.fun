@@ -71,6 +71,12 @@ export const useSections: UseSection[] = [
         title: "Trying Now",
         items: [
           {
+            name: "Tern",
+            slogan: "A neoterminal for the Electron-weary.",
+            logo: "/uses/ai/tern.svg",
+            href: "https://stencil.so/tern",
+          },
+          {
             name: "Paseo",
             slogan: "Run any coding agent from anywhere.",
             logo: "/uses/ai/paseo.svg",
