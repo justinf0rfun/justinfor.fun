@@ -1,0 +1,32 @@
+---
+import AgentTools from "./AgentTools";
+---
+
+<div class="agent-tools-slot">
+  <AgentTools client:visible />
+</div>
+
+<style>
+  :global(.about:has(.agent-tools-slot)) {
+    margin-bottom: 1rem;
+  }
+  .agent-tools-slot {
+    margin-top: 0.75rem;
+    height: 7rem;
+    --agent-tool-surface: #fff;
+  }
+  :global([data-home-theme="dark"]) .agent-tools-slot {
+    --agent-tool-surface: #252525;
+  }
+  .agent-tools-slot :global(.agent-tools) {
+    position: relative;
+    height: 100%;
+  }
+  .agent-tools-slot :global([data-tw-item] img) {
+    object-fit: contain !important;
+    background: #fff;
+  }
+  .agent-tools-slot :global(img[src$="/tern.svg"]) {
+    padding: 6px;
+  }
+</style>
