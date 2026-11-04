@@ -5,8 +5,8 @@ import { readFileSync, existsSync } from "node:fs";
 const html = readFileSync(new URL("../dist/index.html", import.meta.url), "utf8");
 const strip = html.match(/<astro-island\b[^>]*component-url="[^"]*AgentTools[^>]*>[\s\S]*?<\/astro-island>/)?.[0];
 assert.ok(strip, "Homepage must render the AgentTools island");
-assert.equal((strip.match(/data-tw-item="/g) ?? []).length, 9, "Render nine icons, without duplicates");
-for (const name of ["Tern", "Rex", "Herdr", "omp", "Kero", "Otty", "Orca", "Grok Bot", "ChatGPT"]) {
+assert.equal((strip.match(/data-tw-item="/g) ?? []).length, 10, "Render ten icons, without duplicates");
+for (const name of ["Tern", "Rex", "Herdr", "omp", "Kero", "Otty", "Orca", "Grok Bot", "ChatGPT", "Claude"]) {
   assert.ok(strip.includes(`data-tw-title="${name}"`), `Missing ${name}`);
 }
 const destinations = {
@@ -19,12 +19,13 @@ const destinations = {
   Orca: "https://www.onorca.dev/",
   "Grok Bot": "https://x.ai/bot",
   ChatGPT: "https://chatgpt.com/",
+  Claude: "https://claude.ai/",
 };
 const links = [...strip.matchAll(/<a\b[^>]*data-tw-item="[^>]*>/g)].map(([tag]) => ({
   title: tag.match(/data-tw-title="([^"]+)"/)?.[1],
   href: tag.match(/href="([^"]+)"/)?.[1],
 }));
-assert.equal(links.length, 9, "Every icon must be a navigable link");
+assert.equal(links.length, 10, "Every icon must be a navigable link");
 for (const link of links) assert.equal(link.href, destinations[link.title], `Wrong destination for ${link.title}`);
 const chatgpt = strip.match(/<a\b[^>]*data-tw-title="ChatGPT"[^>]*>[\s\S]*?<\/a>/)?.[0];
 assert.ok(chatgpt?.includes('src="/uses/ai/codex.png"'), "ChatGPT must use the Codex icon");
@@ -40,4 +41,4 @@ assert.ok(!thoughts.includes('data-tw-item'), "Thoughts must not include the hom
 const source = readFileSync(new URL("../src/components/AgentTools.tsx", import.meta.url), "utf8");
 assert.match(source, /gravity=\{1\}/, "Keep gravity enabled for the falling entrance");
 assert.match(source, /entrance="rain"/, "Keep the requested staggered falling entrance");
-console.log("Agent tools: nine local icons, falling entrance, correct homepage position, no Thoughts changes.");
+console.log("Agent tools: ten local icons, falling entrance, correct homepage position, no Thoughts changes.");
