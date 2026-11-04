@@ -13,6 +13,8 @@ const tools = [
   { title: "Kero", src: "/uses/ai/kero.png", href: "https://kero.sh/" },
   { title: "Otty", src: existingTools.find((item) => item.name === "Otty")!.logo, href: "https://otty.sh/" },
   { title: "Orca", src: existingTools.find((item) => item.name === "Orca")!.logo, href: "https://www.onorca.dev/" },
+  { title: "Grok Bot", src: existingTools.find((item) => item.name === "Grok Bot")!.logo, href: "https://x.ai/bot" },
+  { title: "ChatGPT", src: "/uses/ai/codex.png", href: "https://chatgpt.com/" },
 ];
 
 export default function AgentTools() {
@@ -44,7 +46,7 @@ export default function AgentTools() {
         frameColor="var(--agent-tool-surface)"
         textColor="var(--home-ink, #202221)"
         paused={covered}
-        ariaLabel="Agent tools: Tern, Rex, Herdr, omp, Kero, Otty and Orca"
+        ariaLabel="Agent tools: Tern, Rex, Herdr, omp, Kero, Otty, Orca, Grok Bot and ChatGPT"
         style={{ height: "100%", minHeight: 0, color: "var(--home-ink, #202221)" }}
       />
     </div>
