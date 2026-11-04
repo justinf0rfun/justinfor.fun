@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Device from "./react-bits/device";
 import type { MotionState } from "../lib/mobile-gravity";
 import "./MotionPermission.css";
@@ -11,9 +12,29 @@ interface Props {
 }
 
 export default function MotionPermission({ state, ready, onRequest }: Props) {
-  const needsSpace = state === "prompt" || state === "requesting";
+  const [dismissed, setDismissed] = useState(false);
+  const needsSpace = !dismissed && (state === "prompt" || state === "requesting");
   const visible = ready && needsSpace;
   const pending = state === "requesting";
+
+  useEffect(() => {
+    let timeout: number | undefined;
+    const start = () => {
+      window.clearTimeout(timeout);
+      if (ready && state === "prompt") timeout = window.setTimeout(() => setDismissed(true), 3000);
+    };
+    const restore = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      setDismissed(false);
+      start();
+    };
+    if (!dismissed) start();
+    window.addEventListener("pageshow", restore);
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener("pageshow", restore);
+    };
+  }, [ready, state, dismissed]);
 
   return (
     <div
