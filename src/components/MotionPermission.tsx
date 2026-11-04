@@ -11,12 +11,13 @@ interface Props {
 }
 
 export default function MotionPermission({ state, ready, onRequest }: Props) {
-  const visible = ready && (state === "prompt" || state === "requesting");
+  const needsSpace = state === "prompt" || state === "requesting";
+  const visible = ready && needsSpace;
   const pending = state === "requesting";
 
   return (
     <div
-      className={`motion-permission-row${ready ? " is-ready" : ""}`}
+      className={`motion-permission-row${ready ? " is-ready" : ""}${needsSpace ? "" : " is-collapsed"}`}
       data-motion-permission
     >
       <button
