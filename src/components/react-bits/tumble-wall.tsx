@@ -349,7 +349,8 @@ function createWall(
   let raf = 0;
   let last = 0;
   let acc = 0;
-  let seed = 1;
+  // Vary each mounted wall without changing the server-rendered item order.
+  let seed = Math.random() * 1_000_000;
   let zTop = 10;
   let laneKey = "";
   let lanePerm: number[] = [];
