@@ -179,6 +179,7 @@ interface Controller {
 
 const STEP = 1000 / 120;
 const WALL = 640;
+const ENTERING_CATEGORY = 0x0002;
 const SIDES: Side[] = ["top", "bottom", "left", "right"];
 const SHAPES: TumbleWallShape[] = ["circle", "square", "card", "chip", "mixed"];
 const FRAMES: TumbleWallFrame[] = ["none", "border", "polaroid"];
@@ -411,29 +412,43 @@ function createWall(
           : b.bounds.max.x <= width;
   };
 
-  const clampInside = (p: Piece, x: number, y: number): Point => {
+  const markEntered = () => {
+    if (!gap) return;
+    for (const p of list)
+      if (p.body && insideOf(p, gap)) p.body.collisionFilter.category = 0x0001;
+  };
+
+  const clampInside = (
+    p: Piece,
+    x: number,
+    y: number,
+    arriving = p.body?.collisionFilter.category === ENTERING_CATEGORY,
+  ): Point => {
     const r = p.kind === "circle" ? p.w / 2 : Math.min(p.w, p.h) / 2;
     const fx = finite(x, width / 2);
     const fy = finite(y, height / 2);
+    const openSide = arriving || !settings().contain ? gap : null;
     return {
       x: clamp(
         fx,
-        gap === "left" ? -width * 2 : r,
-        gap === "right" ? width * 3 : Math.max(r, width - r),
+        openSide === "left" ? -width * 2 : r,
+        openSide === "right" ? width * 3 : Math.max(r, width - r),
       ),
       y: clamp(
         fy,
-        gap === "top" ? -height * 2 : r,
-        gap === "bottom" ? height * 3 : Math.max(r, height - r),
+        openSide === "top" ? -height * 2 : r,
+        openSide === "bottom" ? height * 3 : Math.max(r, height - r),
       ),
     };
   };
 
   const setGap = (side: Side | null) => {
-    if (gap === side) return;
-    if (walls && gap) Composite.add(engine.world, walls[gap]);
-    if (walls && side) Composite.remove(engine.world, walls[side]);
     gap = side;
+    if (!walls) return;
+    // The entrance stays solid for pieces that have already crossed into the wall.
+    for (const edge of SIDES)
+      walls[edge].collisionFilter.mask =
+        edge === side ? (settings().contain ? ~ENTERING_CATEGORY : 0) : 0xffffffff;
   };
 
   const desiredGap = (s: Settings) =>
@@ -450,8 +465,8 @@ function createWall(
       left: Bodies.rectangle(-WALL / 2, height / 2, WALL, spanY, options),
       right: Bodies.rectangle(width + WALL / 2, height / 2, WALL, spanY, options),
     };
-    for (const side of SIDES)
-      if (side !== gap) Composite.add(engine.world, walls[side]);
+    Composite.add(engine.world, Object.values(walls));
+    setGap(gap);
   };
 
   const createBody = (p: Piece, x: number, y: number, angle: number) => {
@@ -792,6 +807,7 @@ function createWall(
     Body.setAngularVelocity(body, (r2 - 0.5) * 0.12 * amount);
     Composite.add(engine.world, body);
     p.body = body;
+    if (gap && !insideOf(p, gap)) body.collisionFilter.category = ENTERING_CATEGORY;
     p.spawned = true;
     p.px = point.x;
     p.py = point.y;
@@ -891,10 +907,12 @@ function createWall(
     engine.gravity.y = gravityOf(s).y;
     for (let i = 0; i < 1400; i += 1) {
       Engine.update(engine, STEP);
+      markEntered();
       if (i > 120 && i % 20 === 0 && list.every((p) => !p.body || p.body.isSleeping))
         break;
     }
-    if (side && list.every((p) => insideOf(p, side))) setGap(desiredGap(s));
+    if (side && list.every((p) => p.body?.collisionFilter.category !== ENTERING_CATEGORY))
+      setGap(desiredGap(s));
     else if (side) {
       entering = true;
       enterSide = side;
@@ -1046,8 +1064,14 @@ function createWall(
       const old = previous.get(p.index);
       p.node.style.zIndex = p.z ? String(p.z) : "";
       if (preserve && old?.body && old.spawned) {
-        const at = clampInside(p, old.body.position.x, old.body.position.y);
+        const at = clampInside(
+          p,
+          old.body.position.x,
+          old.body.position.y,
+          old.body.collisionFilter.category === ENTERING_CATEGORY,
+        );
         const body = createBody(p, at.x, at.y, old.body.angle);
+        body.collisionFilter.category = old.body.collisionFilter.category;
         Body.setVelocity(body, Body.getVelocity(old.body));
         Body.setAngularVelocity(body, Body.getAngularVelocity(old.body));
         Composite.add(engine.world, body);
@@ -1166,6 +1190,7 @@ function createWall(
     }
     if (drag?.piece.body) Sleeping.set(drag.piece.body, false);
     Engine.update(engine, STEP);
+    markEntered();
     const loose = 38 * Math.sqrt(unit) + 8;
     const calm = 24 * Math.sqrt(unit) + 4;
     for (const p of list) {
@@ -1194,8 +1219,7 @@ function createWall(
       }
     }
     if (entering && enterSide && list.every((p) => p.spawned)) {
-      const side = enterSide;
-      if (list.every((p) => insideOf(p, side))) {
+      if (list.every((p) => p.body?.collisionFilter.category !== ENTERING_CATEGORY)) {
         entering = false;
         enterSide = null;
       }
