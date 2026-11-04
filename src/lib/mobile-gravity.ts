@@ -1,11 +1,11 @@
 export type Gravity = { x: number; y: number };
-export type MotionStatus = "unavailable" | "ready" | "requesting" | "active" | "denied";
+export type MotionState = "checking" | "prompt" | "requesting" | "active" | "unavailable";
 
 type PermissionSource = { requestPermission?: () => Promise<"granted" | "denied"> };
 type Callbacks = {
   onGravity: (gravity: Gravity) => void;
   onShake: (strength: number) => void;
-  onStatus: (status: MotionStatus) => void;
+  onState: (state: MotionState) => void;
   isPaused: () => boolean;
 };
 
@@ -16,9 +16,8 @@ export function createMobileGravity(element: HTMLElement, callbacks: Callbacks) 
   const orientation = window.DeviceOrientationEvent as PermissionSource | undefined;
   const motion = window.DeviceMotionEvent as PermissionSource | undefined;
   const supported = window.isSecureContext && window.matchMedia("(pointer: coarse)").matches && !!orientation;
-  let status: MotionStatus = supported && !reduced.matches ? "ready" : "unavailable";
+  let state: MotionState = supported && !reduced.matches ? "checking" : "unavailable";
   let destroyed = false;
-  let listening = false;
   let visible = false;
   let request = 0;
   let timeout = 0;
@@ -28,17 +27,17 @@ export function createMobileGravity(element: HTMLElement, callbacks: Callbacks) 
   let filtered: Gravity = { x: 0, y: 1 };
   let published = filtered;
 
-  const setStatus = (next: MotionStatus) => {
-    if (destroyed || status === next) return;
-    status = next;
-    callbacks.onStatus(next);
+  const setState = (next: MotionState) => {
+    if (destroyed || state === next) return;
+    state = next;
+    callbacks.onState(next);
   };
   const canMove = () => !destroyed && visible && !document.hidden && !reduced.matches && !callbacks.isPaused();
 
   const onOrientation = (event: DeviceOrientationEvent) => {
     if (!finite(event.beta) || !finite(event.gamma)) return;
     window.clearTimeout(timeout);
-    setStatus("active");
+    setState("active");
     if (!canMove()) return;
     const angle = window.screen.orientation?.angle;
     const legacyAngle = window.orientation;
@@ -62,7 +61,7 @@ export function createMobileGravity(element: HTMLElement, callbacks: Callbacks) 
   };
 
   const onMotion = (event: DeviceMotionEvent) => {
-    if (status !== "active" || !canMove()) return;
+    if (state !== "active" || !canMove()) return;
     const acceleration = event.acceleration;
     if (!acceleration || !finite(acceleration.x) || !finite(acceleration.y) || !finite(acceleration.z)) return;
     const magnitude = Math.hypot(acceleration.x, acceleration.y, acceleration.z);
@@ -74,7 +73,6 @@ export function createMobileGravity(element: HTMLElement, callbacks: Callbacks) 
 
   const stop = () => {
     request += 1;
-    listening = false;
     window.clearTimeout(timeout);
     window.removeEventListener("deviceorientation", onOrientation);
     window.removeEventListener("devicemotion", onMotion);
@@ -86,42 +84,42 @@ export function createMobileGravity(element: HTMLElement, callbacks: Callbacks) 
     if (destroyed) return;
     stop();
     callbacks.onGravity({ x: 0, y: 1 });
-    setStatus(supported && !reduced.matches ? "ready" : "unavailable");
+    setState("unavailable");
+    void start();
+  };
+
+  const start = async (manual = false) => {
+    if (destroyed || !supported || reduced.matches || state === "active" || state === "requesting") return;
+    stop();
+    const currentRequest = request;
+    setState(manual ? "requesting" : "checking");
+    try {
+      // Both requests run before awaiting, preserving activation from the phone button.
+      const permissions = await Promise.all([orientation, motion].map(async (source) =>
+        source?.requestPermission ? source.requestPermission() : "granted",
+      ));
+      if (destroyed || currentRequest !== request || reduced.matches) return;
+      if (permissions.some((permission) => permission !== "granted")) { setState("prompt"); return; }
+      window.addEventListener("deviceorientation", onOrientation, { passive: true });
+      window.addEventListener("devicemotion", onMotion, { passive: true });
+      timeout = window.setTimeout(() => {
+        stop();
+        callbacks.onGravity({ x: 0, y: 1 });
+        setState("unavailable");
+      }, 3000);
+    } catch {
+      if (!destroyed && currentRequest === request) setState("prompt");
+    }
   };
   const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
   observer.observe(element);
   reduced.addEventListener("change", onReducedMotion);
   callbacks.onGravity(published);
-  callbacks.onStatus(status);
+  callbacks.onState(state);
+  void start();
 
   return {
-    async enable() {
-      if (destroyed || listening || status === "requesting" || !supported || reduced.matches) return;
-      const currentRequest = ++request;
-      setStatus("requesting");
-      try {
-        // Start both requests in the click handler before awaiting either permission.
-        const permissions = await Promise.all([orientation, motion].map(async (source) =>
-          source?.requestPermission ? source.requestPermission() : "granted",
-        ));
-        if (destroyed || currentRequest !== request) return;
-        if (reduced.matches) { setStatus("unavailable"); return; }
-        if (permissions.some((permission) => permission !== "granted")) {
-          setStatus("denied");
-          return;
-        }
-        listening = true;
-        window.addEventListener("deviceorientation", onOrientation, { passive: true });
-        window.addEventListener("devicemotion", onMotion, { passive: true });
-        timeout = window.setTimeout(() => {
-          stop();
-          callbacks.onGravity({ x: 0, y: 1 });
-          setStatus("unavailable");
-        }, 3000);
-      } catch {
-        if (!destroyed && currentRequest === request) setStatus("denied");
-      }
-    },
+    requestAccess: () => start(true),
     destroy() {
       destroyed = true;
       stop();

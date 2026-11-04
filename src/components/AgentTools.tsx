@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import TumbleWall, { type TumbleWallHandle } from "./react-bits/tumble-wall";
 import { useSections } from "../data/uses";
-import { createMobileGravity, type Gravity, type MotionStatus } from "../lib/mobile-gravity";
+import { createMobileGravity, type Gravity, type MotionState } from "../lib/mobile-gravity";
+
+const MotionPermission = lazy(() => import("./MotionPermission"));
 
 const existingTools = useSections.flatMap((section) => section.groups.flatMap((group) => group.items));
 const tools = [
@@ -22,10 +24,14 @@ const tools = [
 export default function AgentTools() {
   const [covered, setCovered] = useState(false);
   const [gravity, setGravity] = useState<Gravity>({ x: 0, y: 1 });
-  const [motionStatus, setMotionStatus] = useState<MotionStatus>("unavailable");
+  const [motionState, setMotionState] = useState<MotionState>("checking");
+  const [hasPrompt, setHasPrompt] = useState(false);
+  const [landed, setLanded] = useState(false);
   const regionRef = useRef<HTMLDivElement>(null);
   const wallRef = useRef<TumbleWallHandle>(null);
   const coveredRef = useRef(false);
+  const landedRef = useRef(false);
+  const requestedRef = useRef(false);
   const motionRef = useRef<ReturnType<typeof createMobileGravity> | null>(null);
 
   useEffect(() => {
@@ -37,61 +43,81 @@ export default function AgentTools() {
     update();
     const observer = new MutationObserver(update);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
-    if (regionRef.current) {
-      motionRef.current = createMobileGravity(regionRef.current, {
-        onGravity: setGravity,
-        onShake: (strength) => wallRef.current?.shake(strength),
-        onStatus: setMotionStatus,
-        isPaused: () => coveredRef.current,
-      });
-    }
+    const motion = regionRef.current
+      ? createMobileGravity(regionRef.current, {
+          onGravity: setGravity,
+          onShake: (strength) => wallRef.current?.shake(strength),
+          onState: (state) => {
+            setMotionState(state);
+            if (state === "prompt") setHasPrompt(true);
+            if (state === "active" && requestedRef.current) {
+              requestedRef.current = false;
+              if (!coveredRef.current && !document.hidden) wallRef.current?.shake(0.35);
+            }
+          },
+          isPaused: () => {
+            // Remember the first landing so sensor motion does not pause itself.
+            landedRef.current ||= wallRef.current?.isSettled() ?? false;
+            return coveredRef.current || !landedRef.current;
+          },
+        })
+      : null;
+    motionRef.current = motion;
     return () => {
       observer.disconnect();
-      motionRef.current?.destroy();
+      motion?.destroy();
       motionRef.current = null;
     };
   }, []);
 
+  useEffect(() => {
+    if (!hasPrompt || landed || covered) return;
+    let frame = 0;
+    const checkLanding = () => {
+      if (landedRef.current || wallRef.current?.isSettled()) {
+        landedRef.current = true;
+        setLanded(true);
+      } else frame = requestAnimationFrame(checkLanding);
+    };
+    frame = requestAnimationFrame(checkLanding);
+    return () => cancelAnimationFrame(frame);
+  }, [hasPrompt, landed, covered]);
+
   return (
     <div className="agent-tools" ref={regionRef}>
-      <TumbleWall
-        ref={wallRef}
-        items={tools}
-        count={tools.length}
-        shape="square"
-        size={46}
-        sizeVariance={0.08}
-        radius={12}
-        fill={0.45}
-        gravity={gravity.y}
-        gravityX={gravity.x}
-        entrance="rain"
-        shadow={0.15}
-        hoverScale={1.08}
-        frameColor="var(--agent-tool-surface)"
-        textColor="var(--home-ink, #202221)"
-        paused={covered}
-        ariaLabel="Agent tools: Tern, Rex, Herdr, omp, Kero, Otty, Orca, Grok Bot, ChatGPT and Claude"
-        style={{ height: "100%", minHeight: 0, color: "var(--home-ink, #202221)" }}
-      />
-      {(motionStatus === "ready" || motionStatus === "requesting") && (
-        <button
-          type="button"
-          className="agent-tools-motion"
-          disabled={motionStatus === "requesting"}
-          aria-label="Enable tilt and shake for these icons"
-          aria-busy={motionStatus === "requesting"}
-          onClick={() => void motionRef.current?.enable()}
-        >
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <rect x="7" y="3" width="10" height="18" rx="2" transform="rotate(-15 12 12)" />
-            <path d="M3 8 1 12l2 4M21 8l2 4-2 4" />
-          </svg>
-          {motionStatus === "requesting" ? "Enabling…" : "Tilt & shake"}
-        </button>
-      )}
-      {motionStatus === "denied" && (
-        <span className="agent-tools-motion" role="status">Motion access is off</span>
+      <div className="agent-tools-stage">
+        <TumbleWall
+          ref={wallRef}
+          items={tools}
+          count={tools.length}
+          shape="square"
+          size={46}
+          sizeVariance={0.08}
+          radius={12}
+          fill={0.45}
+          gravity={gravity.y}
+          gravityX={gravity.x}
+          entrance="rain"
+          shadow={0.15}
+          hoverScale={1.08}
+          frameColor="var(--agent-tool-surface)"
+          textColor="var(--home-ink, #202221)"
+          paused={covered}
+          ariaLabel="Agent tools: Tern, Rex, Herdr, omp, Kero, Otty, Orca, Grok Bot, ChatGPT and Claude"
+          style={{ height: "100%", minHeight: 0, color: "var(--home-ink, #202221)" }}
+        />
+      </div>
+      {hasPrompt && (
+        <Suspense fallback={<div style={{ height: 76 }} aria-hidden="true" />}>
+          <MotionPermission
+            state={motionState}
+            ready={landed}
+            onRequest={() => {
+              requestedRef.current = true;
+              void motionRef.current?.requestAccess();
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

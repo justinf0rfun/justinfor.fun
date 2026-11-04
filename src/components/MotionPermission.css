@@ -1,0 +1,140 @@
+.motion-permission-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 76px;
+  overflow: hidden;
+}
+
+.motion-permission-control {
+  display: grid;
+  place-items: center;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 60px;
+  padding: 0;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: var(--home-ink, #202221);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+  pointer-events: none;
+  transition: opacity 180ms ease-out, transform 180ms ease-out, visibility 0s linear 180ms;
+}
+
+.motion-permission-control.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.motion-permission-control.is-pending {
+  opacity: 0.65;
+  transform: scale(0.96);
+  pointer-events: none;
+}
+
+.motion-permission-control:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.motion-permission-control:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+.motion-permission-fall,
+.motion-permission-toy {
+  display: block;
+  width: 25px;
+  height: 52.3px;
+  pointer-events: none;
+}
+
+.motion-permission-toy {
+  transform-origin: 50% 75%;
+}
+
+.motion-permission-screen {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.motion-permission-ball {
+  position: absolute;
+  bottom: 5px;
+  display: block;
+  border-radius: 50%;
+}
+
+.motion-permission-ball-a {
+  left: 5px;
+  width: 5px;
+  height: 5px;
+  background: #126a5a;
+}
+
+.motion-permission-ball-b {
+  left: 12px;
+  width: 4px;
+  height: 4px;
+  background: #dc6a4b;
+}
+
+.motion-permission-row.is-ready .motion-permission-fall {
+  animation: motion-permission-drop 480ms both;
+}
+
+.motion-permission-row.is-ready .motion-permission-toy {
+  animation: motion-permission-tilt 1400ms 480ms ease-in-out both;
+}
+
+.motion-permission-row.is-ready .motion-permission-ball {
+  animation: motion-permission-roll 1400ms 480ms ease-in-out both;
+}
+
+@keyframes motion-permission-drop {
+  0% { transform: translateY(-64px); animation-timing-function: ease-in; }
+  65% { transform: translateY(2px); animation-timing-function: ease-out; }
+  82% { transform: translateY(-2px); animation-timing-function: ease-in-out; }
+  100% { transform: translateY(0); }
+}
+
+@keyframes motion-permission-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-11deg); }
+  60% { transform: rotate(10deg); }
+  82% { transform: rotate(-4deg); }
+}
+
+@keyframes motion-permission-roll {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  60% { transform: translateX(3px); }
+  82% { transform: translateX(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-permission-row.is-ready .motion-permission-fall,
+  .motion-permission-row.is-ready .motion-permission-toy,
+  .motion-permission-row.is-ready .motion-permission-ball {
+    animation: none;
+  }
+  .motion-permission-control {
+    transform: none;
+    transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+  }
+  .motion-permission-control.is-pending,
+  .motion-permission-control:active:not(:disabled) {
+    transform: none;
+  }
+}

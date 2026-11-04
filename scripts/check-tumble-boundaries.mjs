@@ -117,6 +117,19 @@ for (const { name, ticks = 25, width = 720, height = 112, gravity = 1, gravityX 
   });
 }
 
+test("settled state waits for landing and changes when icons move again", () => {
+  const scene = wall({ width: 390 });
+  assert.equal(scene.controller.isSettled(), false);
+  scene.advance(1);
+  assert.equal(scene.controller.isSettled(), false);
+  scene.advance(600);
+  assert.equal(scene.controller.isSettled(), true);
+  scene.controller.shake();
+  assert.equal(scene.controller.isSettled(), false);
+  scene.controller.destroy();
+  assert.equal(scene.controller.isSettled(), false);
+});
+
 test("resting icons finish entering despite small collision overlap", () => {
   const scene = wall({ width: 390 });
   scene.advance(600);

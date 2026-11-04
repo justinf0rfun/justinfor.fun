@@ -30,6 +30,7 @@ export type TumbleWallFrame = "none" | "border" | "polaroid";
 export type TumbleWallEntrance = "rain" | "burst" | "drop" | "none";
 
 export interface TumbleWallHandle {
+  isSettled: () => boolean;
   drop: () => void;
   shake: (strength?: number) => void;
   pop: (x: number, y: number, strength?: number) => void;
@@ -170,6 +171,7 @@ interface Tap {
 }
 
 interface Controller {
+  isSettled: () => boolean;
   sync: () => void;
   drop: () => void;
   shake: (strength?: number) => void;
@@ -1739,6 +1741,7 @@ function createWall(
   stage.ownerDocument.fonts?.ready.then(onFonts);
 
   return {
+    isSettled: () => !destroyed && started && !entering && list.every((p) => p.spawned && p.body?.isSleeping),
     sync: () => {
       const s = settings();
       const nextStructure = structureOf(s);
@@ -1930,6 +1933,7 @@ export const TumbleWall = forwardRef<TumbleWallHandle, TumbleWallProps>(
     useImperativeHandle(
       ref,
       () => ({
+        isSettled: () => controllerRef.current?.isSettled() ?? false,
         drop: () => controllerRef.current?.drop(),
         shake: (strength?: number) => controllerRef.current?.shake(strength),
         pop: (x: number, y: number, strength?: number) =>
