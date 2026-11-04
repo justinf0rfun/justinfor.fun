@@ -23,7 +23,7 @@ function element() {
   };
 }
 
-function wall({ width = 720, height = 112, count = 10, ...overrides } = {}) {
+function wall({ width = 720, height = 112, count = 10, random = 0.000001, ...overrides } = {}) {
   let engine;
   let time = 0;
   let nextFrame = 0;
@@ -41,7 +41,7 @@ function wall({ width = 720, height = 112, count = 10, ...overrides } = {}) {
   const settings = { items: nodes.map(() => ({ title: "test" })), count, shape: "square", size: 46, sizeVariance: 0.08, fill: 0.45, radius: 12, frame: "none", frameWidth: 6, showTitles: false, hoverScale: 1.08, gravity: 1, gravityX: 0, bounce: 0.32, friction: 0.3, airFriction: 0.012, spin: 0.5, drift: 0, entrance: "rain", stagger: 55, draggable: true, dragStiffness: 0.2, throwStrength: 1, popForce: 1, contain: true, paused: false, reduced: false, ...overrides };
   const createWall = runInNewContext(`${controllerSource}\ncreateWall`, {
     Matter: { ...Matter, Engine: { ...Matter.Engine, create(options) { engine = Matter.Engine.create(options); return engine; } } },
-    Math: Object.assign(Object.create(Math), { random: () => 0.000001 }),
+    Math: Object.assign(Object.create(Math), { random: () => random }),
     document, window, performance: { now: () => time },
     requestAnimationFrame: (callback) => { frames.set(++nextFrame, callback); return nextFrame; },
     cancelAnimationFrame: (id) => frames.delete(id),
@@ -116,3 +116,55 @@ for (const { name, ticks = 25, width = 720, height = 112, gravity = 1, gravityX 
     assert.equal(clearance >= 0, contain, `Unexpected containment during the first throw: clearance=${clearance.toFixed(2)}`);
   });
 }
+
+test("resting icons finish entering despite small collision overlap", () => {
+  const scene = wall({ width: 390 });
+  scene.advance(600);
+  const bodies = Matter.Composite.allBodies(scene.engine.world).filter((body) => !body.isStatic);
+  assert.equal(bodies.length, 10);
+  assert.ok(bodies.every((body) => body.collisionFilter.category === 1), "An edge overlap must not leave the entrance active forever");
+  scene.controller.destroy();
+});
+
+for (const { name, changes } of [
+  { name: "horizontal", changes: [{ gravityX: 1, gravity: 0 }] },
+  { name: "zero", changes: [{ gravityX: 0, gravity: 0 }] },
+  { name: "upward", changes: [{ gravityX: 0, gravity: -1 }] },
+  { name: "rapidly changing", changes: [{ gravityX: 1, gravity: 0 }, { gravityX: 0, gravity: 0 }, { gravityX: 0, gravity: -1 }] },
+]) {
+  test(`finish rain and apply ${name} gravity requested during entrance`, () => {
+    const scene = wall({ width: 390 });
+    for (const change of changes) {
+      scene.advance(1);
+      Object.assign(scene.settings, change);
+      scene.controller.sync();
+    }
+    scene.advance(600);
+    const bodies = Matter.Composite.allBodies(scene.engine.world).filter((body) => !body.isStatic);
+    assert.equal(bodies.length, 10);
+    assert.ok(bodies.every((body) => body.collisionFilter.category === 1), "Every icon must finish crossing the entrance");
+    assert.ok(bodies.every((body) => body.bounds.min.x >= -2 && body.bounds.min.y >= -2 && body.bounds.max.x <= 392 && body.bounds.max.y <= 114), "Tilt must preserve containment after entrance");
+    const target = changes.at(-1);
+    assert.equal(scene.engine.gravity.x, target.gravityX);
+    assert.equal(scene.engine.gravity.y, target.gravity);
+    if (target.gravityX > 0) assert.ok(bodies.reduce((sum, body) => sum + body.position.x, 0) / bodies.length > 195, "Icons must settle toward the right edge");
+    if (target.gravity < 0) assert.ok(bodies.reduce((sum, body) => sum + body.position.y, 0) / bodies.length < 56, "Icons must settle toward the top edge");
+    scene.controller.destroy();
+  });
+}
+
+test("release deferred gravity when a randomized pile rests across the entrance", () => {
+  for (const random of [0, 0.11, 0.37, 0.93]) {
+    const scene = wall({ width: 390, random });
+    scene.advance(1);
+    scene.settings.gravity = -1;
+    scene.controller.sync();
+    scene.advance(600);
+    const bodies = Matter.Composite.allBodies(scene.engine.world).filter((body) => !body.isStatic);
+    assert.equal(bodies.length, 10);
+    assert.ok(bodies.every((body) => body.collisionFilter.category === 1), `Entrance must finish for random=${random}`);
+    assert.ok(bodies.every((body) => body.bounds.min.x >= -2 && body.bounds.min.y >= -2 && body.bounds.max.x <= 392 && body.bounds.max.y <= 114), `All icons must be contained for random=${random}`);
+    assert.equal(scene.engine.gravity.y, -1, "Tilt must take effect after the entrance finishes");
+    scene.controller.destroy();
+  }
+});

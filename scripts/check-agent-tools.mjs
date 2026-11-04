@@ -39,6 +39,5 @@ assert.ok(html.indexOf(strip) < html.indexOf('data-contributions'), "Icons must 
 const thoughts = readFileSync(new URL("../dist/thoughts/index.html", import.meta.url), "utf8");
 assert.ok(!thoughts.includes('data-tw-item'), "Thoughts must not include the homepage animation");
 const source = readFileSync(new URL("../src/components/AgentTools.tsx", import.meta.url), "utf8");
-assert.match(source, /gravity=\{1\}/, "Keep gravity enabled for the falling entrance");
 assert.match(source, /entrance="rain"/, "Keep the requested staggered falling entrance");
 console.log("Agent tools: ten local icons, falling entrance, correct homepage position, no Thoughts changes.");

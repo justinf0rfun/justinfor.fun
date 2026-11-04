@@ -335,6 +335,7 @@ function createWall(
   let gap: Side | null = null;
   let enterSide: Side | null = null;
   let entering = false;
+  let entryGravity: Point = { x: 0, y: 0 };
   let width = 0;
   let height = 0;
   let unit = 1;
@@ -400,22 +401,32 @@ function createWall(
           ? { x: -depth, y: along }
           : { x: width + depth, y: along };
 
-  const insideOf = (p: Piece, side: Side) => {
+  const insideOf = (p: Piece, side: Side, tolerance = 0) => {
     const b = p.body;
     if (!b) return false;
     return side === "top"
-      ? b.bounds.min.y >= 0
+      ? b.bounds.min.y >= -tolerance
       : side === "bottom"
-        ? b.bounds.max.y <= height
+        ? b.bounds.max.y <= height + tolerance
         : side === "left"
-          ? b.bounds.min.x >= 0
-          : b.bounds.max.x <= width;
+          ? b.bounds.min.x >= -tolerance
+          : b.bounds.max.x <= width + tolerance;
   };
 
   const markEntered = () => {
     if (!gap) return;
-    for (const p of list)
-      if (p.body && insideOf(p, gap)) p.body.collisionFilter.category = 0x0001;
+    for (const p of list) {
+      const b = p.body;
+      if (!b || b.collisionFilter.category !== ENTERING_CATEGORY) continue;
+      const centerInside = gap === "top" ? b.position.y >= 0
+        : gap === "bottom" ? b.position.y <= height
+          : gap === "left" ? b.position.x >= 0 : b.position.x <= width;
+      // Let the wall resolve resting edge overlaps instead of leaving entry open forever.
+      if (insideOf(p, gap, 2) || (b.isSleeping && centerInside)) {
+        b.collisionFilter.category = 0x0001;
+        Sleeping.set(b, false);
+      }
+    }
   };
 
   const clampInside = (
@@ -453,6 +464,15 @@ function createWall(
 
   const desiredGap = (s: Settings) =>
     entering ? enterSide : s.contain ? null : sideFor(s);
+
+  const startEntrance = (side: Side) => {
+    if (!entering) {
+      enterSide = side;
+      entryGravity = sideFor(settings()) ? gravityOf(settings()) : inwardOf(side);
+    }
+    entering = true;
+    setGap(enterSide);
+  };
 
   const makeWalls = () => {
     if (walls) Composite.remove(engine.world, Object.values(walls));
@@ -914,8 +934,7 @@ function createWall(
     if (side && list.every((p) => p.body?.collisionFilter.category !== ENTERING_CATEGORY))
       setGap(desiredGap(s));
     else if (side) {
-      entering = true;
-      enterSide = side;
+      startEntrance(side);
     }
     for (const p of list) {
       if (!p.body) continue;
@@ -953,9 +972,8 @@ function createWall(
       refresh();
       return;
     }
-    entering = true;
-    enterSide = side;
-    setGap(side);
+    entering = false;
+    startEntrance(side);
     if (s.entrance === "drop") {
       const across = side === "top" || side === "bottom" ? height : width;
       scatter(order, side, across * 0.55);
@@ -1102,9 +1120,7 @@ function createWall(
         }
       });
       if (side) {
-        entering = true;
-        enterSide = enterSide ?? side;
-        setGap(enterSide);
+        startEntrance(side);
       }
     }
     watchImages();
@@ -1132,9 +1148,7 @@ function createWall(
     p.grow = false;
     p.node.style.visibility = "hidden";
     p.spawnAt = clock;
-    entering = true;
-    enterSide = sideFor(s) ?? "top";
-    setGap(enterSide);
+    startEntrance(sideFor(s) ?? "top");
   };
 
   const applyPhysics = () => {
@@ -1166,6 +1180,13 @@ function createWall(
       p.pa = b.angle;
     }
     const g = gravityOf(s);
+    let deferredGravity = false;
+    if (entering && enterSide) {
+      // Finish the entrance before tilt can strand incoming icons outside the stage.
+      deferredGravity = g.x !== entryGravity.x || g.y !== entryGravity.y;
+      g.x = entryGravity.x;
+      g.y = entryGravity.y;
+    }
     engine.gravity.x = g.x;
     engine.gravity.y = g.y;
     const drift = s.reduced ? 0 : clamp(finite(s.drift, 0), 0, 2);
@@ -1222,6 +1243,7 @@ function createWall(
       if (list.every((p) => p.body?.collisionFilter.category !== ENTERING_CATEGORY)) {
         entering = false;
         enterSide = null;
+        if (deferredGravity) applyPhysics();
       }
     }
     setGap(desiredGap(s));

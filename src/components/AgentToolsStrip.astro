@@ -29,4 +29,32 @@ import AgentTools from "./AgentTools";
   .agent-tools-slot :global(img[src$="/tern.svg"]) {
     padding: 6px;
   }
+  .agent-tools-slot :global(.agent-tools-motion) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0 0.25rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: transparent;
+    color: var(--home-muted, rgb(32 34 33 / 50%));
+    font: inherit;
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+  .agent-tools-slot :global(button.agent-tools-motion) {
+    cursor: pointer;
+  }
+  .agent-tools-slot :global(span.agent-tools-motion) {
+    pointer-events: none;
+  }
+  .agent-tools-slot :global(.agent-tools-motion:focus-visible) {
+    outline: 2px solid var(--home-ink, #202221);
+    outline-offset: 2px;
+  }
 </style>
