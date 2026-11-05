@@ -3,7 +3,7 @@
 import { lazy, Suspense, useState, useSyncExternalStore } from "react";
 
 const ElasticSticker = lazy(() => import("./react-bits/elastic-sticker"));
-const motionQuery = "(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+const motionQuery = "(prefers-reduced-motion: no-preference)";
 const subscribe = (notify: () => void) => {
   const media = window.matchMedia(motionQuery);
   media.addEventListener("change", notify);
@@ -18,10 +18,9 @@ interface Props {
   height: number;
   backColor: string;
   href: string;
-  border?: number;
 }
 
-export default function BeliefSticker({ src, alt, width, height, backColor, href, border = 0 }: Props) {
+export default function BeliefSticker({ src, alt, width, height, backColor, href }: Props) {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false);
   const [peeling, setPeeling] = useState(false);
   const image = (
@@ -29,7 +28,6 @@ export default function BeliefSticker({ src, alt, width, height, backColor, href
       <img src={src} alt={alt} width={width} height={height} loading="lazy"
         style={{
           display: "block", width: "100%", height: "auto", aspectRatio: `${width} / ${height}`,
-          boxSizing: "border-box", objectFit: "cover", border: `${border}px solid #11180b`,
         }} />
     </a>
   );
@@ -41,14 +39,14 @@ export default function BeliefSticker({ src, alt, width, height, backColor, href
       <Suspense fallback={image}>
         <ElasticSticker
           src={src} alt={alt} width={width} height={height}
-          radius={0} border={border} borderColor="#11180b" backColor={backColor}
+          radius={0} border={0} backColor={backColor}
           finish="matte" sheen={0.08} shadow={0.25}
           hoverPeel={0.32} bend={0.65} elasticity={0.45}
           lift={65} tilt={22}
           draggable bounds="parent" snapBack idleHint={false} autoplay={false}
           onDragStart={() => setPeeling(true)}
           onDragEnd={() => setPeeling(false)}
-          style={{ display: "block", width: "100%" }}
+          style={{ display: "block", width: "100%", touchAction: "pan-y pinch-zoom" }}
         />
       </Suspense>
     </div>
