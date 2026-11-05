@@ -4,63 +4,52 @@ import BeliefSticker from "./BeliefSticker";
 
 <section class="belief-notes" aria-label="Things I believe">
   <figure class="belief-note belief-note--ideas">
-    <a
-      class="note-paper"
-      href="https://acu.sh/"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <div class="note-paper">
       <BeliefSticker
         src="/home/acu-note.png"
         alt="Everyone has ideas. Few have the discipline to turn them into reality."
         width={792}
         height={856}
         backColor="#e7dfca"
+        href="https://acu.sh/"
         client:visible
       />
-    </a>
+    </div>
     <figcaption>
       via <a href="https://acu.sh/" target="_blank" rel="noopener noreferrer">Acu</a>
     </figcaption>
   </figure>
 
   <figure class="belief-note belief-note--iterate">
-    <a
-      class="note-paper note-paper--taped"
-      href="https://addyo.substack.com/p/first-do-it-then-do-it-right-then"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <div class="note-paper note-paper--taped">
       <BeliefSticker
         src="/home/first-do-it.jpg"
         alt="First do it, then do it right, then do it better. Five colorful Dots characters sit beneath the words."
         width={1280}
         height={720}
         backColor="#18210f"
+        href="https://addyo.substack.com/p/first-do-it-then-do-it-right-then"
+        border={8}
         client:visible
       />
-    </a>
+    </div>
     <figcaption>
       via <a href="https://addyo.substack.com/p/first-do-it-then-do-it-right-then" target="_blank" rel="noopener noreferrer">Addy Osmani</a>
     </figcaption>
   </figure>
 
   <figure class="belief-note belief-note--value">
-    <a
-      class="note-paper note-paper--taped"
-      href="https://www.levelframes.com/frames/prints/make-something-people-want-ycombinator"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+    <div class="note-paper note-paper--taped">
       <BeliefSticker
         src="/home/yc-make-something-people-want.jpg"
         alt="Make something people want. Y Combinator's motto in orange-red letters on warm white paper."
         width={960}
         height={1280}
         backColor="#eee7d8"
+        href="https://www.levelframes.com/frames/prints/make-something-people-want-ycombinator"
         client:visible
       />
-    </a>
+    </div>
     <figcaption>
       via <a href="https://www.levelframes.com/directory/y-combinator-print-shop" target="_blank" rel="noopener noreferrer">YC Print Shop</a>
     </figcaption>
@@ -78,8 +67,16 @@ import BeliefSticker from "./BeliefSticker";
   }
 
   .belief-note {
+    position: relative;
+    z-index: 0;
     min-width: 0;
     margin: 0;
+    transition: z-index 0s linear 600ms;
+  }
+
+  .belief-note:has([data-peeling="true"]) {
+    z-index: 2;
+    transition-delay: 0s;
   }
 
   .belief-note--ideas {
@@ -105,22 +102,14 @@ import BeliefSticker from "./BeliefSticker";
   }
 
   .note-paper {
-    display: block;
-  }
-
-  .note-paper {
     position: relative;
     transform: rotate(var(--note-angle));
     transform-origin: 50% 9%;
   }
 
-  .note-paper--taped {
+  .note-paper--taped :global(.belief-sticker-static) {
+    display: block;
     box-shadow: 0 2px 3px rgb(0 0 0 / 10%), 0 12px 20px -14px rgb(0 0 0 / 30%);
-  }
-
-  .belief-note--iterate .note-paper {
-    padding: 0.5rem;
-    background: #11180b;
   }
 
   .note-paper--taped::before {
@@ -140,11 +129,12 @@ import BeliefSticker from "./BeliefSticker";
     clip-path: polygon(1% 7%, 16% 4%, 35% 7%, 55% 2%, 74% 5%, 98% 0, 100% 90%, 82% 96%, 60% 93%, 39% 100%, 20% 96%, 0 100%);
     box-shadow: inset 0 -1px rgb(0 0 0 / 8%);
     transform: translateX(-50%) rotate(var(--tape-angle));
+    transition: opacity 180ms ease-out 500ms;
   }
 
-  .note-paper:focus-visible {
-    outline: 2px solid var(--home-ink, #202221);
-    outline-offset: 6px;
+  .note-paper--taped:has([data-peeling="true"])::before {
+    opacity: 0;
+    transition-delay: 0s;
   }
 
   .belief-note figcaption {
@@ -203,6 +193,18 @@ import BeliefSticker from "./BeliefSticker";
       visibility: visible;
       pointer-events: auto;
       transition-delay: 0s;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .belief-notes {
+      overflow-clip-margin: 4rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .belief-notes {
+      overflow-clip-margin: 10rem;
     }
   }
 
