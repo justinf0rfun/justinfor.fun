@@ -17,19 +17,18 @@ interface Props {
   width: number;
   height: number;
   backColor: string;
-  href: string;
 }
 
-export default function BeliefSticker({ src, alt, width, height, backColor, href }: Props) {
+export default function BeliefSticker({ src, alt, width, height, backColor }: Props) {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false);
   const [peeling, setPeeling] = useState(false);
   const image = (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="belief-sticker-static">
+    <div className="belief-sticker-static">
       <img src={src} alt={alt} width={width} height={height} loading="lazy"
         style={{
           display: "block", width: "100%", height: "auto", aspectRatio: `${width} / ${height}`,
         }} />
-    </a>
+    </div>
   );
 
   if (!animated) return image;
