@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { runInNewContext } from "node:vm";
 import test from "node:test";
+import { spring } from "motion";
 
 const source = stripTypeScriptTypes(readFileSync(new URL("../src/scripts/dock-scroll.ts", import.meta.url), "utf8"))
   .replace(/^import .*;$/gm, "").replace(/^export /gm, "");
@@ -14,26 +15,41 @@ const events = () => {
     fire: (name) => listeners.get(name)?.(),
   };
 };
-function fixture({ start = 0, reduced = false } = {}) {
+function fixture({ start = 0, reduced = false, touch = false } = {}) {
   let focused = false, frame = null;
   const media = { ...events(), matches: reduced };
+  const pointer = { ...events(), matches: touch };
   const window = { ...events(), scrollY: start, innerHeight: 800, innerWidth: 390, visualViewport: events() };
   const document = { documentElement: { scrollHeight: 3000, style: {} } };
-  const dock = { ...events(), querySelector: () => focused ? {} : null };
-  const value = { current: 1, jump(v) { this.current = v; }, destroy() {} };
-  const targets = [];
+  const properties = new Map();
+  const wrap = { style: {
+    setProperty: (key, value) => properties.set(key, value),
+    removeProperty: (key) => properties.delete(key),
+  } };
+  const anchor = () => properties.get("--dock-anchor-top") ?? `${window.innerHeight - 38}px`;
+  const value = { current: 1 };
+  const dock = {
+    ...events(), parentElement: wrap, querySelector: () => focused ? {} : null,
+    style: { removeProperty: (key) => { if (key === "transform") value.current = 1; } },
+  };
+  const targets = [], animations = [];
   const mount = runInNewContext(`${source}\nmountDockScroll`, {
-    window, document, matchMedia: () => media,
-    motionValue: () => value,
-    styleEffect: (element) => { assert.equal(element, dock); return () => {}; },
-    animate: (v, target) => { targets.push(target); v.current = target; },
+    window, document, matchMedia: (query) => query.includes("pointer") ? pointer : media,
+    getComputedStyle: () => ({ top: anchor() }),
+    animate: (element, keyframes, options) => {
+      assert.equal(element, dock);
+      assert.deepEqual(Object.keys(keyframes), ["transform"]);
+      const target = Number(keyframes.transform.match(/^scale\(([\d.]+)\)$/)[1]);
+      targets.push(target); animations.push(options); value.current = target;
+      return { stop() {} };
+    },
     requestAnimationFrame: (fn) => { frame = fn; return 1; },
     cancelAnimationFrame: () => { frame = null; },
   });
   const destroy = mount(dock);
   const flush = () => { const fn = frame; frame = null; fn?.(); };
   return {
-    window, document, media, targets, value, destroy, flush,
+    window, document, media, targets, animations, value, destroy, flush, anchor, properties,
     scroll(y) { window.scrollY = y; window.fire("scroll"); flush(); },
     focus(next) { focused = next; dock.fire(next ? "focusin" : "focusout"); },
   };
@@ -78,6 +94,46 @@ test("continuous toolbar height changes do not postpone scroll feedback", () => 
     f.window.visualViewport.fire("resize");
   }
   assert.equal(f.value.current, 0.84);
+});
+
+test("mobile dock anchor stays fixed when the host resizes the entire webview", () => {
+  const f = fixture({ touch: true });
+  const initial = f.anchor();
+  for (const height of [814, 828, 842, 820, 800]) {
+    f.window.innerHeight = height;
+    f.window.fire("resize");
+    f.window.visualViewport.fire("resize");
+    assert.equal(f.anchor(), initial);
+  }
+  f.window.innerWidth = 844;
+  f.window.innerHeight = 390;
+  f.window.fire("resize");
+  assert.equal(f.anchor(), "352px");
+  f.destroy();
+  assert.equal(f.properties.size, 0);
+});
+
+test("desktop dock does not acquire a fixed mobile anchor", () => {
+  const f = fixture();
+  assert.equal(f.properties.size, 0);
+  f.window.innerHeight = 900; f.window.fire("resize");
+  assert.equal(f.properties.size, 0);
+});
+
+test("scale eases through intermediate sizes instead of completing in a snap", () => {
+  const f = fixture({ start: 100 });
+  f.scroll(140);
+  const animation = spring({ keyframes: [1, 0.84], ...f.animations[0] });
+  let previous = 1;
+  for (let frame = 1; frame <= 42; frame++) {
+    const t = frame * 1000 / 60;
+    const { value } = animation.next(t);
+    assert.ok(Math.abs(value - previous) <= 0.015, `large scale step at ${t}ms`);
+    assert.ok(value <= previous + 0.001 && value >= 0.839, "no visible bounce");
+    if (t <= 150) assert.ok(value > 0.856, "do not finish most of the movement in 150ms");
+    previous = value;
+  }
+  assert.ok(Math.abs(previous - 0.84) < 0.001);
 });
 
 test("toolbar resize before the queued scroll frame preserves accumulated distance", () => {

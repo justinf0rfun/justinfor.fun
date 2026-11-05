@@ -1,9 +1,18 @@
-import { animate, motionValue, styleEffect } from "motion";
+import { animate } from "motion";
 
 export function mountDockScroll(dock: HTMLElement) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const scale = motionValue(1);
-  const clearStyle = styleEffect(dock, { scale });
+  const touch = matchMedia("(hover: none) and (pointer: coarse)");
+  const wrap = dock.parentElement;
+  const pinAnchor = () => {
+    wrap?.style.removeProperty("--dock-anchor-top");
+    if (!wrap || !touch.matches) return;
+    // Embedded browsers can resize even svh when their native toolbar collapses.
+    const top = getComputedStyle(wrap).top;
+    if (Number.isFinite(Number.parseFloat(top))) wrap.style.setProperty("--dock-anchor-top", top);
+  };
+  pinAnchor();
+  let animation: ReturnType<typeof animate> | undefined;
   const scrollLimit = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   const position = () => Math.max(0, Math.min(window.scrollY, scrollLimit()));
   let viewportWidth = window.innerWidth;
@@ -16,8 +25,8 @@ export function mountDockScroll(dock: HTMLElement) {
   const setCompact = (next: boolean) => {
     if (next === compact) return;
     compact = next;
-    animate(scale, compact ? 0.84 : 1, {
-      type: "spring", stiffness: 600, damping: 42, mass: 1,
+    animation = animate(dock, { transform: `scale(${compact ? 0.84 : 1})` }, {
+      type: "spring", stiffness: 170, damping: 26, mass: 1,
       restDelta: 0.001, restSpeed: 0.01,
     });
   };
@@ -30,6 +39,7 @@ export function mountDockScroll(dock: HTMLElement) {
     const nextLimit = scrollLimit();
     if (window.innerWidth !== viewportWidth) {
       viewportWidth = window.innerWidth;
+      pinAnchor();
       resetTracking();
     } else {
       // Keep real scroll intent while browser chrome changes only the viewport height.
@@ -67,7 +77,7 @@ export function mountDockScroll(dock: HTMLElement) {
   };
   const restore = () => {
     compact = false;
-    scale.jump(1);
+    animation = animate(dock, { transform: "scale(1)" }, { duration: 0 });
     resetTracking();
   };
 
@@ -76,6 +86,7 @@ export function mountDockScroll(dock: HTMLElement) {
   window.visualViewport?.addEventListener("resize", onResize);
   window.addEventListener("pageshow", restore);
   reduced.addEventListener("change", restore);
+  touch.addEventListener("change", pinAnchor);
   dock.addEventListener("focusin", onFocus);
   dock.addEventListener("focusout", resetTracking);
 
@@ -86,9 +97,11 @@ export function mountDockScroll(dock: HTMLElement) {
     window.visualViewport?.removeEventListener("resize", onResize);
     window.removeEventListener("pageshow", restore);
     reduced.removeEventListener("change", restore);
+    touch.removeEventListener("change", pinAnchor);
     dock.removeEventListener("focusin", onFocus);
     dock.removeEventListener("focusout", resetTracking);
-    clearStyle();
-    scale.destroy();
+    animation?.stop();
+    dock.style.removeProperty("transform");
+    wrap?.style.removeProperty("--dock-anchor-top");
   };
 }

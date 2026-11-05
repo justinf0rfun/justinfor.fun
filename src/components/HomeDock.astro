@@ -115,8 +115,7 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   @media (hover: none) and (pointer: coarse) {
     @supports (height: 100svh) {
       .home-dock-wrap {
-        /* Anchor above expanded browser chrome instead of following its animation. */
-        top: calc(100svh - var(--dock-gap));
+        top: var(--dock-anchor-top, calc(100svh - var(--dock-gap)));
         bottom: auto;
         transform: translate(-50%, -100%);
       }
