@@ -1,88 +1,214 @@
-<figure class="belief-note">
-  <a
-    href="https://acu.sh/"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="View the source of this note on Acu's website"
-  >
-    <img
-      src="/home/acu-note.png"
-      alt="Everyone has ideas. Few have the discipline to turn them into reality."
-      width="792"
-      height="856"
-      loading="lazy"
-    />
-  </a>
-  <figcaption>
-    via <a href="https://acu.sh/" target="_blank" rel="noopener noreferrer">Acu</a>
-  </figcaption>
-</figure>
+---
+import BeliefSticker from "./BeliefSticker";
+---
+
+<section class="belief-notes" aria-label="Things I believe">
+  <figure class="belief-note belief-note--ideas">
+    <a
+      class="note-paper"
+      href="https://acu.sh/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <BeliefSticker
+        src="/home/acu-note.png"
+        alt="Everyone has ideas. Few have the discipline to turn them into reality."
+        width={792}
+        height={856}
+        backColor="#e7dfca"
+        client:visible
+      />
+    </a>
+    <figcaption>
+      via <a href="https://acu.sh/" target="_blank" rel="noopener noreferrer">Acu</a>
+    </figcaption>
+  </figure>
+
+  <figure class="belief-note belief-note--iterate">
+    <a
+      class="note-paper note-paper--taped"
+      href="https://addyo.substack.com/p/first-do-it-then-do-it-right-then"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <BeliefSticker
+        src="/home/first-do-it.jpg"
+        alt="First do it, then do it right, then do it better. Five colorful Dots characters sit beneath the words."
+        width={1280}
+        height={720}
+        backColor="#18210f"
+        client:visible
+      />
+    </a>
+    <figcaption>
+      via <a href="https://addyo.substack.com/p/first-do-it-then-do-it-right-then" target="_blank" rel="noopener noreferrer">Addy Osmani</a>
+    </figcaption>
+  </figure>
+
+  <figure class="belief-note belief-note--value">
+    <a
+      class="note-paper note-paper--taped"
+      href="https://www.levelframes.com/frames/prints/make-something-people-want-ycombinator"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <BeliefSticker
+        src="/home/yc-make-something-people-want.jpg"
+        alt="Make something people want. Y Combinator's motto in orange-red letters on warm white paper."
+        width={960}
+        height={1280}
+        backColor="#eee7d8"
+        client:visible
+      />
+    </a>
+    <figcaption>
+      via <a href="https://www.levelframes.com/directory/y-combinator-print-shop" target="_blank" rel="noopener noreferrer">YC Print Shop</a>
+    </figcaption>
+  </figure>
+</section>
 
 <style>
-  .belief-note {
-    width: min(16.5rem, 72vw);
-    margin-inline: auto;
+  .belief-notes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding: 1rem 0.5rem 0.5rem;
+    overflow: clip;
+    overflow-clip-margin: 0.5rem;
   }
 
-  .belief-note > a,
-  .belief-note img {
+  .belief-note {
+    min-width: 0;
+    margin: 0;
+  }
+
+  .belief-note--ideas {
+    width: min(14.5rem, 82%);
+    justify-self: start;
+    --note-angle: -0.5deg;
+  }
+
+  .belief-note--iterate {
+    width: min(21rem, 100%);
+    justify-self: end;
+    --note-angle: 2deg;
+    --tape-wash: rgb(200 228 151 / 78%);
+    --tape-angle: -5deg;
+  }
+
+  .belief-note--value {
+    width: min(13.5rem, 72%);
+    justify-self: center;
+    --note-angle: -1.5deg;
+    --tape-wash: rgb(238 170 118 / 78%);
+    --tape-angle: 4deg;
+  }
+
+  .note-paper {
     display: block;
   }
 
-  .belief-note > a {
+  .note-paper {
+    position: relative;
+    transform: rotate(var(--note-angle));
     transform-origin: 50% 9%;
-    transition:
-      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
-      filter 300ms var(--ease-out);
   }
 
-  .belief-note > a:focus-visible {
-    border-radius: 0.75rem;
-    outline: 2px solid var(--color-neutral-800);
-    outline-offset: 4px;
+  .note-paper--taped {
+    box-shadow: 0 2px 3px rgb(0 0 0 / 10%), 0 12px 20px -14px rgb(0 0 0 / 30%);
   }
 
-  .belief-note img {
-    width: 100%;
-    height: auto;
+  .belief-note--iterate .note-paper {
+    padding: 0.5rem;
+    background: #11180b;
+  }
+
+  .note-paper--taped::before {
+    position: absolute;
+    top: -1.25rem;
+    left: 41%;
+    z-index: 1;
+    width: 4.5rem;
+    height: 1.75rem;
+    content: "";
+    pointer-events: none;
+    background-image: linear-gradient(var(--tape-wash), var(--tape-wash)), url("/home/acu-note.png");
+    /* Reuse the existing note's tape grain, tinted to the print beneath it. */
+    background-size: 100% 100%, 260% auto;
+    background-position: center, 45% top;
+    background-repeat: no-repeat;
+    clip-path: polygon(1% 7%, 16% 4%, 35% 7%, 55% 2%, 74% 5%, 98% 0, 100% 90%, 82% 96%, 60% 93%, 39% 100%, 20% 96%, 0 100%);
+    box-shadow: inset 0 -1px rgb(0 0 0 / 8%);
+    transform: translateX(-50%) rotate(var(--tape-angle));
+  }
+
+  .note-paper:focus-visible {
+    outline: 2px solid var(--home-ink, #202221);
+    outline-offset: 6px;
   }
 
   .belief-note figcaption {
-    margin-top: 0.25rem;
-    color: var(--color-neutral-400);
+    margin-top: 0.75rem;
+    color: color-mix(in srgb, var(--home-ink, #202221) 65%, transparent);
     font-size: 0.75rem;
     text-align: right;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 160ms ease-out, visibility 0s linear 160ms;
+  }
+
+  .belief-note:has(:focus-visible) figcaption {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
   }
 
   .belief-note figcaption a {
     color: inherit;
     text-decoration: underline;
-    text-decoration-color: var(--color-neutral-300);
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
     text-underline-offset: 0.18em;
   }
 
   .belief-note figcaption a:hover {
-    color: var(--color-neutral-700);
+    color: var(--home-ink, #202221);
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .belief-note > a:hover {
-      filter: drop-shadow(0 0.7rem 0.8rem rgb(0 0 0 / 12%));
-      transform: translateY(-0.3rem) rotate(1.25deg) scale(1.01);
+  @media (min-width: 40rem) {
+    .belief-notes {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      column-gap: 1.5rem;
+      row-gap: 2.5rem;
+    }
+
+    .belief-note--ideas {
+      width: min(14.5rem, 100%);
+    }
+
+    .belief-note--iterate {
+      margin-top: 3.5rem;
+    }
+
+    .belief-note--value {
+      grid-column: 1 / -1;
+      margin-right: 2rem;
     }
   }
 
-  .belief-note > a:active {
-    transform: translateY(-0.08rem) rotate(0.35deg) scale(0.985);
-    transition-duration: 120ms;
+  @media (hover: hover) and (pointer: fine) {
+    .belief-note:hover figcaption {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition-delay: 0s;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .belief-note > a,
-    .belief-note > a:hover,
-    .belief-note > a:active {
-      transform: none;
-      transition-duration: 0ms;
+    .belief-note figcaption {
+      transition: none;
     }
   }
 </style>
