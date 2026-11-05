@@ -136,6 +136,10 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
 
 <script>
   import { animate } from "motion";
+  import { mountDockScroll } from "../scripts/dock-scroll";
+
+  const dock = document.querySelector<HTMLElement>(".home-dock");
+  if (dock) mountDockScroll(dock);
 
   const root = document.documentElement;
   const system = matchMedia("(prefers-color-scheme: dark)");
