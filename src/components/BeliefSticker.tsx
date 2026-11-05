@@ -43,6 +43,7 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
           hoverPeel={0.32} bend={0.65} elasticity={0.45}
           lift={65} tilt={22}
           draggable bounds="parent" snapBack idleHint={false} autoplay={false}
+          raiseOnDrag={false}
           onDragStart={() => setPeeling(true)}
           onDragEnd={() => setPeeling(false)}
           style={{ display: "block", width: "100%", touchAction: "pan-y pinch-zoom" }}
