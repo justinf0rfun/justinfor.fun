@@ -19,6 +19,10 @@ const tools = [
   { title: "Grok Bot", src: existingTools.find((item) => item.name === "Grok Bot")!.logo, href: "https://x.ai/bot" },
   { title: "ChatGPT", src: "/uses/ai/codex.png", href: "https://chatgpt.com/" },
   { title: "Claude", src: existingTools.find((item) => item.name === "Claude Code")!.logo, href: "https://claude.ai/" },
+  { title: "Dots · Felipe", src: "/uses/ai/dots-felipe.webp", href: "https://chatgpt.com/features/dots/" },
+  { title: "Dots · Todd", src: "/uses/ai/dots-todd.webp", href: "https://chatgpt.com/features/dots/" },
+  { title: "Dots · Alfred", src: "/uses/ai/dots-alfred.webp", href: "https://chatgpt.com/features/dots/" },
+  { title: "Dots · Iggy", src: "/uses/ai/dots-iggy.webp", href: "https://chatgpt.com/features/dots/" },
 ];
 
 export default function AgentTools() {
@@ -103,7 +107,7 @@ export default function AgentTools() {
           frameColor="var(--agent-tool-surface)"
           textColor="var(--home-ink, #202221)"
           paused={covered}
-          ariaLabel="Agent tools: Tern, Rex, Herdr, omp, Kero, Otty, Orca, Grok Bot, ChatGPT and Claude"
+          ariaLabel={`Agent tools: ${tools.map((tool) => tool.title).join(", ")}`}
           style={{ height: "100%", minHeight: 0, color: "var(--home-ink, #202221)" }}
         />
       </div>
