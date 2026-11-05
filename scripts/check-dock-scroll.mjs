@@ -17,7 +17,7 @@ const events = () => {
 function fixture({ start = 0, reduced = false } = {}) {
   let focused = false, frame = null;
   const media = { ...events(), matches: reduced };
-  const window = { ...events(), scrollY: start, innerHeight: 800, visualViewport: events() };
+  const window = { ...events(), scrollY: start, innerHeight: 800, innerWidth: 390, visualViewport: events() };
   const document = { documentElement: { scrollHeight: 3000, style: {} } };
   const dock = { ...events(), querySelector: () => focused ? {} : null };
   const value = { current: 1, jump(v) { this.current = v; }, destroy() {} };
@@ -59,14 +59,53 @@ test("top remains expanded and Safari overscroll does not create a false reversa
   assert.equal(f.value.current, 1);
 });
 
-test("viewport resize resets direction without changing the current size", () => {
+test("viewport width changes reset direction without changing the current size", () => {
   const f = fixture({ start: 100 });
   f.scroll(140);
   f.window.scrollY = 300;
+  f.window.innerWidth = 844;
   f.window.visualViewport.fire("resize");
   f.scroll(299);
   assert.deepEqual(f.targets, [0.84]);
   f.scroll(275); assert.equal(f.value.current, 1);
+});
+
+test("continuous toolbar height changes do not postpone scroll feedback", () => {
+  const f = fixture({ start: 100 });
+  for (const y of [108, 116, 124, 132, 140]) {
+    f.scroll(y);
+    f.window.innerHeight += 4;
+    f.window.visualViewport.fire("resize");
+  }
+  assert.equal(f.value.current, 0.84);
+});
+
+test("toolbar resize before the queued scroll frame preserves accumulated distance", () => {
+  const f = fixture({ start: 100 });
+  for (const y of [108, 116, 124, 132, 140]) {
+    f.window.scrollY = y;
+    f.window.fire("scroll");
+    f.window.innerHeight += 4;
+    f.window.visualViewport.fire("resize");
+    f.flush();
+  }
+  assert.equal(f.value.current, 0.84);
+});
+
+test("changing the bottom scroll boundary does not look like a user reversing direction", () => {
+  const f = fixture({ start: 2100 });
+  f.scroll(2200);
+  f.window.innerHeight = 840;
+  f.window.scrollY = 2160;
+  f.window.visualViewport.fire("resize");
+  f.scroll(2160);
+  f.window.innerHeight = 800;
+  f.window.scrollY = 2200;
+  f.window.visualViewport.fire("resize");
+  f.scroll(2200);
+  assert.deepEqual(f.targets, [0.84]);
+  f.scroll(2180);
+  assert.equal(f.value.current, 1);
 });
 
 test("keyboard focus expands the dock and pauses shrinking while operating its controls", () => {

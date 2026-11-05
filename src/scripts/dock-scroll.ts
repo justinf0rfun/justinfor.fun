@@ -4,10 +4,10 @@ export function mountDockScroll(dock: HTMLElement) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const scale = motionValue(1);
   const clearStyle = styleEffect(dock, { scale });
-  const position = () => Math.max(0, Math.min(
-    window.scrollY,
-    document.documentElement.scrollHeight - window.innerHeight,
-  ));
+  const scrollLimit = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const position = () => Math.max(0, Math.min(window.scrollY, scrollLimit()));
+  let viewportWidth = window.innerWidth;
+  let limit = scrollLimit();
   let previous = position();
   let travel = 0;
   let compact = false;
@@ -24,6 +24,19 @@ export function mountDockScroll(dock: HTMLElement) {
   const resetTracking = () => {
     previous = position();
     travel = 0;
+    limit = scrollLimit();
+  };
+  const onResize = () => {
+    const nextLimit = scrollLimit();
+    if (window.innerWidth !== viewportWidth) {
+      viewportWidth = window.innerWidth;
+      resetTracking();
+    } else {
+      // Keep real scroll intent while browser chrome changes only the viewport height.
+      const y = position();
+      previous = previous >= limit - 1 && y >= limit - 1 ? y : Math.min(previous, nextLimit);
+    }
+    limit = nextLimit;
   };
   const update = () => {
     frame = 0;
@@ -59,9 +72,8 @@ export function mountDockScroll(dock: HTMLElement) {
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
-  // Browser toolbar resizing and rubber-band scroll must not reverse the dock.
-  window.addEventListener("resize", resetTracking);
-  window.visualViewport?.addEventListener("resize", resetTracking);
+  window.addEventListener("resize", onResize);
+  window.visualViewport?.addEventListener("resize", onResize);
   window.addEventListener("pageshow", restore);
   reduced.addEventListener("change", restore);
   dock.addEventListener("focusin", onFocus);
@@ -70,8 +82,8 @@ export function mountDockScroll(dock: HTMLElement) {
   return () => {
     cancelAnimationFrame(frame);
     window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("resize", resetTracking);
-    window.visualViewport?.removeEventListener("resize", resetTracking);
+    window.removeEventListener("resize", onResize);
+    window.visualViewport?.removeEventListener("resize", onResize);
     window.removeEventListener("pageshow", restore);
     reduced.removeEventListener("change", restore);
     dock.removeEventListener("focusin", onFocus);

@@ -38,9 +38,10 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
 
 <style>
   .home-dock-wrap {
+    --dock-gap: max(38px, env(safe-area-inset-bottom));
     position: fixed;
     z-index: 35;
-    bottom: max(38px, env(safe-area-inset-bottom));
+    bottom: var(--dock-gap);
     left: 50%;
     transform: translateX(-50%);
   }
@@ -105,11 +106,21 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
     .theme-button:hover { background: rgb(255 255 255 / .19); }
   }
   @media (max-width: 400px) {
-    .home-dock-wrap { bottom: max(20px, env(safe-area-inset-bottom)); }
+    .home-dock-wrap { --dock-gap: max(20px, env(safe-area-inset-bottom)); }
     .home-dock { gap: 10px; padding-inline: 16px; }
     .dock-email { gap: 10px; }
     .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-text { width: 112px; }
     .email-address { font-size: 14px !important; }
+  }
+  @media (hover: none) and (pointer: coarse) {
+    @supports (height: 100svh) {
+      .home-dock-wrap {
+        /* Anchor above expanded browser chrome instead of following its animation. */
+        top: calc(100svh - var(--dock-gap));
+        bottom: auto;
+        transform: translate(-50%, -100%);
+      }
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .email-text, .email-text > span, .email-icons > span, .theme-button { transition: none; }
