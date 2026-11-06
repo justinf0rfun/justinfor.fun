@@ -1,7 +1,8 @@
 "use client";
 
 import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Skeleton } from "skullet/react";
+import { together } from "skullet";
+import { Skeleton, SkulletProvider } from "skullet/react";
 
 const ElasticSticker = lazy(() => import("./react-bits/elastic-sticker"));
 const motionQuery = "(prefers-reduced-motion: no-preference)";
@@ -23,12 +24,13 @@ interface Props {
 export default function BeliefSticker({ src, alt, width, height, backColor }: Props) {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false);
   const [peeling, setPeeling] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "loading" | "revealing" | "ready" | "error">("idle");
+  const [phase, setPhase] = useState<"loading" | "revealing" | "ready" | "error">("loading");
   const imageRef = useRef<HTMLImageElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
+    let revealTimer: number | undefined;
+    const enteredAt = performance.now();
     const displayed = imageRef.current;
     const cached = !!(displayed?.complete && displayed.naturalWidth);
     const loader = cached ? displayed! : new Image();
@@ -36,8 +38,13 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
       loader.onload = loader.onerror = null;
       await loader.decode().catch(() => {});
       if (!cancelled) {
-        const revealing = !!previewRef.current?.querySelector('[aria-busy="true"]');
-        setPhase(loader.naturalWidth ? (revealing ? "revealing" : "ready") : "error");
+        if (!loader.naturalWidth) {
+          setPhase("error");
+          return;
+        }
+        // This is a once-per-visit entrance, including when the image is cached.
+        const remaining = canAnimate() ? Math.max(0, 550 - (performance.now() - enteredAt)) : 0;
+        revealTimer = window.setTimeout(() => setPhase("revealing"), remaining);
       }
     };
     if (cached) {
@@ -52,6 +59,7 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
     }
     return () => {
       cancelled = true;
+      window.clearTimeout(revealTimer);
       loader.onload = loader.onerror = null;
     };
   }, [src]);
@@ -65,16 +73,27 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
     </div>
   );
   const preview = (
-    <div ref={previewRef} style={{ position: "relative", aspectRatio: `${width} / ${height}` }}>
-      <Skeleton
-        id={`belief-poster:${src}`}
-        loading={phase === "loading"}
-        label={`Loading poster: ${alt}`}
-        style={{ position: "absolute", inset: 0 }}
-        onReveal={() => setPhase((current) => current === "revealing" ? "ready" : current)}
-      >
-        {image}
-      </Skeleton>
+    <div style={{ position: "relative", aspectRatio: `${width} / ${height}` }}>
+      <SkulletProvider reveal={{ ...together, duration: 320 }} theme={{ animation: "group-shimmer", speed: "fast" }}>
+        <Skeleton
+          id={`belief-poster:${src}`}
+          data={src}
+          className="belief-sticker-reveal"
+          loading={phase === "loading"}
+          label={`Loading poster: ${alt}`}
+          style={{ position: "absolute", inset: 0 }}
+          onReveal={() => setPhase((current) => current === "revealing" ? "ready" : current)}
+        >
+          {() => image}
+        </Skeleton>
+      </SkulletProvider>
+      <noscript>
+        <style>{".belief-sticker-reveal{display:none!important}"}</style>
+        <div className="belief-sticker-static">
+          <img src={src} alt={alt} width={width} height={height} loading="lazy" crossOrigin="anonymous"
+            style={{ display: "block", width: "100%", height: "auto" }} />
+        </div>
+      </noscript>
     </div>
   );
 
