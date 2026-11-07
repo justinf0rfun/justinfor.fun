@@ -32,7 +32,6 @@
 .home-chat-header { display: flex; flex: none; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--chat-line); }
 .home-chat-header img { object-fit: contain; flex: none; }
 .home-chat-header h2 { font-size: 15px; font-weight: 500; line-height: 1.4; }
-.home-chat-header p { color: var(--home-muted); font-size: 11px; line-height: 1.4; }
 .home-chat button { cursor: pointer; }
 .home-chat button:disabled { cursor: default; }
 .home-chat button:focus-visible { outline: 2px solid #316ff0; outline-offset: 3px; }

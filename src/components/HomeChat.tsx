@@ -213,7 +213,7 @@ export default function HomeChat() {
       <header className="home-chat-header">
         {mode === "text" ? <motion.img layoutId={reduced ? undefined : "avatar"} src="/justin-avatar.png" alt="" width={38} height={38} transition={{ type: "spring", duration: .45, bounce: 0 }} /> :
           <button ref={backRef} type="button" className="home-chat-back" aria-label="Return to text chat" onClick={() => dispatch({ type: "voice-exit" })}>‹ <span>文字</span></button>}
-        <div><h2 id="home-chat-title">Justin</h2><p>{mode === "voice" ? "Voice demo" : "Demo"}</p></div>
+        <h2 id="home-chat-title">Justin</h2>
         <button ref={closeRef} type="button" className="home-chat-close" aria-label="Close chat" onClick={dismiss}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
         </button>
