@@ -1,0 +1,65 @@
+{
+  "source": "https://www.graphicalui.com/",
+  "sourceBundles": {
+    "tokens": "https://www.graphicalui.com/_next/static/chunks/17brw7d926k_q.js",
+    "motion": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+    "layout": "https://www.graphicalui.com/_next/static/chunks/09bja1~fc2xoe.js",
+    "css": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css"
+  },
+  "languageOrder": ["themes", "systems", "languages"],
+  "detailOrder": ["components", "colors", "type", "spacing", "icons", "effects", "states", "motion"],
+  "agentOrder": ["ChatGPT", "Claude", "Cursor", "Grok", "anything"],
+  "initialLabels": ["themes", "colors", "ChatGPT"],
+  "click": "Cycle only the clicked token to its next option. The next automatic tick advances the following token group.",
+  "autoCycle": {
+    "firstDelayMs": 600,
+    "subsequentDelayMs": 1800,
+    "groupOrder": ["agent", "language", "detail"],
+    "pausedWhen": ["document.hidden", "prefers-reduced-motion: reduce"],
+    "hoverPauses": false
+  },
+  "width": {
+    "measurement": "All labels are measured in hidden nodes including button padding; ResizeObserver and font loading events refresh measurements.",
+    "transition": { "type": "spring", "visualDuration": 0.24, "bounce": 0.2 },
+    "reducedMotionDuration": 0
+  },
+  "text": { "library": "torph", "component": "TextMorph", "durationMs": 200 },
+  "iconEnter": {
+    "scale": [0.4, 1.2, 1],
+    "rotation": "[rest - 16 * sign(rest), rest + 5 * sign(rest), rest]",
+    "durationSeconds": 0.6,
+    "times": [0, 0.6666666666666666, 1],
+    "firstEase": [0.16, 0.55, 0.3, 1],
+    "secondEase": { "type": "spring", "visualDuration": 0.18, "bounce": 0.47 },
+    "opacity": { "durationSeconds": 0.18, "ease": "easeOut" }
+  },
+  "iconExit": {
+    "scale": 0.5,
+    "rotation": "rest + 5 * sign(rest)",
+    "scaleTransition": { "type": "spring", "visualDuration": 0.2, "bounce": 0.2 },
+    "rotationDurationSeconds": 0.2,
+    "opacity": { "durationSeconds": 0.2, "ease": "easeOut" }
+  },
+  "surface": {
+    "rest": "#f0f0ee",
+    "hover": "#e8e8e5",
+    "active": "#dededb",
+    "activeInsetStroke": "inset 0 0 0 1px #0000000a",
+    "borderRadius": "999px",
+    "backgroundHeight": "calc(1.1em + 2px)",
+    "opticalYOffset": "calc(.045em + 1px)",
+    "paddingStart": ".1em",
+    "paddingEnd": ".28em",
+    "baseArtworkSize": ".94em",
+    "heroArtworkScale": 1.44,
+    "artworkShadow": "drop-shadow(0 .02em .025em #00000014)",
+    "baseline": "vertical-align: baseline"
+  },
+  "mobile": {
+    "breakpointMaxWidth": "600px",
+    "fontSize": "min(calc(var(--marketing-display-size) * 1.25), 9.375cqi)",
+    "lineHeight": 1.4,
+    "wrapping": "sentenceLine, sentenceCustomize and sentenceBuild are block groups; tokenPhrase, sentenceCustomize and agentPhrase retain nowrap; outer sentence uses text-wrap:balance. The desktop break after 'and build' is hidden."
+  },
+  "rights": "Observed implementation parameters and original Graphical assets. Public delivery does not establish a redistribution or reuse license. Torph itself is MIT; the surrounding HeroToken and artwork have no verified open-source license."
+}

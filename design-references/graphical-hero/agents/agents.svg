@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.5 -1.5 27 27" fill="none">
+  <title>Anything</title>
+  <defs>
+    <linearGradient id="yellow" x1="5" y1="2" x2="19" y2="23" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFDB75" />
+      <stop offset="1" stop-color="#FFC344" />
+    </linearGradient>
+    <linearGradient id="fold" x1="16" y1="16" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EE9A21" />
+      <stop offset="1" stop-color="#D87910" />
+    </linearGradient>
+  </defs>
+  <path d="M24 12A12 12 0 1 0 12 24C12.9 24 13.8 23.9 14.7 23.7L23.7 14.7C23.9 13.8 24 12.9 24 12Z" fill="url(#yellow)" stroke="white" stroke-width="3" stroke-linejoin="round" paint-order="stroke fill" />
+  <path d="M14.7 23.7C14.9 22.4 14.8 20.7 15.4 18.8C16.1 16.6 17.5 15.6 19.7 15.1C21.2 14.8 22.6 14.8 23.7 14.7Z" fill="url(#fold)" />
+  <g transform="rotate(-6 12 12)">
+    <rect x="7" y="7" width="2.3" height="3.2" rx="1.15" fill="#E58A18" />
+    <rect x="14.7" y="7" width="2.3" height="3.2" rx="1.15" fill="#E58A18" />
+    <path d="M7.6 14.1C10.1 17.3 13.9 17.3 16.4 14.1" stroke="#E58A18" stroke-width="2" stroke-linecap="round" />
+  </g>
+</svg>

@@ -1,0 +1,5 @@
+.demo-build/
+!demo/vendor/torph/dist/
+!demo/vendor/torph/dist/index.mjs
+!demo/vendor/torph/dist/react/
+!demo/vendor/torph/dist/react/index.mjs

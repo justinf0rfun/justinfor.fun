@@ -1,0 +1,105 @@
+{
+  "source": "https://www.graphicalui.com/",
+  "group": "agent",
+  "assets": [
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "path": "agents/codex-color.png",
+      "type": "image/png",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/codex-color.png",
+      "sha256": "de7d43f3386105ab20952958c2c25beb0d903e2aeb6e1aef57c49a648c0d1c07",
+      "bytes": 493468,
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established. Original Hero wraps the PNG in a white 76-unit stroked path and matching clipPath. chatgpt-sticker.svg preserves the exact public clip/frame geometry, embeds the original PNG for safe standalone display, and uses a stable local clip ID.",
+      "presentationPath": "agents/chatgpt-sticker.svg"
+    },
+    {
+      "id": "claude",
+      "label": "Claude",
+      "path": "agents/claude-color.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/claude-color.svg",
+      "sha256": "669a988581cb44765dc1c14497b0c6835627dc10acc9cb47cd1a8c9ea78336b8",
+      "bytes": 3310,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": "1em",
+        "height": "1em"
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/claude-color.svg"
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "path": "agents/cursor.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/cursor.svg",
+      "sha256": "a1edec13225f014dbc5f8ab515b1a464f869d987a8da2482493895ee10901116",
+      "bytes": 854,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": "1em",
+        "height": "1em"
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/cursor.svg"
+    },
+    {
+      "id": "grok",
+      "label": "Grok",
+      "path": "agents/grok.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/grok.svg",
+      "sha256": "f3ede049c20b091287e2eb75f624707c5d7434fa31c4c010651c379fc284ef16",
+      "bytes": 523,
+      "dimensions": {
+        "viewBox": "-9.375 -9.375 168.75 168.75",
+        "width": null,
+        "height": null
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/grok.svg"
+    },
+    {
+      "id": "anything",
+      "label": "anything",
+      "path": "agents/agents.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/agents.svg",
+      "sha256": "8206892cb85f5657183fd77f190f783e1b3d11a94ee005a1641402007dda5188",
+      "bytes": 1178,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": null,
+        "height": null
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/agents.svg"
+    }
+  ],
+  "derivedAssets": [
+    {
+      "id": "chatgpt-sticker",
+      "path": "agents/chatgpt-sticker.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "originalImage": "agents/codex-color.png",
+      "sourceExcerpt": "agents/chatgpt-sticker-source.txt",
+      "sha256": "78e22cc6954350535c782fa9e38f551eddb0f800ebdef71c0d51975a3c75656d",
+      "notes": "Extracted exact original frame/clip, normalized XML attribute names, PNG embedded; no redraw."
+    }
+  ],
+  "provenance": {
+    "groupDefinitionURL": "https://www.graphicalui.com/_next/static/chunks/17brw7d926k_q.js",
+    "groupDefinitionSHA256": "25931f12e9ab3cad8b531958f604ed4fe48827e44ddc9660c443c2ea49f70c33",
+    "renderingModuleURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+    "renderingModuleSHA256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+    "originalCount": 5,
+    "scope": "All AGENT_TOKENS from the Graphical homepage Hero; not the lower product demos."
+  }
+}

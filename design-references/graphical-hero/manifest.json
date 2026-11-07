@@ -1,0 +1,386 @@
+{
+  "source": "https://www.graphicalui.com/",
+  "scope": "Circled hero, every clickable token state",
+  "counts": {
+    "language": 3,
+    "detail": 8,
+    "agent": 5
+  },
+  "assets": [
+    {
+      "id": "themes",
+      "label": "themes",
+      "group": "language",
+      "kind": "theme",
+      "type": "svg",
+      "filepath": "artwork/themes.svg",
+      "previewPath": "artwork/themes.html",
+      "originalFragmentPath": "artwork/themes.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -9,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/themes.html",
+      "sha256": "7ffacac8f6106d3b946acf199476fa4d1a093a3fdea76c29395206dbcdf34d0e"
+    },
+    {
+      "id": "systems",
+      "label": "systems",
+      "group": "language",
+      "kind": "system",
+      "type": "svg",
+      "filepath": "artwork/systems.svg",
+      "previewPath": "artwork/systems.html",
+      "originalFragmentPath": "artwork/systems.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": 4,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/systems.html",
+      "sha256": "33ae2c68a8cdbed06a163eeaa1ef146fdb674d982c79c2bc4d1b8d5c2584f505"
+    },
+    {
+      "id": "languages",
+      "label": "languages",
+      "group": "language",
+      "kind": "language",
+      "type": "svg",
+      "filepath": "artwork/languages.svg",
+      "previewPath": "artwork/languages.html",
+      "originalFragmentPath": "artwork/languages.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": 12,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/languages.html",
+      "sha256": "eeae45472785bc96fe96029c1a24746e1423183aeef3ebb7417b59d45f26ad53"
+    },
+    {
+      "id": "components",
+      "label": "components",
+      "group": "detail",
+      "kind": "components",
+      "type": "html-css",
+      "filepath": "artwork/components.html",
+      "previewPath": "artwork/components.html",
+      "originalFragmentPath": "artwork/components.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -5,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [
+          "artwork/artwork.css"
+        ],
+        "note": "Original CSS drawing remains HTML/CSS; effects uses backdrop-filter and retains transparency."
+      },
+      "presentationPath": "artwork/components.html",
+      "sha256": "9bae04c4c209025694f01a4bfd47cef01cb4032266cbf733306953d2ad089d82"
+    },
+    {
+      "id": "colors",
+      "label": "colors",
+      "group": "detail",
+      "kind": "colors",
+      "type": "html-css",
+      "filepath": "artwork/colors.html",
+      "previewPath": "artwork/colors.html",
+      "originalFragmentPath": "artwork/colors.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -8,
+        "outerOffsetXPx": 10,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [
+          "artwork/artwork.css"
+        ],
+        "note": "Original CSS drawing remains HTML/CSS; effects uses backdrop-filter and retains transparency."
+      },
+      "presentationPath": "artwork/colors.html",
+      "sha256": "a924744ea15ff586a68e1a65c950ee3f40d64c7c8d358d128c7e6e0c8b8bc578"
+    },
+    {
+      "id": "type",
+      "label": "type",
+      "group": "detail",
+      "kind": "type",
+      "type": "html-css",
+      "filepath": "artwork/type.html",
+      "previewPath": "artwork/type.html",
+      "originalFragmentPath": "artwork/type.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -13,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [
+          "artwork/artwork.css",
+          "fonts/GT-Standard-L-Standard-Semibold.woff2"
+        ],
+        "note": "Original SVG text remains text; exact glyphs require the original GT Standard L Semibold font."
+      },
+      "presentationPath": "artwork/type.html",
+      "sha256": "41da522474c0ffc1a991ffbd8396311684850f3d3a88c2fb5db8759eebf5d2af"
+    },
+    {
+      "id": "spacing",
+      "label": "spacing",
+      "group": "detail",
+      "kind": "spacing",
+      "type": "svg",
+      "filepath": "artwork/spacing.svg",
+      "previewPath": "artwork/spacing.html",
+      "originalFragmentPath": "artwork/spacing.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -6,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/spacing.html",
+      "sha256": "144fd359078b9c900d1b231de9531a402c5b9becde07560b5a1b6eeaece8c09f"
+    },
+    {
+      "id": "icons",
+      "label": "icons",
+      "group": "detail",
+      "kind": "icons",
+      "type": "svg",
+      "filepath": "artwork/icons.svg",
+      "previewPath": "artwork/icons.html",
+      "originalFragmentPath": "artwork/icons.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -7,
+        "outerOffsetXPx": 2,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/icons.html",
+      "sha256": "2eb39a5bc6c7814f771df4bf2955ef35df1de2232d00a5da5f058335f59d9d78"
+    },
+    {
+      "id": "effects",
+      "label": "effects",
+      "group": "detail",
+      "kind": "effects",
+      "type": "html-css",
+      "filepath": "artwork/effects.html",
+      "previewPath": "artwork/effects.html",
+      "originalFragmentPath": "artwork/effects.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": 11,
+        "outerOffsetXPx": 0,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [
+          "artwork/artwork.css"
+        ],
+        "note": "Original CSS drawing remains HTML/CSS; effects uses backdrop-filter and retains transparency."
+      },
+      "presentationPath": "artwork/effects.html",
+      "sha256": "8e247e3935078da697743bc8759e7f5ff415830599298f59ba9e9b58b674e3d1"
+    },
+    {
+      "id": "states",
+      "label": "states",
+      "group": "detail",
+      "kind": "states",
+      "type": "svg",
+      "filepath": "artwork/states.svg",
+      "previewPath": "artwork/states.html",
+      "originalFragmentPath": "artwork/states.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": -11,
+        "outerOffsetXPx": 4,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/states.html",
+      "sha256": "d2193a8a3b3e86f0b266bb8506312aa7aba5c8464195d1bb05115240ba220238"
+    },
+    {
+      "id": "motion",
+      "label": "motion",
+      "group": "detail",
+      "kind": "motion",
+      "type": "svg",
+      "filepath": "artwork/motion.svg",
+      "previewPath": "artwork/motion.html",
+      "originalFragmentPath": "artwork/motion.fragment.html",
+      "sourceURL": "https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js",
+      "stylesheetURL": "https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css",
+      "sourceBundleSha256": "2c4da19293ed6e8ad7d379b60ef2d21a7c4208051c04783c78e479f0bbf36303",
+      "renderingNotes": {
+        "exactArtwork": "Rendered from the original public React artwork module; no path or illustration was redrawn.",
+        "outerRotationDegrees": 6,
+        "outerOffsetXPx": 2,
+        "originalHeroArtworkScale": 1.44,
+        "previewArtworkScale": 1,
+        "dependencies": [],
+        "note": "Standalone SVG preserves original paths; use its HTML preview for original outer rotation, optical offset and shadow."
+      },
+      "presentationPath": "artwork/motion.html",
+      "sha256": "5414cfa844ca0eab2735818c3563a8c614707869632c80910ecd5158d94d6f55"
+    },
+    {
+      "id": "chatgpt",
+      "label": "ChatGPT",
+      "path": "agents/codex-color.png",
+      "type": "image/png",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/codex-color.png",
+      "sha256": "de7d43f3386105ab20952958c2c25beb0d903e2aeb6e1aef57c49a648c0d1c07",
+      "bytes": 493468,
+      "dimensions": {
+        "width": 1024,
+        "height": 1024
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established. Original Hero wraps the PNG in a white 76-unit stroked path and matching clipPath. chatgpt-sticker.svg preserves the exact public clip/frame geometry, embeds the original PNG for safe standalone display, and uses a stable local clip ID.",
+      "presentationPath": "agents/chatgpt-sticker.svg",
+      "group": "agent"
+    },
+    {
+      "id": "claude",
+      "label": "Claude",
+      "path": "agents/claude-color.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/claude-color.svg",
+      "sha256": "669a988581cb44765dc1c14497b0c6835627dc10acc9cb47cd1a8c9ea78336b8",
+      "bytes": 3310,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": "1em",
+        "height": "1em"
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/claude-color.svg",
+      "group": "agent"
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "path": "agents/cursor.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/cursor.svg",
+      "sha256": "a1edec13225f014dbc5f8ab515b1a464f869d987a8da2482493895ee10901116",
+      "bytes": 854,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": "1em",
+        "height": "1em"
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/cursor.svg",
+      "group": "agent"
+    },
+    {
+      "id": "grok",
+      "label": "Grok",
+      "path": "agents/grok.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/grok.svg",
+      "sha256": "f3ede049c20b091287e2eb75f624707c5d7434fa31c4c010651c379fc284ef16",
+      "bytes": 523,
+      "dimensions": {
+        "viewBox": "-9.375 -9.375 168.75 168.75",
+        "width": null,
+        "height": null
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/grok.svg",
+      "group": "agent"
+    },
+    {
+      "id": "anything",
+      "label": "anything",
+      "path": "agents/agents.svg",
+      "type": "image/svg+xml",
+      "sourceURL": "https://www.graphicalui.com/marketing/agents/agents.svg",
+      "sha256": "8206892cb85f5657183fd77f190f783e1b3d11a94ee005a1641402007dda5188",
+      "bytes": 1178,
+      "dimensions": {
+        "viewBox": "-1.5 -1.5 27 27",
+        "width": null,
+        "height": null
+      },
+      "notes": "Original Graphical-hosted bytes; original author/licensing provenance not established.",
+      "presentationPath": "agents/agents.svg",
+      "group": "agent"
+    }
+  ],
+  "fonts": [
+    {
+      "path": "fonts/GT-Standard-L-Standard-Regular.woff2",
+      "sourceURL": "https://www.graphicalui.com/fonts/gt-standard-l/GT-Standard-L-Standard-Regular.woff2",
+      "sha256": "4105a4600c0ff156188f57155493072eb7ba04ee1361b26b987ee7706e30244b"
+    },
+    {
+      "path": "fonts/GT-Standard-L-Standard-Semibold.woff2",
+      "sourceURL": "https://www.graphicalui.com/fonts/gt-standard-l/GT-Standard-L-Standard-Semibold.woff2",
+      "sha256": "d9d63bc7ef617ae81d92abd182a448f3715db8e2a2a9bc2858b76ccbf56b1c8c"
+    },
+    {
+      "path": "fonts/GT-Standard-L-Standard-Medium.woff2",
+      "sourceURL": "https://www.graphicalui.com/fonts/gt-standard-l/GT-Standard-L-Standard-Medium.woff2",
+      "sha256": "faabee27a4bb26b35c9fba04560a6993db1701689942cdce0922c0af1ec9d1a6"
+    }
+  ],
+  "rights": "Reference extraction; original Graphical artwork/font reuse license not established. Torph is MIT; its notice is retained in demo/vendor/torph/LICENSE."
+}
