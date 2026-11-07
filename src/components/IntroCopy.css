@@ -9,7 +9,7 @@
 html[data-home-theme="dark"] .intro-copy { --intro-pill: #27272a; --intro-pill-hover: #353539; }
 .intro-copy-line { margin-top: 28px; font-size: min(18px, 3.7cqi); line-height: 1.8; font-weight: 400; letter-spacing: -.2px; }
 .intro-copy-phrase { display: block; white-space: nowrap; }
-.intro-copy-body { display: grid; gap: 20px; margin-top: 24px; color: var(--home-muted); font-size: 16px; line-height: 1.55; }
+.intro-copy-body { display: grid; gap: 20px; margin-top: 24px; font-size: 16px; line-height: 1.55; }
 .intro-copy-body a { color: var(--home-ink); text-decoration: none; border-bottom: 1px dotted color-mix(in srgb, var(--home-ink) 35%, transparent); padding-bottom: 2px; }
 .intro-copy-body a:hover { border-bottom-style: solid; }
 .intro-copy-body .living-underline { border-bottom: 0; padding-bottom: 0; }
