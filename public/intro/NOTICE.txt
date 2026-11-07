@@ -1,0 +1,22 @@
+Graphical hero artwork provenance
+
+Source: https://www.graphicalui.com/
+Reference collection: design-references/graphical-hero/
+
+The seven inline SVG/HTML artworks in src/components/intro-artwork/ preserve the
+original artwork paths and CSS drawing rules from the publicly served module:
+https://www.graphicalui.com/_next/static/chunks/10ysidpnhxe89.js
+https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css
+
+claude-color.svg and grok.svg are original files from:
+https://www.graphicalui.com/marketing/agents/claude-color.svg
+https://www.graphicalui.com/marketing/agents/grok.svg
+
+chatgpt-sticker.svg combines the original codex-color.png with the exact original
+SVG clip and white outline; the PNG is embedded for standalone rendering:
+https://www.graphicalui.com/marketing/agents/codex-color.png
+
+This notice records source provenance; it does not assert a license or transfer
+of rights to Graphical's artwork or the represented brand marks. No Graphical
+font files, unused artwork or editor components are included in this production
+subset. Torph is installed separately from its official npm package under MIT.

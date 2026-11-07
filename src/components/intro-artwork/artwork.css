@@ -1,0 +1,12 @@
+/* Original Graphical artwork rules, extracted from https://www.graphicalui.com/_next/static/chunks/0b56~22g19qgj.css. */
+.marketing-module__5twnNa__pictogram{top:calc(50% + var(--token-optical-offset,.045em));isolation:isolate;filter:drop-shadow(0 .02em .025em #00000014);width:.94em;height:.94em;transform:translateY(-50%) scale(var(--token-artwork-scale,1));transform-origin:0;place-items:center;display:inline-grid;position:absolute;left:0}
+.marketing-module__5twnNa__categoryArtwork{width:.94em;height:.94em;display:block;overflow:visible}
+.marketing-module__5twnNa__miniSwatches{width:.88em;height:.84em;display:block;position:relative}
+.marketing-module__5twnNa__miniSwatches>i{--swatch-dark:#ffb600;--swatch-mid:#ffdb23;--swatch-light:#fff26b;background:linear-gradient(to bottom, var(--swatch-dark) 0 33.333%, var(--swatch-mid) 33.333% 66.667%, var(--swatch-light) 66.667% 100%);transform-origin:50% calc(100% - .14em);border-radius:.065em;width:.28em;height:.78em;position:absolute;bottom:.03em;left:.02em;box-shadow:inset 0 0 0 .012em #0000000d}
+.marketing-module__5twnNa__miniSwatches>i:nth-of-type(2){--swatch-dark:#ff2b72;--swatch-mid:#ff6798;--swatch-light:#ffa3c7;transform:rotate(38deg)}
+.marketing-module__5twnNa__miniSwatches>i:nth-of-type(3){--swatch-dark:#5133ff;--swatch-mid:#7970ff;--swatch-light:#ada6ff;transform:rotate(76deg)}
+.marketing-module__5twnNa__miniSwatches:after{content:"";background:#fff;border-radius:50%;width:.1em;height:.1em;position:absolute;bottom:.12em;left:.11em;box-shadow:0 0 0 .012em #0000001f}
+.marketing-module__5twnNa__miniEffect{width:.76em;height:.76em;display:block;position:relative}
+.marketing-module__5twnNa__artworkOutline{width:100%;height:100%;position:absolute;inset:0;overflow:visible}
+.marketing-module__5twnNa__miniEffect>i{background:var(--art-gradient);border-radius:50%;width:.58em;height:.58em;position:absolute;top:.02em;left:.01em}
+.marketing-module__5twnNa__miniEffect>span{-webkit-backdrop-filter:blur(.1em);backdrop-filter:blur(.1em);background:#ffffffa6;border-radius:.14em;width:.54em;height:.54em;position:absolute;bottom:0;right:0;transform:rotate(12deg);box-shadow:inset 0 0 0 1px #ffffffd9}

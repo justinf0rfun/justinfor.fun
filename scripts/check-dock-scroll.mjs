@@ -188,6 +188,57 @@ test("opening chat restores full size immediately and suspends scroll scaling un
   assert.equal(f.value.current, 0.84);
 });
 
+test("the Say hi guide keeps the dock expanded through scrolling and the chat handoff", () => {
+  const f = fixture({ start: 100 });
+  f.scroll(140);
+  assert.equal(f.value.current, 0.84);
+  f.window.fire("home-chat-guide-state", { detail: true });
+  assert.equal(f.value.current, 1);
+  f.scroll(600); f.scroll(1800);
+  assert.deepEqual(f.targets, [0.84, 1]);
+  f.window.fire("home-chat-guide-state", { detail: false });
+  f.window.fire("home-chat-change", { detail: true });
+  f.scroll(1900); assert.equal(f.value.current, 1);
+  f.window.fire("home-chat-change", { detail: false });
+  f.scroll(1932); assert.equal(f.value.current, 0.84);
+});
+
+test("ending a guide preserves its pinned anchor after height-only browser chrome changes", () => {
+  for (const openChat of [false, true]) {
+    const f = fixture({ start: 100, touch: true });
+    const anchor = f.anchor();
+    f.window.fire("home-chat-guide-state", { detail: true });
+    for (const height of [820, 844, 832]) {
+      f.window.innerHeight = height;
+      f.window.fire("resize");
+      f.window.visualViewport.fire("resize");
+      assert.equal(f.anchor(), anchor);
+    }
+    f.window.fire("home-chat-guide-state", { detail: false });
+    assert.equal(f.anchor(), anchor, "the hand target must not jump at the end of the guide");
+    if (openChat) {
+      f.window.fire("home-chat-change", { detail: true });
+      assert.equal(f.anchor(), anchor, "opening chat must use the same dock position");
+    }
+    f.destroy();
+  }
+});
+
+test("guide width changes defer repinning until cancellation, then tracking resumes", () => {
+  const f = fixture({ start: 100, touch: true });
+  f.window.fire("home-chat-guide-state", { detail: true });
+  const anchor = f.anchor();
+  f.window.innerWidth = 844; f.window.innerHeight = 390; f.window.fire("resize");
+  f.window.visualViewport.fire("resize");
+  assert.equal(f.anchor(), anchor);
+  f.window.fire("home-chat-guide-state", { detail: false });
+  assert.equal(f.anchor(), "352px");
+  f.scroll(140); assert.equal(f.value.current, 0.84);
+  f.destroy(); const count = f.targets.length;
+  f.window.fire("home-chat-guide-state", { detail: true });
+  assert.equal(f.targets.length, count);
+});
+
 test("chat keeps its mobile anchor during viewport changes and repins when closed", () => {
   const f = fixture({ touch: true });
   const initial = f.anchor();

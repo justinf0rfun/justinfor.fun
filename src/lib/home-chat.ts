@@ -15,7 +15,7 @@ export interface ChatState {
 }
 
 export interface ChatAction {
-  type: "toggle" | "close" | "voice-enter" | "voice-exit" | "send" | "text-reply"
+  type: "open" | "toggle" | "close" | "voice-enter" | "voice-exit" | "send" | "text-reply"
     | "voice-start" | "voice-think" | "voice-reply" | "voice-finish" | "voice-stop";
 }
 
@@ -32,6 +32,8 @@ export const initialChatState: ChatState = {
 export function chatReducer(state: ChatState, action: ChatAction): ChatState {
   const next = FOLLOW_UPS[state.step];
   switch (action.type) {
+    case "open":
+      return state.open ? state : { ...state, open: true, mode: "text", phase: "idle", voiceTurn: null };
     case "toggle":
     case "close":
       return { ...state, open: action.type === "toggle" && !state.open, mode: "text", phase: "idle", voiceTurn: null };

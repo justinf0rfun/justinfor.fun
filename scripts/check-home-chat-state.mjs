@@ -4,6 +4,18 @@ import { chatReducer, FOLLOW_UPS, initialChatState } from "../src/lib/home-chat.
 
 const act = (state, ...types) => types.reduce((current, type) => chatReducer(current, { type }), state);
 
+test("guided open is idempotent and does not reset an existing voice conversation", () => {
+  const opened = act(initialChatState, "open");
+  assert.equal(opened.open, true);
+  assert.equal(act(opened, "open"), opened);
+  const voice = act(opened, "voice-enter", "voice-start", "voice-think", "voice-reply");
+  assert.equal(act(voice, "open"), voice);
+  const reopened = act(voice, "close", "open");
+  assert.equal(reopened.open, true);
+  assert.equal(reopened.mode, "text");
+  assert.equal(reopened.messages, voice.messages);
+});
+
 test("three preset text turns complete once; duplicate and exhausted sends do nothing", () => {
   assert.equal(act(initialChatState, "send"), initialChatState);
   let state = act(initialChatState, "toggle");

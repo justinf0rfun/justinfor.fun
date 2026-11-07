@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState, type PointerE
 import { createPortal } from "react-dom";
 import { animate, AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { chatReducer, FOLLOW_UPS, initialChatState } from "../lib/home-chat";
+import { mountSayHiGuide } from "../scripts/say-hi-guide";
 import "./HomeChat.css";
 
 function VoiceIcon() {
@@ -45,8 +46,13 @@ export default function HomeChat() {
     resize();
     if (trigger) trigger.disabled = false;
     trigger?.addEventListener("click", toggle);
+    const cleanupGuide = trigger ? mountSayHiGuide(trigger, () => {
+      dispatch({ type: "open" });
+      closeRef.current?.focus({ preventScroll: true });
+    }) : undefined;
     media.addEventListener("change", resize);
     return () => {
+      cleanupGuide?.();
       trigger?.removeEventListener("click", toggle);
       media.removeEventListener("change", resize);
       dragAnimation.current?.stop();
@@ -97,7 +103,7 @@ export default function HomeChat() {
       dock.style.removeProperty("--chat-max-height");
       wrap.style.removeProperty("--chat-anchor-top");
       drag.current = null;
-      window.dispatchEvent(new CustomEvent("home-chat-change", { detail: false }));
+      if (mobile && open) window.dispatchEvent(new CustomEvent("home-chat-change", { detail: false }));
     };
   }, [dock, mobile, open]);
 

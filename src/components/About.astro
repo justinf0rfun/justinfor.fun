@@ -1,6 +1,7 @@
 ---
 import Signature from "./Signature.astro";
 import AgentToolsStrip from "./AgentToolsStrip.astro";
+import IntroCopy from "./IntroCopy";
 ---
 
 <div class="about">
@@ -31,95 +32,35 @@ import AgentToolsStrip from "./AgentToolsStrip.astro";
       <p class="about-role mt-0.5 leading-tight">AI Agent Engineer</p>
     </div>
   </div>
-  <div class="about-points">
-    <section>
-      <h2><span class="about-keyword">AI-era builder.</span> <span class="about-keyword">Indie builder.</span></h2>
-      <p>Rethinking building and roles in the age of AI.</p>
-    </section>
-
-    <section>
-      <h2>
-        Currently building agents at{" "}
+  <IntroCopy client:load>
+    <span slot="location" class="employment-location">
+      Based in{" "}
+      <span class="location-preview">
         <a
-          href="https://www.zybang.com/"
+          href="https://www.openstreetmap.org/?mlat=39.9042&mlon=116.4074#map=12/39.9042/116.4074"
           target="_blank"
           rel="noopener noreferrer"
-          class="living-underline inline-flex items-center gap-1 align-middle font-medium text-neutral-800 transition-colors hover:text-neutral-950"
-        >
-          <img
-            src="/zuoyebang-icon.png"
-            alt=""
-            height="16"
-            width="16"
-            class="size-4 shrink-0 rounded-[0.22rem]"
-          />
-          Zuoyebang
-        </a>{" "}
-        in{" "}
-        <span class="location-preview">
-          <a
-            href="https://www.openstreetmap.org/?mlat=39.9042&mlon=116.4074#map=12/39.9042/116.4074"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="living-underline location-link transition-colors hover:text-neutral-950"
-          >Beijing</a>
-          <span class="location-card" aria-hidden="true">
-            <iframe
-              class="location-map"
-              title="Map of Beijing, China"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=116.25%2C39.78%2C116.55%2C40.02&layer=mapnik&marker=39.9042%2C116.4074"
-              loading="eager"
-              tabindex="-1"
-            ></iframe>
-            <span class="location-caption">
-              <span>
-                <strong>Beijing</strong>
-                <small>北京 · China</small>
-              </span>
-              <span class="location-coordinates">39.9042° N<br />116.4074° E</span>
+          class="living-underline location-link transition-colors hover:text-neutral-950"
+        >Beijing</a>
+        <span class="location-card" aria-hidden="true">
+          <iframe
+            class="location-map"
+            title="Map of Beijing, China"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=116.25%2C39.78%2C116.55%2C40.02&layer=mapnik&marker=39.9042%2C116.4074"
+            loading="eager"
+            tabindex="-1"
+          ></iframe>
+          <span class="location-caption">
+            <span>
+              <strong>Beijing</strong>
+              <small>北京 · China</small>
             </span>
+            <span class="location-coordinates">39.9042° N<br />116.4074° E</span>
           </span>
-        </span>, China. I love music and building playful things.
-      </h2>
-    </section>
-
-    <section>
-      <h2>
-        Previously, I worked at{" "}
-      <a
-        href="https://www.didiglobal.com/"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="living-underline inline-flex items-center gap-1 align-middle font-medium text-neutral-800 transition-colors hover:text-neutral-950"
-      >
-        <img
-          src="/didi-icon.png"
-          alt=""
-          height="16"
-          width="16"
-          class="size-4 shrink-0"
-        />
-        DiDi
-      </a>{" "}
-        and a few other companies.
-      </h2>
-      <p>
-        You can reach me on{" "}
-        <a
-          href="https://x.com/justinforfun"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="living-underline font-medium text-neutral-800 transition-colors hover:text-neutral-950"
-        >X</a>, or see my code on{" "}
-        <a
-          href="https://github.com/justinf0rfun"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="living-underline font-medium text-neutral-800 transition-colors hover:text-neutral-950"
-        >GitHub</a>.
-      </p>
-    </section>
-  </div>
+        </span>
+      </span>, China.
+    </span>
+  </IntroCopy>
   <Signature />
   {/* Keep the interactive tools with the introduction, before Contributions. */}
   <AgentToolsStrip />
@@ -134,34 +75,6 @@ import AgentToolsStrip from "./AgentToolsStrip.astro";
     color: var(--home-muted, rgb(32 34 33 / 50%));
   }
 
-  .about-points {
-    display: grid;
-    gap: 1.25rem;
-    margin-top: 1.5rem;
-    text-wrap: pretty;
-  }
-
-  .about-points h2,
-  .about-points p {
-    font-size: 1rem;
-    line-height: 1.55;
-  }
-
-  .about-points h2 {
-    font-weight: 400;
-  }
-
-  .about-points h2,
-  .about-points p {
-    color: var(--home-muted, rgb(32 34 33 / 50%));
-  }
-
-  .about-points .about-keyword,
-  .about-points a {
-    color: var(--home-ink, #202221);
-    font-weight: inherit;
-  }
-
   .location-preview {
     position: relative;
     display: inline-block;
@@ -169,7 +82,7 @@ import AgentToolsStrip from "./AgentToolsStrip.astro";
 
   .location-card {
     position: absolute;
-    right: -3rem;
+    left: -4rem;
     top: calc(100% + 0.75rem);
     z-index: 30;
     display: block;
@@ -184,7 +97,7 @@ import AgentToolsStrip from "./AgentToolsStrip.astro";
     opacity: 0;
     pointer-events: none;
     transform: translateY(-0.4rem) scale(0.97);
-    transform-origin: 82% 0%;
+    transform-origin: 22% 0%;
     transition:
       opacity 130ms ease-out,
       transform 160ms cubic-bezier(0.23, 1, 0.32, 1),
@@ -263,9 +176,4 @@ import AgentToolsStrip from "./AgentToolsStrip.astro";
     }
   }
 
-  @media (max-width: 40rem) {
-    .about-points {
-      gap: 1rem;
-    }
-  }
 </style>

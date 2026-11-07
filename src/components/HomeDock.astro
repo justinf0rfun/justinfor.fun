@@ -43,7 +43,15 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   <span class="sr-only" role="status" data-dock-status></span>
 </div>
 
+<span class="chat-guide-hand" data-chat-guide-hand aria-hidden="true"><img src="/guide/pointing-hand.png" width="56" height="56" alt="" draggable="false" /></span>
+<span class="chat-guide-ring" data-chat-guide-ring aria-hidden="true"></span>
+<span class="sr-only" data-chat-guide-status role="status"></span>
+
 <style>
+  .chat-guide-hand, .chat-guide-ring { position: fixed; left: 0; top: 0; z-index: 36; pointer-events: none; opacity: 0; visibility: hidden; }
+  .chat-guide-hand { width: 56px; height: 56px; filter: drop-shadow(0 3px 3px rgb(0 0 0 / .22)); }
+  .chat-guide-hand img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .chat-guide-ring { width: 24px; height: 24px; border: 2px solid white; border-radius: 50%; }
   .home-dock-wrap {
     --dock-gap: max(38px, env(safe-area-inset-bottom));
     position: fixed;

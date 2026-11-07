@@ -20,6 +20,12 @@ assert.match(panel, /data-open="false"/);
 assert.match(panel, /\binert\b/, "closed chat must not receive keyboard focus");
 assert.match(panel, /aria-modal="false"/, "the homepage stays usable alongside chat");
 assert.equal([...html.matchAll(/id="home-chat"/g)].length, 1);
+const guide = html.match(/<button\b[^>]*data-home-chat-guide[^>]*>/)?.[0];
+assert.ok(guide, "intro must expose the guided Say hi button");
+assert.match(guide, /\bdisabled\b/, "guided entry must wait for both islands to hydrate");
+assert.match(guide, /aria-controls="home-chat"/);
+assert.equal([...html.matchAll(/data-chat-guide-hand\b/g)].length, 1);
+assert.doesNotMatch(html, /INTRO DEMO|原站素材已收齐/, "do not migrate the demo controls or reference gallery");
 
 for (const route of ["thoughts", "what-i-use", "music", "memory"]) {
   assert.doesNotMatch(read(`../dist/${route}/index.html`), /data-home-chat-trigger|id="home-chat"/);

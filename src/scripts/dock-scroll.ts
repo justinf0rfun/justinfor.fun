@@ -22,6 +22,7 @@ export function mountDockScroll(dock: HTMLElement) {
   let compact = false;
   let frame = 0;
   let chatting = false;
+  let guiding = false;
 
   const setCompact = (next: boolean) => {
     if (next === compact) return;
@@ -39,8 +40,9 @@ export function mountDockScroll(dock: HTMLElement) {
   const onResize = () => {
     const nextLimit = scrollLimit();
     if (window.innerWidth !== viewportWidth) {
+      if (guiding) return;
       viewportWidth = window.innerWidth;
-      if (!chatting) pinAnchor();
+      if (!chatting && !guiding) pinAnchor();
       resetTracking();
     } else {
       // Keep real scroll intent while browser chrome changes only the viewport height.
@@ -54,7 +56,7 @@ export function mountDockScroll(dock: HTMLElement) {
     const y = position();
     const delta = y - previous;
     previous = y;
-    if (chatting || reduced.matches || document.documentElement.style.overflow === "hidden") {
+    if (chatting || guiding || reduced.matches || document.documentElement.style.overflow === "hidden") {
       travel = 0;
       return;
     }
@@ -87,7 +89,14 @@ export function mountDockScroll(dock: HTMLElement) {
     if (!chatting) pinAnchor();
     restore();
   };
+  const onGuide = (event: Event) => {
+    guiding = (event as CustomEvent<boolean>).detail;
+    animation?.stop();
+    if (!guiding) onResize();
+    restore();
+  };
 
+  window.addEventListener("home-chat-guide-state", onGuide);
   window.addEventListener("home-chat-change", onChat);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize);
@@ -99,6 +108,7 @@ export function mountDockScroll(dock: HTMLElement) {
   dock.addEventListener("focusout", resetTracking);
 
   return () => {
+    window.removeEventListener("home-chat-guide-state", onGuide);
     window.removeEventListener("home-chat-change", onChat);
     cancelAnimationFrame(frame);
     window.removeEventListener("scroll", onScroll);
