@@ -3,6 +3,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { TextMorph } from "torph/react";
+import XProfileLink from "./XProfileLink";
 import { artwork, type ArtworkId } from "./intro-artwork/assets";
 import "./intro-artwork/artwork.css";
 import "./IntroCopy.css";
@@ -109,7 +110,7 @@ export default function IntroCopy({ location }: { location: ReactNode }) {
         <span className="intro-employment-row"><TextMorph as="span" className="intro-employment-prefix" duration={200} respectReducedMotion>{company.tense}</TextMorph>{" "}<motion.span className="intro-employment-company" layout="position" transition={reduced ? { duration: 0 } : { type: "spring", visualDuration: .24, bounce: .2 }}>at <Token choices={groups[3]} index={indices[3]} onClick={() => cycle(3)} label={`${company.tense} at`} /></motion.span></span>
         {location}
       </p>
-      <p>You can reach me on <a href="https://x.com/justinforfun" target="_blank" rel="noopener noreferrer">X</a>, or tap <button ref={guideRef} type="button" className="intro-contact-action" data-home-chat-guide disabled aria-controls="home-chat"><span className="intro-contact-icon" aria-hidden="true"><Artwork id="languages" /></span>Say hi</button> below to chat with me.</p>
+      <div>You can reach me on <XProfileLink />, or tap <button ref={guideRef} type="button" className="intro-contact-action" data-home-chat-guide disabled aria-controls="home-chat"><span className="intro-contact-icon" aria-hidden="true"><Artwork id="languages" /></span>Say hi</button> below to chat with me.</div>
     </div>
   </div>;
 }

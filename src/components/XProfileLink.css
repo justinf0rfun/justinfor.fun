@@ -1,0 +1,34 @@
+.intro-x-profile { position: relative; display: inline-block; }
+.intro-x-card {
+  --skullet-base: rgb(0 0 0 / .07);
+  --skullet-highlight: rgb(255 255 255 / .6);
+  position: absolute; z-index: 30; top: calc(100% + 12px);
+  width: min(320px, calc(100vw - 32px)); padding: 12px;
+  border: 1px solid rgb(0 0 0 / .07); border-radius: 16px;
+  background: #fff; color: var(--home-ink);
+  box-shadow: 0 12px 32px rgb(0 0 0 / .1), 0 2px 6px rgb(0 0 0 / .04);
+  font-size: 14px; line-height: 1.4; text-align: left;
+}
+.intro-x-card::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 13px; }
+.intro-x-card[data-side="top"] { top: auto; bottom: calc(100% + 12px); }
+.intro-x-card[data-side="top"]::before { top: 100%; bottom: auto; }
+.intro-x-card-row { display: flex; align-items: center; gap: 12px; }
+.intro-x-card-row > img { flex: none; object-fit: contain; border-radius: 50%; }
+.intro-x-identity { display: grid; min-width: 0; gap: 3px; }
+.intro-x-identity > span:first-child { font-weight: 500; }
+.intro-x-identity > span:last-child { color: var(--home-muted); font-size: 12px; white-space: nowrap; }
+.intro-copy-body .intro-x-follow {
+  display: inline-flex; flex: none; align-items: center; justify-content: center;
+  min-height: 44px; padding: 8px 16px; margin-left: auto;
+  border: 0; border-radius: 12px; background: #ff9f0a; color: #111;
+  font-size: 13px; font-weight: 500; transition: background 130ms, transform 130ms;
+}
+.intro-copy-body .intro-x-follow:active { transform: scale(.97); }
+.intro-x-profile a:focus-visible { outline: 2px solid #3887ff; outline-offset: 4px; }
+html[data-home-theme="dark"] .intro-x-card {
+  --skullet-base: rgb(255 255 255 / .08);
+  --skullet-highlight: rgb(255 255 255 / .1);
+  background: #171719; border-color: rgb(255 255 255 / .1);
+}
+@media (hover: hover) and (pointer: fine) { .intro-copy-body .intro-x-follow:hover { background: #ffad30; } }
+@media (prefers-reduced-motion: reduce) { .intro-copy-body .intro-x-follow, .intro-copy-body .intro-x-follow:active { transition: none; transform: none; } }

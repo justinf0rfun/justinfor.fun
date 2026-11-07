@@ -1,5 +1,6 @@
-HomeChat.tsx adapts the Skullet site ChatDemo:
+HomeChat.tsx and XProfileLink.tsx adapt the Skullet site demos:
 https://github.com/lochie/skullet/blob/main/site/src/demos/chat/index.tsx
+https://github.com/lochie/skullet/blob/main/site/src/demos/profile/index.tsx
 
 MIT License
 
