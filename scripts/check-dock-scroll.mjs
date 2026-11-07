@@ -12,7 +12,7 @@ const events = () => {
   return {
     addEventListener: (name, fn) => listeners.set(name, fn),
     removeEventListener: (name) => listeners.delete(name),
-    fire: (name) => listeners.get(name)?.(),
+    fire: (name, ...args) => listeners.get(name)?.(...args),
   };
 };
 function fixture({ start = 0, reduced = false, touch = false } = {}) {
@@ -170,6 +170,51 @@ test("keyboard focus expands the dock and pauses shrinking while operating its c
   assert.equal(f.value.current, 1);
   f.focus(false); f.scroll(332);
   assert.equal(f.value.current, 0.84);
+});
+
+test("opening chat restores full size immediately and suspends scroll scaling until closed", () => {
+  const f = fixture({ start: 100 });
+  f.scroll(140);
+  assert.equal(f.value.current, 0.84);
+  f.window.fire("home-chat-change", { detail: true });
+  assert.equal(f.value.current, 1);
+  assert.equal(f.animations.at(-1).duration, 0);
+  f.scroll(300); f.scroll(280); f.scroll(400);
+  assert.deepEqual(f.targets, [0.84, 1]);
+  f.window.fire("home-chat-change", { detail: false });
+  f.scroll(431);
+  assert.equal(f.value.current, 1);
+  f.scroll(432);
+  assert.equal(f.value.current, 0.84);
+});
+
+test("chat keeps its mobile anchor during viewport changes and repins when closed", () => {
+  const f = fixture({ touch: true });
+  const initial = f.anchor();
+  f.window.fire("home-chat-change", { detail: true });
+  for (const height of [840, 790, 900]) {
+    f.window.innerHeight = height;
+    f.window.fire("resize");
+    f.window.visualViewport.fire("resize");
+    assert.equal(f.anchor(), initial);
+  }
+  f.window.innerWidth = 844;
+  f.window.innerHeight = 390;
+  f.window.fire("resize");
+  assert.equal(f.anchor(), initial);
+  f.window.fire("home-chat-change", { detail: false });
+  assert.equal(f.anchor(), "352px");
+});
+
+test("cleanup removes chat events as well as scroll tracking", () => {
+  const f = fixture({ touch: true });
+  f.window.fire("home-chat-change", { detail: true });
+  f.destroy();
+  const animationCount = f.targets.length;
+  f.window.fire("home-chat-change", { detail: false });
+  f.scroll(300);
+  assert.equal(f.targets.length, animationCount);
+  assert.equal(f.properties.size, 0);
 });
 
 test("reduced motion keeps the original dock, including a preference change mid-scroll", () => {

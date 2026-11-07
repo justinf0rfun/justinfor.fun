@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
 import HomeDock from "../components/HomeDock.astro";
+import HomeChat from "../components/HomeChat";
 import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
@@ -38,7 +39,7 @@ import { folderMusicTracks } from "../data/music";
       )
     }
   </Fragment>
-  <main class="space-y-16 pt-20 pb-8">
+  <main class="home-content space-y-16 pt-20 pb-8">
     <About />
     <GitHubContributions />
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
@@ -48,6 +49,7 @@ import { folderMusicTracks } from "../data/music";
     <LocalTimeFooter />
   </main>
   <HomeDock />
+  <HomeChat client:load />
   <UsesGrid mode="overlay" />
   <ProjectsShowcase mode="overlay" />
   <MusicShowcase mode="overlay" />
