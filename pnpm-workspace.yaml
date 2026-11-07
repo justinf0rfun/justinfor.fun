@@ -1,3 +1,7 @@
 allowBuilds:
   esbuild: true
   sharp: true
+
+overrides:
+  # Align Astro's plugin types with the React and Tailwind integrations.
+  'astro@7.1.6>vite': 8.3.5
