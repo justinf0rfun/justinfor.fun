@@ -20,6 +20,7 @@ export default function HomeChat() {
   const closeRef = useRef<HTMLButtonElement>(null);
   const voiceRef = useRef<HTMLButtonElement>(null);
   const backRef = useRef<HTMLButtonElement>(null);
+  const voicePanelRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const logRef = useRef<HTMLUListElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -211,8 +212,7 @@ export default function HomeChat() {
         onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={event => endDrag(event)} onPointerCancel={event => endDrag(event, true)}
         onClick={() => { if (dragged.current) { dragged.current = false; return; } mode === "voice" ? dispatch({ type: "voice-exit" }) : dismiss(); }}><span /></button>
       <header className="home-chat-header">
-        {mode === "text" ? <motion.img layoutId={reduced ? undefined : "avatar"} src="/justin-avatar.png" alt="" width={38} height={38} transition={{ type: "spring", duration: .45, bounce: 0 }} /> :
-          <button ref={backRef} type="button" className="home-chat-back" aria-label="Return to text chat" onClick={() => dispatch({ type: "voice-exit" })}>‹ <span>文字</span></button>}
+        {mode === "text" && <motion.img layoutId={reduced ? undefined : "avatar"} src="/justin-avatar.png" alt="" width={38} height={38} transition={{ type: "spring", duration: .45, bounce: 0 }} />}
         <h2 id="home-chat-title">Justin</h2>
         <button ref={closeRef} type="button" className="home-chat-close" aria-label="Close chat" onClick={dismiss}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
@@ -233,17 +233,39 @@ export default function HomeChat() {
           <button ref={voiceRef} type="button" className="home-chat-voice-entry" aria-label="Open voice demo" disabled={replying} onClick={() => dispatch({ type: "voice-enter" })}><VoiceIcon /></button>
         </footer>
       </div>
-      {mode === "voice" && <div className="home-chat-voice" data-phase={phase}>
+      <AnimatePresence initial={false} mode="popLayout">
+      {mode === "voice" && <motion.div ref={voicePanelRef} key="voice" className="home-chat-voice" data-phase={phase}
+        initial="enter" animate="visible" exit="exit"
+        variants={{ enter: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } }}
+        transition={{ duration: reduced ? 0 : .18 }}
+        onAnimationStart={animation => { if (voicePanelRef.current) voicePanelRef.current.inert = animation === "exit"; }}>
         <div className="home-chat-person"><motion.img layoutId={reduced ? undefined : "avatar"} src="/justin-avatar.png" alt="Justin" width={112} height={112} transition={{ type: "spring", duration: .45, bounce: 0 }} /></div>
-        <div className="home-chat-wave" aria-hidden="true">{[0,1,2,3,4,5,6].map(i => <span key={i} style={{ animationDelay: `${-i * .13}s` }} />)}</div>
+        <motion.div className="home-chat-wave" aria-hidden="true"
+          variants={{ visible: { scaleX: 1, scaleY: 1 }, exit: { scaleX: reduced ? 1 : .2, scaleY: reduced ? 1 : .4 } }}
+          transition={{ duration: reduced ? 0 : .16, ease: [.22, 1, .36, 1] }}>
+          {[0,1,2,3,4,5,6].map(i => <span key={i} style={{ animationDelay: `${-i * .13}s` }} />)}
+        </motion.div>
         <p className="home-chat-voice-state" role="status">{phase === "listening" ? "正在听 · 演示" : phase === "thinking" ? "正在思考 · 演示" : phase === "speaking" ? "正在回应 · 演示" : "Hi, I’m Justin."}</p>
         <p className="home-chat-transcript">{turn ? (phase === "speaking" || (phase === "idle" && step > voiceTurn!) ? turn.reply : turn.ask) : "有什么想聊的？"}</p>
         <div className="home-chat-voice-actions">
           <p>{phase === "idle" ? next?.ask ?? "Thanks for stopping by." : "可以随时停止，或返回文字对话"}</p>
-          <button type="button" className="home-chat-voice-play" disabled={phase === "idle" && !next} onClick={() => dispatch({ type: phase === "idle" ? "voice-start" : "voice-stop" })}><VoiceIcon />{phase === "idle" ? "演示一轮" : "停止演示"}</button>
+          <div className="home-chat-voice-controls">
+            <button type="button" className="home-chat-voice-play" disabled={phase === "idle" && !next} onClick={() => dispatch({ type: phase === "idle" ? "voice-start" : "voice-stop" })}><VoiceIcon />{phase === "idle" ? "演示一轮" : "停止演示"}</button>
+            <button ref={backRef} type="button" className="home-chat-return" aria-label="Return to text chat" onClick={() => dispatch({ type: "voice-exit" })}>
+              <svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden="true">
+                <g className="home-chat-return-back"><path d="M7 5h13a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H10l-5 4v-5a3 3 0 0 1-1-2V8a3 3 0 0 1 3-3Z" /></g>
+                <motion.g className="home-chat-return-front" variants={{ visible: { scale: 1 }, exit: { scale: reduced ? 1 : 1.18 } }} transition={{ duration: reduced ? 0 : .16 }}>
+                  <path d="M12 10h13a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-4l-5 4v-4h-4a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3Z" />
+                  <path d="M14 16h9m-9 4h6" strokeLinecap="round" />
+                </motion.g>
+              </svg>
+              <span className="home-chat-return-hint" aria-hidden="true">继续打字</span>
+            </button>
+          </div>
           <small>预设交互演示 · 不会录音或播放声音</small>
         </div>
-      </div>}
+      </motion.div>}
+      </AnimatePresence>
     </section>
   </LayoutGroup>;
 
