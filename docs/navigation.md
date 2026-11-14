@@ -29,4 +29,10 @@ The generic folder stage clones the same component from an inert `<template>` ra
 
 The component owns the 32px avatar, label, avatar-to-arrow hover/focus animation, focus ring, and reduced-motion treatment. Callers own placement; do not duplicate the component's visual CSS or add a second parent/close control for the same action.
 
-With Node 22, build and run `node --test scripts/check-parent-navigation.mjs`. In a browser, also verify a directly opened article → Thoughts → Home, and a homepage folder → Home without a reload. Check the same controls at phone widths.
+## Return sound
+
+The base `Layout` installs one delegated click listener for `ParentLink`, so overlay controls cloned later also work without relying on scripts inside inert templates. Only trusted activation of `[data-parent-navigation]` plays the sound; other buttons, hover, and programmatic clicks remain silent. The Web Audio context and 30ms noise buffer are created lazily on the first return activation, with no audio downloads or autoplay.
+
+The synth follows https://ehsandesigns.com/index.html (`app.js`): a sine falls from 170Hz to 110Hz, layered with a 1200Hz low-pass noise transient, ±6% pitch variation, and the original compressor and gain envelopes. Nodes disconnect after 80ms. Overlay navigation starts immediately; same-tab parent links allow 80ms of playback, with a 120ms absolute navigation deadline. Unsupported or rejected audio does not block navigation. Modified clicks retain native browser behavior.
+
+With Node 22, build and run `node --test scripts/check-parent-navigation.mjs scripts/check-return-sound.mjs`. In a browser, also verify a directly opened article → Thoughts → Home, and a homepage folder → Home without a reload. Check the same controls at phone widths.

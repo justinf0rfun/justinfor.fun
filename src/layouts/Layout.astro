@@ -34,6 +34,11 @@ const { title = "Justin", full = false, surface } = Astro.props;
   </body>
 </html>
 
+<script>
+  import { mountReturnSound } from "../scripts/return-sound";
+  mountReturnSound();
+</script>
+
 <style>
   .home-surface {
     background-color: var(--home-background, #f7f7f8);
