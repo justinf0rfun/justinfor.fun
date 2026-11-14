@@ -1,0 +1,87 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  label: string;
+  href?: string;
+  class?: string;
+  [attribute: `data-${string}`]: string | boolean | undefined;
+}
+
+const { label, href, class: className, ...attributes } = Astro.props;
+const Tag = href ? "a" : "button";
+---
+
+<Tag
+  {...attributes}
+  class:list={["parent-link", className]}
+  data-parent-navigation
+  href={href}
+  type={href ? undefined : "button"}
+  aria-label={`Back to ${label}`}
+>
+  <span class="parent-link-icon" aria-hidden="true">
+    <span class="parent-link-avatar"><img src="/justin-avatar.png" alt="" width="32" height="32" /></span>
+    <span class="parent-link-arrow"><Icon name="ph:arrow-left-bold" is:inline /></span>
+  </span>
+  <span class="parent-link-label">{label}</span>
+</Tag>
+
+<style>
+  .parent-link {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.375rem;
+    border: 0;
+    border-radius: 0.875rem;
+    color: #747474;
+    background: transparent;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 160ms var(--ease-out);
+  }
+
+  .parent-link-icon { position: relative; width: 2rem; height: 2rem; flex: none; overflow: hidden; border-radius: 0.75rem; }
+  .parent-link-avatar {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transform-origin: center;
+    transition: transform 300ms var(--ease-out) 50ms, opacity 300ms var(--ease-out) 50ms;
+  }
+  .parent-link-avatar img { width: 100%; height: 100%; object-fit: contain; transform: scale(1.05); }
+  .parent-link-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: #202020;
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate(-42%, -50%) scale(0.5);
+    transform-origin: right center;
+    transition: transform 300ms var(--ease-out), opacity 300ms var(--ease-out), filter 300ms var(--ease-out);
+  }
+  .parent-link-arrow :global(svg) { width: 100%; height: 100%; }
+  .parent-link-label { padding-right: 0.25rem; }
+  .parent-link:focus-visible { color: #202020; outline: 2px solid #747474; outline-offset: 2px; }
+  .parent-link:focus-visible .parent-link-avatar { opacity: 0.25; transform: translateX(-100%) scaleX(0.5) scaleY(0.75); transition-delay: 0ms; }
+  .parent-link:focus-visible .parent-link-arrow { opacity: 1; filter: blur(0); transform: translate(-50%, -50%) scale(1); transition-delay: 50ms; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .parent-link:hover { color: #202020; }
+    .parent-link:hover .parent-link-avatar { opacity: 0.25; transform: translateX(-100%) scaleX(0.5) scaleY(0.75); transition-delay: 0ms; }
+    .parent-link:hover .parent-link-arrow { opacity: 1; filter: blur(0); transform: translate(-50%, -50%) scale(1); transition-delay: 50ms; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .parent-link, .parent-link .parent-link-avatar, .parent-link .parent-link-arrow { transition: none; }
+  }
+</style>

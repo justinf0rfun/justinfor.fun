@@ -46,6 +46,14 @@ docs: explain Cloudflare deployment
 
 ## Documentation
 
+### Navigation
+
+Use `src/components/ParentLink.astro` for parent navigation on every new non-home
+page. Pass an explicit parent `href` for standalone pages; omit it and forward
+the existing `data-*-close` hook for overlays. Keep the avatar-to-arrow behavior
+in this component. Follow `docs/navigation.md`; do not duplicate back controls or
+use browser history as a standalone page's parent destination.
+
 ### Articles
 
 All Thoughts articles must use `src/layouts/ArticleLayout.astro` and the `writing`

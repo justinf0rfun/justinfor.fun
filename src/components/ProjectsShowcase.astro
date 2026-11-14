@@ -1,4 +1,5 @@
 ---
+import ParentLink from "./ParentLink.astro";
 interface Props {
   mode: "overlay" | "standalone";
 }
@@ -48,25 +49,11 @@ const projects = [
   inert={isOverlay ? true : undefined}
 >
   <header class="projects-bar">
+    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-projects-close": ""} : {})} />
     <div>
       <h1>Projects</h1>
       <p>2 shipped projects</p>
     </div>
-    {
-      isOverlay ? (
-        <button class="projects-close" data-projects-close type="button" aria-label="Close">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-          </svg>
-        </button>
-      ) : (
-        <a class="projects-close" href="/" aria-label="Back to home">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-          </svg>
-        </a>
-      )
-    }
   </header>
 
   <main class="projects-content">
@@ -182,11 +169,12 @@ const projects = [
     inset: 0 0 auto;
     z-index: 10;
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-content: space-between;
     padding: 1.5rem 1.5rem 2rem;
     pointer-events: none;
     background: linear-gradient(to bottom, rgb(250 250 250) 0%, rgb(250 250 250 / 0.96) 68%, transparent 100%);
+    text-align: right;
   }
 
   .projects-bar > * {
@@ -202,27 +190,6 @@ const projects = [
     margin-top: 0.125rem;
     font-size: 0.75rem;
     color: var(--color-neutral-500);
-  }
-
-  .projects-close {
-    display: grid;
-    width: 2rem;
-    height: 2rem;
-    place-items: center;
-    border-radius: 999px;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.78);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-
-  .projects-close svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .projects-close:active {
-    transform: scale(0.94);
   }
 
   .projects-content {
@@ -377,9 +344,6 @@ const projects = [
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .projects-close:hover {
-      color: var(--color-neutral-800);
-    }
 
     .project-visual:hover {
       transform: translateY(-3px);

@@ -1,6 +1,6 @@
 ---
 import { render, type CollectionEntry } from "astro:content";
-import { Icon } from "astro-icon/components";
+import ParentLink from "../components/ParentLink.astro";
 import ArticleActions from "../components/ArticleActions.astro";
 import { articleMarkdown } from "../lib/article-sharing";
 import ArticleToc from "../components/ArticleToc.astro";
@@ -32,15 +32,7 @@ const markdown = articleMarkdown(article, post.body ?? "");
     <meta property="article:published_time" content={post.data.publishedAt.toISOString()} />
   </Fragment>
 
-  <a class="article-home" href="/thoughts" aria-label="Back to Thoughts">
-    <span class="article-home-icon" aria-hidden="true">
-      <span class="article-home-avatar">
-        <img src="/justin-avatar.png" alt="" width="32" height="32" />
-      </span>
-      <Icon class="article-home-arrow" name="ph:arrow-left-bold" />
-    </span>
-    <span class="article-home-label">Thoughts</span>
-  </a>
+  <ParentLink class="article-parent" label="Thoughts" href="/thoughts" />
 
   <ArticleToc headings={headings} />
 
@@ -67,73 +59,7 @@ const markdown = articleMarkdown(article, post.body ?? "");
     overflow: hidden;
   }
 
-  .article-home {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-    margin: 2.5rem 1rem 0;
-    padding: 0.375rem;
-    border-radius: 0.875rem;
-    color: #747474;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    outline: none;
-    transition: color 160ms var(--ease-out);
-  }
-
-  .article-home-icon {
-    position: relative;
-    width: 2rem;
-    height: 2rem;
-    flex: none;
-    overflow: hidden;
-    border-radius: 0.75rem;
-  }
-
-  .article-home-avatar {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    transform-origin: center;
-    transition:
-      transform 300ms var(--ease-out) 50ms,
-      opacity 300ms var(--ease-out) 50ms;
-  }
-
-  .article-home-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transform: scale(1.05);
-  }
-
-  .article-home-arrow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1.125rem;
-    height: 1.125rem;
-    color: #202020;
-    opacity: 0;
-    filter: blur(2px);
-    transform: translate(-42%, -50%) scale(0.5);
-    transform-origin: right center;
-    transition:
-      transform 300ms var(--ease-out),
-      opacity 300ms var(--ease-out),
-      filter 300ms var(--ease-out);
-  }
-
-  .article-home-label {
-    padding-right: 0.25rem;
-  }
-
-  .article-home:focus-visible {
-    color: #202020;
-    outline: 2px solid #747474;
-    outline-offset: 2px;
-  }
+  .article-parent { margin: 2.5rem 1rem 0; }
 
   .article-shell {
     width: min(100% - 3rem, 43.25rem);
@@ -209,24 +135,6 @@ const markdown = articleMarkdown(article, post.body ?? "");
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .article-home:hover {
-      color: #202020;
-    }
-
-    .article-home:hover .article-home-avatar,
-    .article-home:focus-visible .article-home-avatar {
-      opacity: 0.25;
-      transform: translateX(-100%) scaleX(0.5) scaleY(0.75);
-      transition-delay: 0ms;
-    }
-
-    .article-home:hover .article-home-arrow,
-    .article-home:focus-visible .article-home-arrow {
-      opacity: 1;
-      filter: blur(0);
-      transform: translate(-50%, -50%) scale(1);
-      transition-delay: 50ms;
-    }
 
     .article-prose a:hover {
       text-decoration-color: #747474;
@@ -234,7 +142,7 @@ const markdown = articleMarkdown(article, post.body ?? "");
   }
 
   @media (min-width: 80rem) {
-    .article-home {
+    .article-parent {
       position: fixed;
       top: 4.5rem;
       left: 2rem;
@@ -247,7 +155,7 @@ const markdown = articleMarkdown(article, post.body ?? "");
   }
 
   @media (max-width: 40rem) {
-    .article-home {
+    .article-parent {
       margin-top: 1rem;
     }
 

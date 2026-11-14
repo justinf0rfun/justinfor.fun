@@ -1,4 +1,5 @@
 ---
+import ParentLink from "./ParentLink.astro";
 import { folderPreviewUses, hardwareUses, useSections } from "../data/uses";
 import GrokBotMark from "./GrokBotMark.astro";
 
@@ -14,27 +15,14 @@ const isOverlay = mode === "overlay";
   class:list={["uses-stage", !isOverlay && "is-open"]}
   data-uses-stage={isOverlay ? "overlay" : "standalone"}
   aria-hidden={isOverlay ? "true" : undefined}
+  inert={isOverlay ? true : undefined}
 >
   <header class="uses-bar">
+    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-uses-close": ""} : {})} />
     <div>
       <h1 class="text-sm font-medium text-neutral-800">What I Use</h1>
       <p class="mt-0.5 text-xs text-neutral-500">Tools I use every day</p>
     </div>
-    {
-      isOverlay ? (
-        <button class="uses-close" data-uses-close type="button" aria-label="Close">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-          </svg>
-        </button>
-      ) : (
-        <a class="uses-close" href="/" aria-label="Back">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round" />
-          </svg>
-        </a>
-      )
-    }
   </header>
 
   <main class="uses-content">
@@ -163,7 +151,7 @@ const isOverlay = mode === "overlay";
     inset: 0 0 auto;
     z-index: 10;
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-content: space-between;
     padding: 1.5rem 1.5rem 2rem;
     pointer-events: none;
@@ -173,34 +161,11 @@ const isOverlay = mode === "overlay";
       rgb(250 250 250 / 0.96) 68%,
       transparent 100%
     );
+    text-align: right;
   }
 
   .uses-bar > * {
     pointer-events: auto;
-  }
-
-  .uses-close {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 999px;
-    cursor: pointer;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.78);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition:
-      color 160ms var(--ease-out),
-      transform 160ms var(--ease-out);
-  }
-
-  .uses-close svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .uses-close:active {
-    transform: scale(0.94);
   }
 
   .uses-content {
@@ -462,9 +427,6 @@ const isOverlay = mode === "overlay";
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .uses-close:hover {
-      color: var(--color-neutral-800);
-    }
 
     .software-card:hover,
     .software-card:focus-visible {

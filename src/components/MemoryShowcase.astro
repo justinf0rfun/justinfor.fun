@@ -1,4 +1,5 @@
 ---
+import ParentLink from "./ParentLink.astro";
 import { memoryMonths, memoryPhotos as memories } from "../data/memories";
 
 interface Props {
@@ -16,25 +17,11 @@ const isOverlay = mode === "overlay";
   inert={isOverlay ? true : undefined}
 >
   <header class="memory-header" data-memory-reveal>
+    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-memory-close": ""} : {})} />
     <div>
       <h1>Memory</h1>
       <p>{memories.length} photographs</p>
     </div>
-    {
-      isOverlay ? (
-        <button class="memory-close" data-memory-close type="button" aria-label="Close">
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M4 4l8 8M12 4l-8 8"></path>
-          </svg>
-        </button>
-      ) : (
-        <a class="memory-close" href="/" aria-label="Back to home">
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M4 4l8 8M12 4l-8 8"></path>
-          </svg>
-        </a>
-      )
-    }
   </header>
 
   <div class="memory-intro" data-memory-reveal>
@@ -180,11 +167,12 @@ const isOverlay = mode === "overlay";
     position: relative;
     z-index: 2;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     max-width: 76rem;
     margin: 0 auto;
     padding: 1.5rem clamp(1.25rem, 4vw, 3rem);
+    text-align: right;
   }
 
   .memory-header h1 {
@@ -196,30 +184,6 @@ const isOverlay = mode === "overlay";
     margin-top: 0.125rem;
     font-size: 0.75rem;
     color: var(--color-neutral-500);
-  }
-
-  .memory-close {
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 999px;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.7);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-
-  .memory-close:active {
-    transform: scale(0.94);
-  }
-
-  .memory-close svg {
-    width: 1rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-width: 1.5;
   }
 
   .memory-intro {
@@ -421,7 +385,7 @@ const isOverlay = mode === "overlay";
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .memory-close:hover { color: var(--color-neutral-800); }
+
     .memory-frame:hover img { transform: scale(1.018); }
     .memory-lightbox-close:hover {
       color: white;

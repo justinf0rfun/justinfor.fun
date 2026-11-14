@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import ParentLink from "./ParentLink.astro";
 import Card from "./Card.astro";
 import { normalise, type Collection } from "../data/collections";
 
@@ -89,6 +90,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     </div>
   </div>
 </a>
+
+<template data-folder-parent-control>
+  <ParentLink label="Home" data-folder-parent-close />
+</template>
 
 <style>
   .folder {
@@ -184,7 +189,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     position: absolute;
     inset: 0 0 auto;
     display: flex;
-    align-items: start;
+    align-items: center;
+    text-align: right;
     justify-content: space-between;
     padding: 1.5rem;
   }
@@ -199,36 +205,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     margin-top: 0.125rem;
     font-size: 0.75rem;
     color: var(--color-neutral-500);
-  }
-
-  .fstage-close {
-    display: grid;
-    place-items: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 999px;
-    cursor: pointer;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.7);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition:
-      color 160ms var(--ease-out),
-      transform 160ms var(--ease-out);
-  }
-
-  .fstage-close svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .fstage-close:active {
-    transform: scale(0.94);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .fstage-close:hover {
-      color: var(--color-neutral-800);
-    }
   }
 
   .fstage-hint {
@@ -564,19 +540,18 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
   const overlay = document.createElement("div");
   overlay.className = "fstage";
+  overlay.inert = true;
+  overlay.setAttribute("aria-hidden", "true");
   overlay.innerHTML = `
     <header class="fstage-bar">
       <div>
         <p class="fstage-title"></p>
         <p class="fstage-meta"></p>
       </div>
-      <button class="fstage-close" type="button" aria-label="Close">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M4 4l8 8M12 4l-8 8" stroke-linecap="round"></path>
-        </svg>
-      </button>
     </header>
     <p class="fstage-hint">← →</p>`;
+  const parentControl = document.querySelector<HTMLTemplateElement>("[data-folder-parent-control]");
+  if (parentControl) overlay.querySelector(".fstage-bar")!.prepend(parentControl.content.cloneNode(true));
   document.body.appendChild(overlay);
   const overlayTitle = overlay.querySelector<HTMLElement>(".fstage-title")!;
   const overlayMeta = overlay.querySelector<HTMLElement>(".fstage-meta")!;
@@ -714,6 +689,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     usesReveal.forEach((item) => animate(item, { opacity: 0, y: 12 }, instant));
     usesOverlay.classList.add("is-carrying", "is-open");
     usesOverlay.setAttribute("aria-hidden", "false");
+    usesOverlay.inert = false;
 
     usesReveal.forEach((item, i) =>
       animate(item, { opacity: 1, y: 0 }, { duration: 0.32, delay: 0.2 + i * 0.05 }),
@@ -895,6 +871,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       overlayTitle.textContent = c.folder.dataset.title ?? "";
       overlayMeta.textContent = c.folder.dataset.meta ?? "";
       overlay.classList.add("is-open");
+      overlay.inert = false;
+      overlay.setAttribute("aria-hidden", "false");
     }
     document.documentElement.style.overflow = "hidden";
     c.folder.classList.add("is-stage", "is-scaled");
@@ -943,6 +921,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       !stage.xBookmarks
     )
       overlay.classList.remove("is-open");
+    overlay.inert = true;
+    overlay.setAttribute("aria-hidden", "true");
     document.documentElement.style.overflow = "";
     // Radius starts easing back now, in step with the shrink about to start —
     // not after it, once the cards have already landed.
@@ -1103,6 +1083,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (stage.uses && usesOverlay) {
       usesOverlay.classList.remove("is-open", "is-carrying");
       usesOverlay.setAttribute("aria-hidden", "true");
+      usesOverlay.inert = true;
     }
 
     if (stage.music && musicOverlay) {
@@ -1176,7 +1157,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
   overlay.addEventListener("click", (event) => {
     const target = event.target as HTMLElement;
-    if (target === overlay || target.closest(".fstage-close")) requestClose();
+    if (target === overlay || target.closest("[data-folder-parent-close]")) requestClose();
   });
 
   usesOverlay

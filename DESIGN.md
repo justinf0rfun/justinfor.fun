@@ -250,8 +250,9 @@ Folders are the signature silhouette: a continuous tab-and-body outline with a b
 
 ### Stage Navigation
 
-- **Style:** A fixed or edge-pinned header pairs a small title and muted metadata with a round close control.
+- **Style:** A fixed or edge-pinned header places the shared `ParentLink` avatar and parent label on the left, with the current title and muted metadata on the right. Articles use the same control to return to Thoughts; top-level collections return Home.
 - **Background:** Use a near-white fade when content scrolls beneath the bar; use translucent blur only where an overlay stage requires spatial continuity.
+- **Behavior:** Standalone controls are explicit parent links. Homepage overlays use buttons wired to their existing reverse transition; preserve the avatar-to-arrow hover/focus motion in the shared component. See `docs/navigation.md`.
 
 ### Local Time Footer
 

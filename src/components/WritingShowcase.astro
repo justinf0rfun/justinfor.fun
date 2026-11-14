@@ -1,4 +1,5 @@
 ---
+import ParentLink from "./ParentLink.astro";
 import { getCollection, render } from "astro:content";
 import { Icon } from "astro-icon/components";
 import LocalTimeFooter from "./LocalTimeFooter.astro";
@@ -33,21 +34,11 @@ const formatDate = (date: Date) =>
 >
   <div class="writing-index">
     <header class="writing-header">
+      <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-writing-close": ""} : {})} />
       <div data-writing-reveal>
         <h1>Thoughts</h1>
         <p>{posts.length} {posts.length === 1 ? "thought" : "thoughts"}</p>
       </div>
-      {
-        isOverlay ? (
-          <button class="writing-close" data-writing-close type="button" aria-label="Close">
-            <Icon name="ph:x" />
-          </button>
-        ) : (
-          <a class="writing-close" href="/" aria-label="Back to home">
-            <Icon name="ph:x" />
-          </a>
-        )
-      }
     </header>
 
     <div
@@ -188,9 +179,10 @@ const formatDate = (date: Date) =>
 
   .writing-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     margin-bottom: 2.5rem;
+    text-align: right;
   }
 
   .writing-header h1 {
@@ -203,27 +195,6 @@ const formatDate = (date: Date) =>
     margin-top: 0.125rem;
     color: var(--color-neutral-500);
     font-size: 0.75rem;
-  }
-
-  .writing-close {
-    display: grid;
-    width: 2rem;
-    height: 2rem;
-    place-items: center;
-    border-radius: 999px;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.78);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-
-  .writing-close :global(svg) {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .writing-close:active {
-    transform: scale(0.94);
   }
 
   .writing-workspace {
@@ -562,9 +533,6 @@ const formatDate = (date: Date) =>
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .writing-close:hover {
-      color: var(--color-neutral-800);
-    }
 
     .writing-entry a:hover h2 {
       color: var(--color-neutral-950);

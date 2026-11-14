@@ -1,4 +1,5 @@
 ---
+import ParentLink from "./ParentLink.astro";
 import { Icon } from "astro-icon/components";
 import { xBookmarks } from "../data/x-bookmarks";
 
@@ -33,21 +34,11 @@ const formatPublishedAt = (value: string) =>
 >
   <div class="x-bookmarks-index">
     <header class="x-bookmarks-header">
+      <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-x-bookmarks-close": ""} : {})} />
       <div data-x-bookmark-reveal>
         <h1>Finds</h1>
         <p>{xBookmarks.length} finds</p>
       </div>
-      {
-        isOverlay ? (
-          <button class="x-bookmarks-close" data-x-bookmarks-close type="button" aria-label="Close">
-            <Icon name="ph:x" />
-          </button>
-        ) : (
-          <a class="x-bookmarks-close" href="/" aria-label="Back to home">
-            <Icon name="ph:x" />
-          </a>
-        )
-      }
     </header>
 
     <section class="x-bookmarks-intro" data-x-bookmark-reveal>
@@ -150,8 +141,9 @@ const formatPublishedAt = (value: string) =>
 
   .x-bookmarks-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    text-align: right;
   }
 
   .x-bookmarks-header h1 {
@@ -165,28 +157,6 @@ const formatPublishedAt = (value: string) =>
     font-size: 0.75rem;
   }
 
-  .x-bookmarks-close {
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 999px;
-    color: var(--color-neutral-500);
-    background: rgb(255 255 255 / 0.7);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.05);
-    transition: color 160ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-
-  .x-bookmarks-close :global(svg) {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .x-bookmarks-close:active {
-    transform: scale(0.94);
-  }
-
-  .x-bookmarks-close:focus-visible,
   .x-bookmark-meta a:focus-visible,
   .x-post-author > a:focus-visible {
     outline: 2px solid var(--color-neutral-800);
@@ -333,7 +303,7 @@ const formatPublishedAt = (value: string) =>
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .x-bookmarks-close:hover,
+
     .x-bookmark-open:hover,
     .x-post-author > a:hover strong {
       color: var(--color-neutral-800);
