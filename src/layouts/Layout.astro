@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/thought-transitions.css";
 
 interface Props {
   title?: string;
@@ -9,10 +10,11 @@ interface Props {
 }
 
 const { title = "Justin", full = false, surface } = Astro.props;
+const isThoughts = /^\/thoughts(?:\/|$)/.test(Astro.url.pathname);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-thoughts={isThoughts ? "" : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />

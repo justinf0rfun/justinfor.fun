@@ -621,6 +621,8 @@ const formatDate = (date: Date) =>
 </style>
 
 <script>
+  import { createThoughtTransition } from "../lib/thought-transition";
+
   const SNAP_POINTS = [0.25, 0.5, 0.75] as const;
   const MIN_RATIO = 0.15;
   const MAX_RATIO = 0.85;
@@ -644,6 +646,8 @@ const formatDate = (date: Date) =>
     const details = [...split.querySelectorAll<HTMLElement>("[data-writing-detail]")];
 
     if (!listPane || !detailPane || !divider || !leftWidth || !rightWidth || !ratioValue) return;
+    const transitionThought = createThoughtTransition(detailPane);
+    let selectedId = selectors.find((item) => item.hasAttribute("aria-current"))?.dataset.writingSelect;
 
     let ratio = 0.25;
     let activePointer: number | null = null;
@@ -751,12 +755,16 @@ const formatDate = (date: Date) =>
         const id = selector.dataset.writingSelect;
         if (!id) return;
         event.preventDefault();
+        if (id === selectedId) return;
+        selectedId = id;
         selectors.forEach((item) => {
           if (item === selector) item.setAttribute("aria-current", "true");
           else item.removeAttribute("aria-current");
         });
-        details.forEach((detail) => detail.toggleAttribute("hidden", detail.dataset.writingDetail !== id));
-        detailPane.scrollTop = 0;
+        void transitionThought(() => {
+          details.forEach((detail) => detail.toggleAttribute("hidden", detail.dataset.writingDetail !== id));
+          detailPane.scrollTop = 0;
+        }, event.detail > 0);
       });
     });
 

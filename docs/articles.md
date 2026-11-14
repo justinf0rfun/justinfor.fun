@@ -35,6 +35,7 @@ The filename supplies the `/thoughts/<slug>` path. Drafts are excluded from the 
 - Markdown copying uses the original Markdown body, plus the title, description and source URL. The body is escaped into a `<template>`, not converted back from rendered HTML or interpolated into executable JavaScript.
 - Copy success changes the icon for two seconds and announces a status. Clipboard failures show an error instead of success.
 - Dialog and disclosure motion respects reduced-motion preferences. The article sidebar reserves space for the action controls, including expanded Ask AI options.
+- Thoughts navigation uses the Ehsan reference's blur-and-rise handoff: exit upward 8px with 5px blur in 160ms, then enter from 14px below in 600ms. `thought-transitions.css` customizes the existing native cross-document transition for Thoughts routes, including parent links and browser back/forward; it does not install a client router. Unsupported browsers keep normal navigation. Desktop preview changes reuse the same timing through `createThoughtTransition`; rapid selections cancel stale swaps and continue from the current visual state. Keyboard preview selection and reduced motion are immediate. New articles inherit both paths automatically.
 
 ## Verify
 
@@ -43,12 +44,14 @@ Use Node 22:
 ```sh
 pnpm build
 pnpm exec tsc --noEmit
-node --test scripts/check-article-sharing.mjs scripts/check-article-actions.mjs scripts/check-ai-app-links.mjs
+node --test scripts/check-article-sharing.mjs scripts/check-article-actions.mjs scripts/check-ai-app-links.mjs scripts/check-thought-transition.mjs
 ```
 
 Also check Share open/close, Escape and focus restoration, Ask AI open/close, both copy controls, and the small-screen placement in a browser. Do not send a social post or AI prompt as part of verification; inspect the generated destination URLs.
 
 Reference interaction: https://noechague.com/writing/make-your-design-system-ai-ready
+
+Page handoff reference: https://ehsandesigns.com/index.html (`app.js`, `mo` exit and `On` entrance). Check desktop preview selection, Open → article → Thoughts, browser back/forward, and mobile list → article → list; native transitions require a supporting browser. The CSS entrance easing approximates GSAP's `power3.out` without adding a second animation runtime to navigation.
 
 ## App-first AI handoff
 
