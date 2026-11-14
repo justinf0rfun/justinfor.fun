@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Component, lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { together } from "skullet";
 import { Skeleton, SkulletProvider } from "skullet/react";
 
@@ -12,6 +12,12 @@ const subscribe = (notify: () => void) => {
   return () => media.removeEventListener("change", notify);
 };
 const canAnimate = () => window.matchMedia(motionQuery).matches;
+
+class StickerBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
+}
 
 interface Props {
   src: string;
@@ -102,6 +108,7 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
 
   return (
     <div data-peeling={peeling} style={{ position: "relative" }}>
+      <StickerBoundary key={src} fallback={image}>
       <Suspense fallback={preview}>
         <ElasticSticker
           src={src} alt={alt} width={width} height={height}
@@ -116,6 +123,7 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
           style={{ display: "block", width: "100%", touchAction: "pan-y pinch-zoom" }}
         />
       </Suspense>
+      </StickerBoundary>
     </div>
   );
 }

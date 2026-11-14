@@ -14,7 +14,9 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    // ElasticSticker loads on scroll; optimize Three before the first lazy import.
+    optimizeDeps: { include: ['three'] }
   },
 
   integrations: [icon(), react()]
