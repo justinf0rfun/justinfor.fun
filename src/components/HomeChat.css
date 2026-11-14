@@ -3,6 +3,7 @@
   --chat-line: #e8e8ec;
   --chat-bubble: #eeeef1;
   --chat-top: clamp(24px, 10vh, 96px);
+  --chat-pop-ease: cubic-bezier(.625,.05,0,1);
   display: flex;
   position: fixed;
   z-index: 34;
@@ -20,12 +21,13 @@
   box-shadow: 0 12px 42px rgb(22 22 42 / .07), 0 2px 8px rgb(22 22 42 / .05);
   visibility: hidden;
   opacity: 0;
-  transform: translateX(22px) scale(.98);
-  transform-origin: right bottom;
-  transition: opacity 250ms ease, transform 360ms cubic-bezier(.22,1,.36,1), visibility 0s 360ms;
+  /* Refero MCP's narrow, stretched entrance; desktop panels unfold from their top edge. */
+  transform: scale(.5,2) translateY(40px);
+  transform-origin: center top;
+  transition: opacity 160ms ease-out, transform 220ms cubic-bezier(.22,1,.36,1), visibility 0s 220ms;
 }
 
-.home-chat[data-open="true"] { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+.home-chat[data-open="true"] { visibility: visible; opacity: 1; transform: scale(1) translateY(0); transition: opacity 500ms var(--chat-pop-ease), transform 500ms var(--chat-pop-ease), visibility 0s; }
 .home-chat [hidden] { display: none !important; }
 .home-chat-text { display: flex; flex: 1; min-height: 0; flex-direction: column; }
 .home-chat-handle { display: none; }
@@ -78,7 +80,7 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
 @media (min-width: 1024px) {
   .home-chat { display: flex; }
   /* A transform would trap the folders' flying cards underneath their full-screen overlays. */
-  .home-surface > .home-content { position: relative; left: 0; transition: left 360ms cubic-bezier(.22,1,.36,1); }
+  .home-surface > .home-content { position: relative; left: 0; transition: left 500ms cubic-bezier(.625,.05,0,1); }
   .home-surface:has(.home-chat[data-open="true"]) > .home-content {
     /* Preserve the 576px reading column; move only when its right margin is too narrow. */
     left: min(0px, calc((100vw - 576px) / 2 - 408px));
@@ -87,9 +89,10 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
 
 @media (max-width: 1023px) {
   .home-surface .home-dock {
+    --chat-pop-ease: cubic-bezier(.625,.05,0,1);
     position: relative; width: var(--dock-rest-width, max-content); height: 70px;
     max-width: calc(100vw - 16px);
-    transition: width 400ms cubic-bezier(.22,1,.36,1), height 400ms cubic-bezier(.22,1,.36,1), border-radius 400ms;
+    transition: width 220ms cubic-bezier(.22,1,.36,1), height 220ms cubic-bezier(.22,1,.36,1), border-radius 220ms;
   }
   .home-surface .home-dock-wrap[data-chat-open="true"] {
     top: var(--chat-anchor-top); bottom: auto; transform: translate(-50%, -100%);
@@ -98,9 +101,11 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
     width: min(calc(100vw - 24px), 440px);
     height: min(var(--chat-height, 280px), var(--chat-max-height));
     padding: 0; border-radius: 29px;
+    /* The dock itself unfolds on mobile; don't add a second panel-scale animation. */
+    transition: width 500ms var(--chat-pop-ease), height 500ms var(--chat-pop-ease), border-radius 500ms var(--chat-pop-ease);
   }
   .home-surface .home-dock[data-chat-open="true"][data-chat-mode="voice"] { height: var(--chat-max-height); }
-  .home-surface .home-dock[data-chat-open="true"][data-chat-mode="text"] { transition-duration: 400ms, 300ms, 400ms; }
+  .home-surface .home-dock[data-chat-open="true"][data-chat-mode="text"]:has(.home-chat-voice) { transition-duration: 500ms, 300ms, 500ms; }
   .home-surface .dock-controls { flex: none; width: max-content; transition: opacity 140ms ease; }
   .home-surface .home-dock[data-chat-open="true"] .dock-controls { opacity: 0; visibility: hidden; }
   .home-surface .home-chat {
@@ -110,7 +115,7 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
     z-index: 1; border: 0; border-radius: inherit; background: transparent; box-shadow: none;
     transform: none; transition: opacity 160ms ease, visibility 0s 160ms;
   }
-  .home-surface .home-chat[data-open="true"] { transition-delay: 100ms, 0s; }
+  .home-surface .home-chat[data-open="true"] { transform: none; transition: opacity 320ms var(--chat-pop-ease) 60ms, visibility 0s; }
   .home-surface .home-chat-handle { display: grid; place-items: center; flex: none; width: 100%; height: 44px; touch-action: none; cursor: grab; }
   .home-chat-handle span { display: block; width: 33px; height: 4px; border-radius: 4px; background: #54545a; }
   .home-chat-header { padding: 0 16px 10px; }
