@@ -25,6 +25,7 @@ The filename supplies the `/thoughts/<slug>` path. Drafts are excluded from the 
 
 ## Included automatically
 
+- The homepage's `HomeNews.astro` capsule links to the latest published Thought using the same publication-date order and draft filter as the list. It expands at the page top and collapses on scroll without taking space from the introduction. Preserve the reference's actual Motion width morph (`32px` → `auto` → `32px`): 200ms opening, text revealed halfway with 50ms staggers, and 180ms closing after a 60ms text-exit lead. Do not replace this geometry with clip-path or scale effects. New articles require no separate homepage announcement edit.
 - Article metadata, canonical URL and Open Graph title/description come from the entry and `site` in `astro.config.mjs`. Share links always use the production canonical URL, including during local development.
 - `ArticleToc.astro` derives its entries from H2/H3 headings, tracks reading position and expands on hover or keyboard focus. It stays hidden below the desktop breakpoint.
 - `ArticleActions.astro` provides Share, Ask AI and Copy as Markdown. It is fixed at the desktop's lower left and appears after the article on smaller screens.
