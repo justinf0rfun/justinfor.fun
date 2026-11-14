@@ -4,6 +4,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } f
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { TextMorph } from "torph/react";
 import XProfileLink from "./XProfileLink";
+import { prepareIntroImage } from "../lib/intro-images";
 import { artwork, type ArtworkId } from "./intro-artwork/assets";
 import "./intro-artwork/artwork.css";
 import "./IntroCopy.css";
@@ -19,6 +20,12 @@ const groups: readonly (readonly Choice[])[] = [
   [{ label: "Claude Code", art: "claude" }, { label: "Codex", art: "chatgpt" }, { label: "Grok", art: "grok" }],
   companies,
 ];
+
+function imageSource(choice: Choice) {
+  if ("image" in choice) return choice.image;
+  const asset = artwork[choice.art];
+  return "src" in asset ? asset.src : undefined;
+}
 
 function Artwork({ id }: { id: ArtworkId }) {
   const prefix = useId().replace(/[^a-z0-9]/gi, "-");
@@ -72,17 +79,37 @@ function Token({ choices, index, onClick, label }: { choices: readonly Choice[];
 export default function IntroCopy({ location }: { location: ReactNode }) {
   const [indices, setIndices] = useState([0, 0, 0, 0]);
   const [visible, setVisible] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const pending = useRef(false);
+  const mounted = useRef(false);
   const nextGroup = useRef(2);
   const first = useRef(true);
   const guideRef = useRef<HTMLButtonElement>(null);
   const reduced = useReducedMotion();
   const company = companies[indices[3]];
-  const cycle = (slot: number) => {
+  const cycle = async (slot: number) => {
+    if (pending.current) return;
     nextGroup.current = (slot + 1) % groups.length;
     first.current = false;
-    setIndices(current => current.map((value, i) => i === slot ? (value + 1) % groups[i].length : value));
+    const index = (indices[slot] + 1) % groups[slot].length;
+    const src = imageSource(groups[slot][index]);
+    pending.current = true;
+    setLoading(true);
+    try {
+      // Keep the current text and icon together until the next image can actually paint.
+      const ready = !src || await prepareIntroImage(src);
+      if (mounted.current && ready) setIndices(current => current.map((value, i) => i === slot ? index : value));
+    } finally {
+      pending.current = false;
+      if (mounted.current) setLoading(false);
+    }
   };
   useEffect(() => {
+    mounted.current = true;
+    for (const choice of groups.flat()) {
+      const src = imageSource(choice);
+      if (src) void prepareIntroImage(src);
+    }
     const change = () => setVisible(!document.hidden);
     change();
     document.addEventListener("visibilitychange", change);
@@ -90,15 +117,16 @@ export default function IntroCopy({ location }: { location: ReactNode }) {
     if (guide) guide.dataset.guideReady = "true";
     document.dispatchEvent(new CustomEvent("home-intro-ready"));
     return () => {
+      mounted.current = false;
       document.removeEventListener("visibilitychange", change);
       if (guide) delete guide.dataset.guideReady;
     };
   }, []);
   useEffect(() => {
-    if (reduced || !visible) return;
+    if (reduced || !visible || loading) return;
     const timer = window.setTimeout(() => cycle(nextGroup.current), first.current ? 600 : 1800);
     return () => window.clearTimeout(timer);
-  }, [indices, reduced, visible]);
+  }, [indices, reduced, visible, loading]);
 
   return <div className="intro-copy">
     <h2 className="intro-copy-line">
