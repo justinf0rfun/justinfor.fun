@@ -21,6 +21,13 @@ astro dev --background
 
 Manage the background server with `astro dev stop`, `astro dev status`, and `astro dev logs`.
 
+Keep Vite's command/mode cache isolation in `astro.config.mjs`; production
+prerender must not overwrite an active development optimizer. Never move or
+delete a running server's cache as a hydration fix. Run
+`node scripts/check-vite-cache.mjs` and verify the actual hydrated homepage after
+builds and warm restarts; SSR checks alone miss client-rendering failures.
+See `docs/development.md`.
+
 ## Commit Messages
 
 Use Conventional Commits in this format:

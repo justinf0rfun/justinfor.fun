@@ -15,7 +15,11 @@ export default defineConfig({
   },
 
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), {
+      name: 'isolate-vite-cache',
+      // Astro prerender starts a production Vite server; keep it away from live dev dependencies.
+      config: (_, { command, mode }) => ({ cacheDir: `node_modules/.vite/${command}-${mode}` })
+    }],
     // ElasticSticker loads on scroll; optimize Three before the first lazy import.
     optimizeDeps: { include: ['three'] }
   },
