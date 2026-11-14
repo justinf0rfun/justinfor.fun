@@ -6,10 +6,12 @@ export function mountArticleActions() {
   const dialog = document.querySelector<HTMLDialogElement>("[data-article-share]");
   const trigger = actions?.querySelector<HTMLButtonElement>("[data-article-share-open]");
   if (!actions || !dialog || !trigger) return;
+  const readingTrigger = document.querySelector<HTMLButtonElement>("[data-reading-share]");
+  const mobile = matchMedia("(max-width: 47.999rem)");
   let shareTrigger = trigger;
 
   new ResizeObserver(() => {
-    document.documentElement.style.setProperty("--article-actions-height", `${actions.offsetHeight}px`);
+    if (!mobile.matches) document.documentElement.style.setProperty("--article-actions-height", `${actions.offsetHeight}px`);
   }).observe(actions);
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -59,9 +61,11 @@ export function mountArticleActions() {
     shareTrigger.focus({ preventScroll: true });
   };
 
-  trigger.addEventListener("click", () => { shareTrigger = trigger; openShare(); });
-  document.querySelectorAll<HTMLButtonElement>("[data-reading-share]").forEach((button) => {
-    button.addEventListener("click", () => { shareTrigger = button; openShare(); });
+  trigger.addEventListener("click", () => {
+    const fromMenu = actions.matches(":popover-open");
+    shareTrigger = fromMenu && readingTrigger ? readingTrigger : trigger;
+    if (fromMenu) actions.hidePopover();
+    openShare();
   });
   dialog.querySelector("[data-share-close]")?.addEventListener("click", () => void closeShare());
   dialog.addEventListener("cancel", (event) => { event.preventDefault(); void closeShare(); });
@@ -90,31 +94,58 @@ export function mountArticleActions() {
   const aiOptions = ai.querySelector<HTMLElement>("[data-article-ai-options]")!;
   mountAiAppLinks(aiOptions);
   let pinned = false;
+  let menuSize: AnimationPlaybackControlsWithThen | undefined;
+  let menuRun = 0;
   const setAi = (open: boolean) => {
+    const from = mobile.matches && actions.matches(":popover-open") ? actions.getBoundingClientRect().height : 0;
+    const run = ++menuRun;
+    menuSize?.stop();
+    actions.style.height = "";
     ai.toggleAttribute("data-open", open);
     aiTrigger.setAttribute("aria-expanded", String(open));
+    aiTrigger.setAttribute("aria-label", open && mobile.matches ? "Back to article actions" : "Ask AI");
     aiOptions.inert = !open;
+    if (from) {
+      const to = actions.offsetHeight;
+      menuSize = animate(actions, { height: [from, to] }, { duration: reduced.matches ? 0 : 0.22, ease: [0.32, 0.72, 0, 1] });
+      void menuSize.finished.then(() => { if (run === menuRun) actions.style.height = ""; });
+    }
   };
   const closeAi = () => { pinned = false; setAi(false); };
 
   aiTrigger.addEventListener("click", () => { pinned = !pinned; setAi(pinned); });
   ai.addEventListener("pointerenter", (event) => {
-    if (event.pointerType !== "touch" && matchMedia("(hover: hover) and (pointer: fine)").matches) setAi(true);
+    if (!mobile.matches && event.pointerType !== "touch" && matchMedia("(hover: hover) and (pointer: fine)").matches) setAi(true);
   });
   ai.addEventListener("pointerleave", () => {
-    if (!pinned && !ai.contains(document.activeElement)) setAi(false);
+    if (!mobile.matches && !pinned && !ai.contains(document.activeElement)) setAi(false);
   });
-  ai.addEventListener("focusout", () => queueMicrotask(() => {
-    if (!ai.contains(document.activeElement)) closeAi();
-  }));
+  ai.addEventListener("focusout", (event) => {
+    if (!mobile.matches && event.relatedTarget instanceof Node && !ai.contains(event.relatedTarget)) closeAi();
+  });
   document.addEventListener("pointerdown", (event) => {
-    if (event.target instanceof Node && !ai.contains(event.target)) closeAi();
+    if (!mobile.matches && event.target instanceof Node && !ai.contains(event.target)) closeAi();
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || !ai.hasAttribute("data-open")) return;
+    if (mobile.matches || event.key !== "Escape" || !ai.hasAttribute("data-open")) return;
     if (ai.contains(document.activeElement)) aiTrigger.focus({ preventScroll: true });
     closeAi();
   });
+
+  actions.addEventListener("beforetoggle", (event) => {
+    const open = (event as ToggleEvent).newState === "open";
+    readingTrigger?.setAttribute("aria-expanded", String(open));
+    if (open) closeAi();
+  });
+  const setMobile = () => {
+    if (actions.matches(":popover-open")) actions.hidePopover();
+    if (mobile.matches) actions.setAttribute("popover", "auto");
+    else actions.removeAttribute("popover");
+    readingTrigger?.setAttribute("aria-expanded", "false");
+    closeAi();
+  };
+  mobile.addEventListener("change", setMobile);
+  setMobile();
 
   const markdown = actions.querySelector<HTMLTemplateElement>("[data-article-markdown]")!.content.textContent ?? "";
   const url = actions.dataset.articleUrl!;

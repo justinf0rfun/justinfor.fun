@@ -23,17 +23,22 @@ class Element {
   getAttribute(name) { return this.attrs.get(name) ?? null; }
   toggleAttribute(name, present) { if (present) this.setAttribute(name, ""); else this.removeAttribute(name); }
   contains(element) { return element === this || this.children.has(element); }
+  matches(selector) { return selector === ":popover-open" && Boolean(this.popoverOpen); }
+  getBoundingClientRect() { return { height: this.offsetHeight }; }
+  showPopover() { this.fire("beforetoggle", { newState: "open" }); this.popoverOpen = true; }
+  hidePopover() { this.fire("beforetoggle", { newState: "closed" }); this.popoverOpen = false; }
 }
 
-function fixture({ clipboardFails = false, reduced = false } = {}) {
+function fixture({ clipboardFails = false, reduced = false, mobile = false } = {}) {
   const document = new Element(), root = new Element(), actions = new Element(), dialog = new Element();
   const trigger = new Element(), close = new Element(), ai = new Element(), aiTrigger = new Element(), options = new Element();
   const readingShare = new Element();
+  const mobileMedia = new Element(); mobileMedia.matches = mobile;
   const markdownButton = new Element(), linkButton = new Element(), markdownStatus = new Element(), linkStatus = new Element();
   const writes = [], animations = [], timers = [];
   document.documentElement = root;
   document.selectors = { "[data-article-actions]": actions, "[data-article-share]": dialog, "[data-article-copy]": [markdownButton, linkButton] };
-  document.selectors["[data-reading-share]"] = [readingShare];
+  document.selectors["[data-reading-share]"] = readingShare;
   actions.dataset.articleUrl = "https://justinfor.fun/thoughts/example";
   actions.selectors = {
     "[data-article-share-open]": trigger, "[data-article-ai]": ai,
@@ -60,7 +65,7 @@ function fixture({ clipboardFails = false, reduced = false } = {}) {
     button.closest = () => ({ querySelector: () => status });
   }
   const mount = runInNewContext(`${appLinksSource}\n${source}\nmountArticleActions`, {
-    document, Node: Element, queueMicrotask, matchMedia: query => ({ matches: query.includes("reduced") ? reduced : true }),
+    document, Node: Element, queueMicrotask, matchMedia: query => query.includes("max-width") ? mobileMedia : ({ matches: query.includes("reduced") ? reduced : true }),
     ResizeObserver: class { observe() {} },
     navigator: { userAgent: "Test desktop", maxTouchPoints: 0, clipboard: { async writeText(value) { if (clipboardFails) throw Error("Denied"); writes.push(value); } } },
     setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout: id => { timers[id - 1] = null; },
@@ -70,7 +75,7 @@ function fixture({ clipboardFails = false, reduced = false } = {}) {
     },
   });
   mount();
-  return { document, actions, dialog, trigger, readingShare, close, ai, aiTrigger, options, markdownButton, linkButton, markdownStatus, linkStatus, writes, animations, timers };
+  return { document, actions, dialog, trigger, readingShare, close, ai, aiTrigger, options, markdownButton, linkButton, markdownStatus, linkStatus, writes, animations, timers, mobileMedia };
 }
 
 test("Escape closes the modal, restores focus, and a second open starts cleanly", async () => {
@@ -110,14 +115,39 @@ test("outside clicks dismiss; dragging from the paper to outside does not", asyn
 });
 
 test("reading capsule shares through the existing dialog and restores the correct trigger", async () => {
-  const f = fixture();
-  for (const trigger of [f.readingShare, f.trigger]) {
-    trigger.fire("click");
-    assert.equal(f.dialog.open, true);
-    f.close.fire("click");
-    await setImmediate();
-    assert.equal(f.document.activeElement, trigger);
-  }
+  const f = fixture({ mobile: true });
+  f.actions.showPopover();
+  assert.equal(f.readingShare.getAttribute("aria-expanded"), "true");
+  f.trigger.fire("click");
+  assert.equal(f.actions.popoverOpen, false);
+  assert.equal(f.dialog.open, true);
+  f.close.fire("click");
+  await setImmediate();
+  assert.equal(f.document.activeElement, f.readingShare);
+  f.mobileMedia.matches = false; f.mobileMedia.fire("change");
+  assert.equal(f.actions.hasAttribute("popover"), false);
+  f.trigger.fire("click"); f.close.fire("click");
+  await setImmediate();
+  assert.equal(f.document.activeElement, f.trigger);
+});
+
+test("mobile actions reuse one popover and reset AI to the main level on reopening", () => {
+  const f = fixture({ mobile: true });
+  assert.equal(f.actions.getAttribute("popover"), "auto");
+  f.actions.showPopover();
+  f.aiTrigger.fire("click");
+  assert.equal(f.aiTrigger.getAttribute("aria-label"), "Back to article actions");
+  assert.equal(f.options.inert, false);
+  f.ai.fire("focusout", { relatedTarget: f.options });
+  assert.equal(f.options.inert, false);
+  f.actions.hidePopover();
+  assert.equal(f.options.inert, false, "keep the current level during exit rather than flashing the main actions");
+  f.actions.showPopover();
+  assert.equal(f.options.inert, true);
+  assert.equal(f.aiTrigger.getAttribute("aria-label"), "Ask AI");
+  f.mobileMedia.matches = false; f.mobileMedia.fire("change");
+  assert.equal(f.actions.hasAttribute("popover"), false);
+  assert.equal(f.readingShare.getAttribute("aria-expanded"), "false");
 });
 
 test("AI disclosure keeps hidden links inert and supports click, outside dismissal and Escape", () => {

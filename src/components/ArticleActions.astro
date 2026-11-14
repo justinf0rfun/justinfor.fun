@@ -7,13 +7,14 @@ interface Props { article: ArticleInfo; markdown: string }
 const { article, markdown } = Astro.props;
 ---
 
-<div class="article-actions" data-article-actions data-article-url={article.url} data-copy-surface aria-label="Article actions">
+<div class="article-actions" id="article-actions" role="group" data-article-actions data-article-url={article.url} data-copy-surface aria-label="Article actions">
   <button class="article-action" type="button" data-article-share-open aria-haspopup="dialog">
     <Icon name="ph:share-fat" /><span>Share</span>
   </button>
   <div class="article-ai" data-article-ai>
     <button class="article-action" type="button" data-article-ai-toggle aria-expanded="false" aria-controls="article-ai-options">
-      <Icon name="ph:sparkle" /><span>Ask AI</span>
+      <span class="article-ai-forward"><Icon name="ph:sparkle" /></span>
+      <span class="article-ai-back"><Icon name="ph:arrow-left" /></span><span>Ask AI</span>
     </button>
     <div class="article-ai-options" id="article-ai-options" data-article-ai-options inert>
       {articleAiTargets(article.url).map(({ label, icon, href, appHref, desktopOnly, webLabel }) => (
@@ -39,6 +40,13 @@ const { article, markdown } = Astro.props;
       <span class="article-copy-check"><Icon name="ph:check" /></span>
     </span>
     <span>Copy as Markdown</span>
+  </button>
+  <button class="article-action article-copy-link" type="button" data-article-copy="link">
+    <span class="article-copy-glyph">
+      <span class="article-copy-icon"><Icon name="ph:link" /></span>
+      <span class="article-copy-check"><Icon name="ph:check" /></span>
+    </span>
+    <span>Copy link</span>
   </button>
   <p class="article-actions-status sr-only" data-copy-status role="status" aria-live="polite" aria-atomic="true" />
   <template data-article-markdown>{markdown}</template>
@@ -73,6 +81,7 @@ const { article, markdown } = Astro.props;
   .article-action:focus-visible { outline: 2px solid #747474; outline-offset: 2px; }
   .article-action:active { background: #ededed; }
   .article-action :global(svg) { width: 1rem; height: 1rem; flex: none; }
+  .article-ai-back, .article-copy-link { display: none; }
 
   .article-ai-options { position: relative; margin-left: 1.5rem; }
   .article-ai-options::before {
@@ -134,8 +143,54 @@ const { article, markdown } = Astro.props;
     .article-ai-label { min-height: 2.75rem; }
   }
 
+  @media (max-width: 47.999rem) {
+    /* Stay hidden before JS adds popover, avoiding an initial animated dismissal. */
+    .article-actions:not([popover]) { display: none; }
+    .article-actions[popover] {
+      position: fixed;
+      inset: calc(env(safe-area-inset-top) + 74px) 16px auto auto;
+      width: min(18rem, calc(100vw - 32px));
+      max-height: calc(100svh - env(safe-area-inset-top) - 100px);
+      margin: 0;
+      padding: 8px;
+      overflow: auto;
+      border: 0;
+      border-radius: 22px;
+      color: #202020;
+      background: rgb(255 255 255 / 97%);
+      box-shadow: 0 0 0 1px rgb(0 0 0 / 5%), 0 12px 40px rgb(0 0 0 / 10%);
+      backdrop-filter: blur(24px);
+      transform-origin: top right;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      transition: opacity 160ms ease, transform 220ms cubic-bezier(0.32, 0.72, 0, 1), filter 160ms ease, display 220ms allow-discrete, overlay 220ms allow-discrete;
+    }
+    .article-actions[popover]:not(:popover-open) { display: none; opacity: 0; transform: translateY(-6px) scale(0.96); filter: blur(3px); }
+    @starting-style {
+      .article-actions[popover]:popover-open { opacity: 0; transform: translateY(-6px) scale(0.96); filter: blur(3px); }
+    }
+    .article-actions[popover] .article-action { min-height: 44px; gap: 12px; padding: 8px 12px; border-radius: 14px; color: #202020; font-size: 14px; line-height: 20px; }
+    .article-actions[popover] .article-copy-link { display: flex; }
+    .article-actions[popover] > [data-article-copy="markdown"] { margin-top: 4px; padding-top: 14px; border-top: 1px solid #ededed; border-radius: 0 0 14px 14px; }
+    .article-actions[popover] .article-ai-options { margin: 0; }
+    .article-actions[popover] .article-ai-options::before { display: none; }
+    .article-actions[popover]:has(.article-ai[data-open]) > .article-action { display: none; }
+    .article-actions[popover] .article-ai[data-open] { animation: article-action-step 180ms cubic-bezier(0.23, 1, 0.32, 1); }
+    .article-actions[popover] .article-ai[data-open] > .article-action { margin-bottom: 4px; color: #747474; }
+    .article-actions[popover] .article-ai[data-open] .article-ai-forward { display: none; }
+    .article-actions[popover] .article-ai[data-open] .article-ai-back { display: grid; }
+    .article-actions[popover] .article-ai-target { margin: 0; }
+    .article-actions[popover] .article-ai-row, .article-actions[popover] .article-ai-label { transition: none; }
+    .article-actions[popover] .article-ai-label { min-height: 28px; }
+    .article-actions[popover] .article-ai[data-open] .article-ai-label { opacity: 1; filter: none; translate: 0; }
+    .article-actions[popover] .article-actions-status:not(.sr-only) { margin: 4px 12px; padding: 0; }
+  }
+  @keyframes article-action-step { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+
   @media (prefers-reduced-motion: reduce) {
     .article-action, .article-ai-row, .article-ai .article-ai-label { transition: none; }
+    .article-actions[popover], .article-actions[popover] .article-ai[data-open] { transition: none; animation: none; }
   }
 </style>
 

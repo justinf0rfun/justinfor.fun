@@ -67,6 +67,8 @@ export function mountReadingCapsule() {
     wrap.inert = true;
     wrap.setAttribute("aria-hidden", String(!visible));
     if (!visible) {
+      const actions = document.querySelector<HTMLElement>("[data-article-actions]");
+      if (actions?.matches(":popover-open")) actions.hidePopover();
       if (open) setOpen(false);
       if (!wasVisible || reduced.matches) wrap.removeAttribute("data-visible");
       else {
@@ -126,7 +128,11 @@ export function mountReadingCapsule() {
   window.addEventListener("resize", scheduleVisibility, { passive: true });
   window.addEventListener("pageshow", scheduleVisibility);
 
-  toggle.addEventListener("click", () => setOpen(!open));
+  toggle.addEventListener("click", () => {
+    const actions = document.querySelector<HTMLElement>("[data-article-actions]");
+    if (actions?.matches(":popover-open")) actions.hidePopover();
+    setOpen(!open);
+  });
   chapters.addEventListener("click", (event) => {
     const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>("[data-reading-entry]") : null;
     if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

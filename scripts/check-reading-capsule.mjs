@@ -24,6 +24,10 @@ class Element {
 function fixture(reduced = false, titleBottom = -1, manual = false) {
   const document = new Element(), capsule = new Element(), toggle = new Element(), toolbar = new Element(), chapters = new Element(), share = new Element();
   const wrap = new Element(), title = new Element(), window = new Element();
+  const actions = new Element();
+  actions.popoverOpen = false;
+  actions.matches = () => actions.popoverOpen;
+  actions.hidePopover = () => { actions.popoverOpen = false; };
   const surface = new Element(), brand = new Element(), mark = new Element();
   const avatar = new Element();
   const shareSurface = new Element(), shareLabel = new Element();
@@ -44,6 +48,7 @@ function fixture(reduced = false, titleBottom = -1, manual = false) {
   const frames = [];
   document.selectors["[data-reading-wrap]"] = wrap;
   document.selectors[".article-prose h1"] = title;
+  document.selectors["[data-article-actions]"] = actions;
   toolbar.offsetHeight = 58; chapters.offsetHeight = 240;
   document.selectors["[data-reading-capsule]"] = capsule;
   capsule.selectors = { "[data-reading-toggle]": toggle, "[data-reading-toolbar]": toolbar, "[data-reading-chapters]": chapters, "[data-reading-share]": share,
@@ -65,7 +70,7 @@ function fixture(reduced = false, titleBottom = -1, manual = false) {
     },
   });
   mount();
-  return { document, capsule, toggle, toolbar, chapters, share, mobile, animations, location, wrap, title, window, surface, brand, shareSurface, shareLabel, firstVisible, mark, avatar,
+  return { document, capsule, toggle, toolbar, chapters, share, mobile, animations, location, wrap, title, window, surface, brand, shareSurface, shareLabel, firstVisible, mark, avatar, actions,
     get panelAnimations() { return animations.filter(({ values }) => typeof values === "object" && "height" in values); },
     flush: () => { while (frames.length) frames.shift()(); } };
 }
@@ -143,6 +148,17 @@ test("first screen stays hidden; scrolling past the title reveals and returning 
   f.window.fire("scroll"); f.flush();
   assert.equal(f.wrap.inert, true);
   assert.equal(f.toggle.attrs.get("aria-expanded"), "false");
+});
+
+test("opening chapters or returning to the title closes the mobile action popover", () => {
+  const f = fixture();
+  f.actions.popoverOpen = true;
+  f.toggle.fire("click");
+  assert.equal(f.actions.popoverOpen, false);
+  f.actions.popoverOpen = true;
+  f.title.bottom = 160;
+  f.window.fire("scroll"); f.flush();
+  assert.equal(f.actions.popoverOpen, false);
 });
 
 test("entry preserves the original Dots drop, circle spread and delayed content timing", async () => {

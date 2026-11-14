@@ -23,9 +23,12 @@ const sections = Astro.props.headings.filter(({ depth }) => depth === 2 || depth
         <span class="reading-position"><span data-reading-current>Introduction</span><Icon name="ph:caret-down-bold" /></span>
         <span class="reading-caption">On this page</span>
       </button>
-      <button class="reading-share" type="button" data-reading-share aria-label="Share article" aria-haspopup="dialog">
+      <button class="reading-share" type="button" data-reading-share aria-label="Article actions" aria-expanded="false" aria-controls="article-actions" popovertarget="article-actions">
         <span class="reading-share-surface" data-reading-share-surface aria-hidden="true"></span>
-        <span class="reading-share-label" data-reading-share-label><Icon name="ph:share-fat" /></span>
+        <span class="reading-share-label" data-reading-share-label>
+          <span class="reading-more-icon" aria-hidden="true"><Icon name="ph:dots-three-bold" /></span>
+          <span class="reading-close-icon" aria-hidden="true"><Icon name="ph:x" /></span>
+        </span>
       </button>
     </div>
     <nav class="reading-chapters" id="reading-chapters" data-reading-chapters aria-label="Article chapters" aria-hidden="true" inert>
@@ -110,7 +113,11 @@ const sections = Astro.props.headings.filter(({ depth }) => depth === 2 || depth
     .reading-toggle:disabled .reading-position :global(svg) { display: none; }
     .reading-share { position: relative; isolation: isolate; display: grid; width: 42px; height: 42px; flex: none; place-items: center; border-radius: 999px; color: #fff; background: #111; cursor: pointer; }
     .reading-share-surface { position: absolute; z-index: -1; inset-block: 0; inset-inline: -32px 0; border-radius: inherit; background: inherit; clip-path: inset(0px 0px 0px 32px round 999px); pointer-events: none; }
-    .reading-share-label { display: grid; place-items: center; }
+    .reading-share-label { position: relative; display: grid; width: 20px; height: 20px; place-items: center; }
+    .reading-more-icon, .reading-close-icon { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity 160ms ease, transform 200ms var(--ease-out); }
+    .reading-close-icon { opacity: 0; transform: rotate(-90deg) scale(0.8); }
+    .reading-share[aria-expanded="true"] .reading-more-icon { opacity: 0; transform: rotate(90deg) scale(0.8); }
+    .reading-share[aria-expanded="true"] .reading-close-icon { opacity: 1; transform: none; }
     .reading-share :global(svg) { width: 20px; height: 20px; }
     .reading-toggle, .reading-share { transition: scale 160ms ease-out, background-color 160ms ease-out; }
     .reading-toggle:active, .reading-share:active { scale: 0.96; }
@@ -125,7 +132,7 @@ const sections = Astro.props.headings.filter(({ depth }) => depth === 2 || depth
     .reading-chapters a:active { background: #e7e7e7; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .reading-capsule, .reading-toggle, .reading-share, .reading-position :global(svg), .reading-chapters { transition: none; }
+    .reading-capsule, .reading-toggle, .reading-share, .reading-position :global(svg), .reading-chapters, .reading-more-icon, .reading-close-icon { transition: none; }
     .reading-chapters { transform: none; filter: none; }
   }
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
