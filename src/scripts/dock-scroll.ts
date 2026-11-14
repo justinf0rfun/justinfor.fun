@@ -23,6 +23,7 @@ export function mountDockScroll(dock: HTMLElement) {
   let frame = 0;
   let chatting = false;
   let guiding = false;
+  let moments = false;
 
   const setCompact = (next: boolean) => {
     if (next === compact) return;
@@ -42,7 +43,7 @@ export function mountDockScroll(dock: HTMLElement) {
     if (window.innerWidth !== viewportWidth) {
       if (guiding) return;
       viewportWidth = window.innerWidth;
-      if (!chatting && !guiding) pinAnchor();
+      if (!chatting && !guiding && !moments) pinAnchor();
       resetTracking();
     } else {
       // Keep real scroll intent while browser chrome changes only the viewport height.
@@ -56,7 +57,7 @@ export function mountDockScroll(dock: HTMLElement) {
     const y = position();
     const delta = y - previous;
     previous = y;
-    if (chatting || guiding || reduced.matches || document.documentElement.style.overflow === "hidden") {
+    if (chatting || guiding || moments || reduced.matches || document.documentElement.style.overflow === "hidden") {
       travel = 0;
       return;
     }
@@ -95,9 +96,16 @@ export function mountDockScroll(dock: HTMLElement) {
     if (!guiding) onResize();
     restore();
   };
+  const onMoments = (event: Event) => {
+    moments = (event as CustomEvent<boolean>).detail;
+    animation?.stop();
+    if (!moments) pinAnchor();
+    restore();
+  };
 
   window.addEventListener("home-chat-guide-state", onGuide);
   window.addEventListener("home-chat-change", onChat);
+  window.addEventListener("home-moments-change", onMoments);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize);
   window.visualViewport?.addEventListener("resize", onResize);
@@ -110,6 +118,7 @@ export function mountDockScroll(dock: HTMLElement) {
   return () => {
     window.removeEventListener("home-chat-guide-state", onGuide);
     window.removeEventListener("home-chat-change", onChat);
+    window.removeEventListener("home-moments-change", onMoments);
     cancelAnimationFrame(frame);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onResize);

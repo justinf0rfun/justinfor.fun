@@ -1,0 +1,26 @@
+import assert from "node:assert/strict";
+import { indexProgress, nearestMoment, majorTickScale, minorTickScale, tickDivisions, characterCenter, bubblePosition, mobileClickIndex } from "../src/lib/moment-timeline.ts";
+
+assert.equal(indexProgress(0, 1), 0);
+assert.equal(indexProgress(4, 5), 1);
+assert.equal(nearestMoment(-1, 5), 0);
+assert.equal(nearestMoment(0.49, 5), 2);
+assert.equal(nearestMoment(2, 5), 4);
+assert.equal(nearestMoment(1, 1), 0);
+assert.ok(Math.abs(majorTickScale(0) - 2 / 18) < 1e-12);
+assert.equal(majorTickScale(90), 1);
+assert.equal(majorTickScale(-200), 1);
+assert.equal(minorTickScale(0, 0), 1);
+assert.equal(minorTickScale(0, 1) * 12, 56 / 3);
+assert.equal(tickDivisions(0, 1), 1);
+assert.equal(tickDivisions(720, 5), 10);
+assert.equal(characterCenter(0, 576), 100);
+assert.equal(characterCenter(460, 576), 476);
+assert.equal(bubblePosition(58, 960, 0, 5), 118);
+assert.equal(bubblePosition(902, 960, 4, 5), 562);
+assert.equal(bubblePosition(100, 300, 0, 5), 20);
+assert.equal(mobileClickIndex(352, 0, 5), 2);
+assert.equal(mobileClickIndex(352, 100, 5), 3);
+assert.equal(mobileClickIndex(0, -300, 5), 0);
+assert.equal(mobileClickIndex(704, 300, 5), 4);
+console.log("Moments timeline: 23 boundary, geometry and selection checks passed.");

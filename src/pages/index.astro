@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import About from "../components/About.astro";
 import HomeDock from "../components/HomeDock.astro";
 import HomeChat from "../components/HomeChat";
+import HomeMoments from "../components/HomeMoments";
 import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
@@ -50,6 +51,7 @@ import { folderMusicTracks } from "../data/music";
   </main>
   <HomeDock />
   <HomeChat client:load />
+  <HomeMoments client:load />
   <UsesGrid mode="overlay" />
   <ProjectsShowcase mode="overlay" />
   <MusicShowcase mode="overlay" />

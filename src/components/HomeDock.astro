@@ -19,6 +19,10 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
       <span>Say hi</span>
     </button>
     <span class="dock-divider dock-chat-divider" aria-hidden="true"></span>
+    <button class="dock-moments" type="button" data-home-moments-trigger aria-controls="home-moments" aria-expanded="false" aria-label="打开碎碎念" disabled>
+      <span class="moments-entry-art" data-home-moments-slot aria-hidden="true"><img src="/moments-reference/alfred.webp" alt="" width="26" height="26" /><svg class="moments-entry-close" viewBox="0 0 20 20" width="18" height="18"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg></span>
+      <span class="moments-entry-label">Moments</span>
+    </button>
     <button class="dock-email" type="button" aria-label={`Copy email address ${email}`} data-copy-email={email}>
       <span class="email-text"><span class="email-label">Email me</span><span class="email-address">{email}</span><span class="email-copied">Copied</span></span>
       <span class="email-icons" aria-hidden="true">
@@ -89,6 +93,12 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   button { border: 0; padding: 0; background: none; cursor: pointer; }
   button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
   .dock-controls { display: flex; align-items: center; gap: inherit; }
+  .dock-moments { display: flex; align-items: center; gap: 7px; min-height: 35px; color: rgb(255 255 255 / .65); white-space: nowrap; border-radius: 7px; font-size: 16px; transition: color 160ms; }
+  .dock-moments:disabled { cursor: wait; }
+  .dock-moments:is(:hover, :focus-visible) { color: #fff; }
+  .moments-entry-art { position: relative; display: grid; place-items: center; width: 28px; height: 30px; flex: none; }
+  .moments-entry-art > img { width: 26px; height: 26px; object-fit: contain; }
+  .moments-entry-close { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 150ms; }
     .dock-chat { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: rgb(255 255 255 / .65); border-radius: 7px; font-size: 16px; transition: color 160ms; }
     .dock-chat:disabled { cursor: wait; }
     .dock-chat-divider { display: block; }
@@ -140,6 +150,15 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
     .dock-email { min-height: 44px; width: 32px; justify-content: center; }
     .theme-button { height: 44px; width: 32px; }
     .theme-options { gap: 2px; }
+    .dock-moments { width: 32px; min-height: 44px; justify-content: center; }
+    .moments-entry-label { display: none; }
+  }
+  @media (max-width: 360px) {
+    .home-dock { gap: 6px; padding-inline: 10px; }
+    .dock-chat { font-size: 13px; }
+    .dock-email { width: 28px; }
+    .theme-button { width: 28px; }
+    .theme-options { gap: 0; }
   }
   @media (hover: none) and (pointer: coarse) {
     @supports (height: 100svh) {
@@ -170,7 +189,7 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   html[data-home-theme="dark"] .home-surface > main .folder .flap { background-image: linear-gradient(rgb(30 30 30 / .65),rgb(20 20 20 / .7)); --tw-inset-ring-color: rgb(255 255 255 / .12); }
   html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-800 { color: var(--home-ink); }
   html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-500 { color: var(--home-muted); }
-  .home-surface:has(.uses-stage.is-open, .projects-page.is-open, .music-page.is-open, .memory-page.is-open, .writing-page.is-open, .x-bookmarks-page.is-open, .fstage.is-open) :is(.home-dock-wrap, .home-chat) { visibility: hidden; pointer-events: none; }
+  .home-surface:has(.uses-stage.is-open, .projects-page.is-open, .music-page.is-open, .memory-page.is-open, .writing-page.is-open, .x-bookmarks-page.is-open, .fstage.is-open) :is(.home-dock-wrap, .home-chat, .home-moments-scene, .home-moments-traveler) { visibility: hidden; pointer-events: none; }
 </style>
 
 <script>

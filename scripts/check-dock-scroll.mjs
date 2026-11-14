@@ -188,6 +188,17 @@ test("opening chat restores full size immediately and suspends scroll scaling un
   assert.equal(f.value.current, 0.84);
 });
 
+test("Moments keeps the dock expanded through the flight and resumes scrolling after close", () => {
+  const f = fixture({ start: 100 });
+  f.scroll(140); assert.equal(f.value.current, 0.84);
+  f.window.fire("home-moments-change", { detail: true });
+  assert.equal(f.value.current, 1);
+  f.scroll(350); assert.equal(f.value.current, 1);
+  f.window.fire("home-moments-change", { detail: false });
+  f.scroll(390); assert.equal(f.value.current, 0.84);
+  f.destroy();
+});
+
 test("the Say hi guide keeps the dock expanded through scrolling and the chat handoff", () => {
   const f = fixture({ start: 100 });
   f.scroll(140);
