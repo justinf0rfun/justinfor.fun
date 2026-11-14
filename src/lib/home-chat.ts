@@ -35,8 +35,11 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case "open":
       return state.open ? state : { ...state, open: true, mode: "text", phase: "idle", voiceTurn: null };
     case "toggle":
-    case "close":
-      return { ...state, open: action.type === "toggle" && !state.open, mode: "text", phase: "idle", voiceTurn: null };
+    case "close": {
+      const open = action.type === "toggle" && !state.open;
+      // Keep the outgoing view during its fade; reset mode when opening again.
+      return { ...state, open, mode: open ? "text" : state.mode, phase: "idle", voiceTurn: null };
+    }
     case "voice-enter":
       if (!state.open || state.replying || state.mode === "voice") return state;
       return { ...state, mode: "voice", phase: "idle", voiceTurn: null };

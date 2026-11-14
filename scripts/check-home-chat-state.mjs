@@ -4,6 +4,26 @@ import { chatReducer, FOLLOW_UPS, initialChatState } from "../src/lib/home-chat.
 
 const act = (state, ...types) => types.reduce((current, type) => chatReducer(current, { type }), state);
 
+test("closing voice preserves its visible mode until hidden; reopening starts in text", () => {
+  for (const phase of [[], ["voice-start"], ["voice-start", "voice-think", "voice-reply"]]) {
+    const voice = act(initialChatState, "open", "voice-enter", ...phase);
+    for (const close of ["close", "toggle"]) {
+      const closed = act(voice, close);
+      assert.equal(closed.open, false);
+      assert.equal(closed.mode, "voice", "do not reveal text chat during the closing fade");
+      assert.equal(closed.phase, "idle");
+      assert.equal(closed.messages, voice.messages);
+      assert.equal(act(closed, "voice-think", "voice-reply", "voice-finish"), closed);
+      for (const reopen of ["open", "toggle"]) {
+        const reopened = act(closed, reopen);
+        assert.equal(reopened.open, true);
+        assert.equal(reopened.mode, "text");
+        assert.equal(reopened.messages, voice.messages);
+      }
+    }
+  }
+});
+
 test("guided open is idempotent and does not reset an existing voice conversation", () => {
   const opened = act(initialChatState, "open");
   assert.equal(opened.open, true);
