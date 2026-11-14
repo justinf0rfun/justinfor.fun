@@ -31,7 +31,7 @@ The component owns the 32px avatar, label, avatar-to-arrow hover/focus animation
 
 ## Return sound
 
-The base `Layout` installs one delegated click listener for `ParentLink`, so overlay controls cloned later also work without relying on scripts inside inert templates. Only trusted activation of `[data-parent-navigation]` plays the sound; other buttons, hover, and programmatic clicks remain silent. The Web Audio context and 30ms noise buffer are created lazily on the first return activation, with no audio downloads or autoplay.
+The base `Layout` installs one delegated click listener for `ParentLink`, so overlay controls cloned later also work without relying on scripts inside inert templates. It only sounds on trusted activation of `[data-parent-navigation]`. `HomeDock` reuses the same synth for trusted changes between system, light, and dark appearance; selecting the active option, hovering, and automatic OS appearance changes stay silent. Other controls and programmatic clicks remain silent. Each consumer creates its Web Audio context and 30ms noise buffer lazily, with no audio downloads or autoplay.
 
 The synth follows https://ehsandesigns.com/index.html (`app.js`): a sine falls from 170Hz to 110Hz, layered with a 1200Hz low-pass noise transient, ±6% pitch variation, and the original compressor and gain envelopes. Nodes disconnect after 80ms. Overlay navigation starts immediately; same-tab parent links allow 80ms of playback, with a 120ms absolute navigation deadline. Unsupported or rejected audio does not block navigation. Modified clicks retain native browser behavior.
 

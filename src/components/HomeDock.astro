@@ -176,6 +176,7 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
 <script>
   import { animate } from "motion";
   import { mountDockScroll } from "../scripts/dock-scroll";
+  import { createReturnSound } from "../lib/return-sound";
 
   const dock = document.querySelector<HTMLElement>(".home-dock");
   if (dock) mountDockScroll(dock);
@@ -203,12 +204,14 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
     });
   });
   let mode = root.dataset.homeMode ?? "system";
+  const playThemeSound = createReturnSound();
   const apply = () => {
     root.dataset.homeMode = mode;
     root.dataset.homeTheme = mode === "system" ? (system.matches ? "dark" : "light") : mode;
     buttons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.homeMode === mode)));
   };
-  buttons.forEach((button) => button.addEventListener("click", () => {
+  buttons.forEach((button) => button.addEventListener("click", (event) => {
+    if (event.isTrusted && button.dataset.homeMode !== mode) void playThemeSound();
     mode = button.dataset.homeMode!;
     try { localStorage.setItem("home-theme", mode); } catch {}
     apply();
