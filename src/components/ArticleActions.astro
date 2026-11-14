@@ -1,0 +1,162 @@
+---
+import { Icon } from "astro-icon/components";
+import ArticleShareDialog from "./ArticleShareDialog.astro";
+import { articleAiTargets, type ArticleInfo } from "../lib/article-sharing";
+
+interface Props { article: ArticleInfo; markdown: string }
+const { article, markdown } = Astro.props;
+---
+
+<div class="article-actions" data-article-actions data-article-url={article.url} data-copy-surface aria-label="Article actions">
+  <button class="article-action" type="button" data-article-share-open aria-haspopup="dialog">
+    <Icon name="ph:share-fat" /><span>Share</span>
+  </button>
+  <div class="article-ai" data-article-ai>
+    <button class="article-action" type="button" data-article-ai-toggle aria-expanded="false" aria-controls="article-ai-options">
+      <Icon name="ph:sparkle" /><span>Ask AI</span>
+    </button>
+    <div class="article-ai-options" id="article-ai-options" data-article-ai-options inert>
+      {articleAiTargets(article.url).map(({ label, icon, href, appHref, desktopOnly, webLabel }) => (
+        <div class="article-ai-row">
+          <div class="article-ai-target">
+            <a class="article-action" href={href} data-ai-app={appHref} data-ai-desktop-only={desktopOnly || undefined} target="_blank" rel="noopener noreferrer">
+              <span class="article-ai-label">
+                {icon.startsWith("/") ? <img src={icon} width="16" height="16" alt="" /> : <Icon name={icon} />}
+                {label}
+              </span>
+            </a>
+            <a class="article-ai-web" href={href} target="_blank" rel="noopener noreferrer" aria-label={webLabel} title={webLabel}>
+              <Icon name="ph:globe" />
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+  <button class="article-action" type="button" data-article-copy="markdown">
+    <span class="article-copy-glyph">
+      <span class="article-copy-icon"><Icon name="ph:copy" /></span>
+      <span class="article-copy-check"><Icon name="ph:check" /></span>
+    </span>
+    <span>Copy as Markdown</span>
+  </button>
+  <p class="article-actions-status sr-only" data-copy-status role="status" aria-live="polite" aria-atomic="true" />
+  <template data-article-markdown>{markdown}</template>
+</div>
+<ArticleShareDialog article={article} />
+
+<style>
+  .article-actions {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 3rem auto 0;
+  }
+
+  .article-action {
+    display: flex;
+    width: 100%;
+    min-height: 1.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+    border-radius: 0.5rem;
+    color: #747474;
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+    text-align: left;
+    cursor: pointer;
+    transition: color 200ms ease-out, background-color 200ms ease-out;
+  }
+
+  .article-action:focus-visible { outline: 2px solid #747474; outline-offset: 2px; }
+  .article-action:active { background: #ededed; }
+  .article-action :global(svg) { width: 1rem; height: 1rem; flex: none; }
+
+  .article-ai-options { position: relative; margin-left: 1.5rem; }
+  .article-ai-options::before {
+    position: absolute;
+    top: 4px;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    content: "";
+    background: #dedede;
+  }
+
+  .article-ai-row { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+  .article-ai-target { display: flex; min-height: 0; overflow: hidden; align-items: center; margin-left: 0.25rem; }
+  .article-ai-target > .article-action { flex: 1; min-width: 0; min-height: 0; }
+  .article-ai-label img { width: 1rem; height: 1rem; flex: none; }
+  .article-ai-web { display: grid; width: 1.75rem; height: 1.75rem; flex: none; place-items: center; border-radius: 0.5rem; color: #747474; }
+  .article-ai-web :global(svg) { width: 0.875rem; height: 0.875rem; }
+  .article-ai-web:focus-visible { outline: 2px solid #747474; outline-offset: 2px; }
+  .article-ai-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    filter: blur(4px);
+    translate: -4px 0;
+    transition: opacity 150ms ease, filter 300ms var(--ease-out), translate 300ms var(--ease-out);
+  }
+
+  .article-ai[data-open] .article-ai-row { grid-template-rows: 1fr; }
+  .article-ai[data-open] .article-ai-label {
+    padding-block: 2px;
+    opacity: 1;
+    filter: blur(0);
+    translate: 0 0;
+    transition: opacity 400ms ease, filter 550ms var(--ease-out), translate 550ms var(--ease-out);
+  }
+  .article-ai[data-open] .article-ai-row:nth-child(2),
+  .article-ai[data-open] .article-ai-row:nth-child(2) .article-ai-label { transition-delay: 50ms; }
+  .article-ai[data-open] .article-ai-row:nth-child(3),
+  .article-ai[data-open] .article-ai-row:nth-child(3) .article-ai-label { transition-delay: 100ms; }
+
+  .article-copy-glyph { position: relative; display: grid; width: 1rem; height: 1rem; place-items: center; }
+  .article-actions-status { padding-left: 0.5rem; color: #646464; font-size: 0.75rem; }
+  .article-actions-status:empty { display: none; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .article-action:hover, .article-ai-web:hover { color: #202020; background: #f0f0f0; }
+  }
+
+  @media (min-width: 80rem) {
+    .article-actions { position: fixed; bottom: 6rem; left: 2rem; width: 15.25rem; margin: 0; }
+  }
+
+  @media (max-width: 79.999rem) {
+    .article-action { min-height: 2.75rem; }
+    .article-ai-target > .article-action { min-height: 0; }
+    .article-ai-web { width: 2.75rem; height: 2.75rem; }
+    .article-ai-label { min-height: 2.75rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-action, .article-ai-row, .article-ai .article-ai-label { transition: none; }
+  }
+</style>
+
+<style is:global>
+  .article-copy-icon, .article-copy-check {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    transition: opacity 160ms var(--ease-out), transform 220ms var(--ease-out), filter 220ms var(--ease-out);
+  }
+  .article-copy-check { opacity: 0; transform: scale(0.25); filter: blur(4px); }
+  [data-copied] > .article-copy-icon,
+  [data-copied] > .article-copy-glyph > .article-copy-icon { opacity: 0; transform: scale(0.25); filter: blur(4px); }
+  [data-copied] > .article-copy-check,
+  [data-copied] > .article-copy-glyph > .article-copy-check { opacity: 1; transform: scale(1); filter: blur(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .article-copy-icon, .article-copy-check { transition: none; }
+  }
+</style>
+
+<script>
+  import { mountArticleActions } from "../scripts/article-actions";
+  mountArticleActions();
+</script>

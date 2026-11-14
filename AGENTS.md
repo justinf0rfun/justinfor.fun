@@ -46,6 +46,14 @@ docs: explain Cloudflare deployment
 
 ## Documentation
 
+### Articles
+
+All Thoughts articles must use `src/layouts/ArticleLayout.astro` and the `writing`
+content collection. Reuse `ArticleToc`, `ArticleActions`, and `ArticleShareDialog`;
+do not duplicate their markup or interaction scripts in individual article routes.
+Add new articles as Markdown under `src/content/writing/`. Follow `docs/articles.md`
+for metadata, canonical sharing URLs, Markdown export, and verification.
+
 Full documentation: https://docs.astro.build
 
 Consult these guides before working on related tasks:
