@@ -50,13 +50,45 @@ import BeliefSticker from "./BeliefSticker";
       via <a href="https://medium.com/@rudyadler/make-something-people-want-the-yc-watsi-poster-55b35d0e8a89" target="_blank" rel="noopener noreferrer">Rudy Adler</a>
     </figcaption>
   </figure>
+
+  <figure class="belief-note belief-note--attention">
+    <div class="note-paper note-paper--taped">
+      <BeliefSticker
+        src="/home/attention-is-all-you-need.jpg"
+        alt="Attention Is All You Need. The Transformer paper above a mountain concert landscape."
+        width={1025}
+        height={1280}
+        backColor="#dce3f3"
+        client:visible
+      />
+    </div>
+    <figcaption>
+      via <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer">Vaswani et al.</a>
+    </figcaption>
+  </figure>
+
+  <figure class="belief-note belief-note--bitter">
+    <div class="note-paper note-paper--taped">
+      <BeliefSticker
+        src="/home/the-bitter-lesson.svg"
+        alt="The Bitter Lesson. A typeset excerpt on general methods and computation, by Rich Sutton, 2019."
+        width={720}
+        height={960}
+        backColor="#e5ddce"
+        client:visible
+      />
+    </div>
+    <figcaption>
+      via <a href="https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf" target="_blank" rel="noopener noreferrer">Rich Sutton</a>
+    </figcaption>
+  </figure>
 </section>
 
 <style>
   .belief-notes {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
+    gap: 1.6rem;
     padding: 1rem 0.5rem 0.5rem;
     overflow: clip;
     overflow-clip-margin: 0.5rem;
@@ -76,13 +108,13 @@ import BeliefSticker from "./BeliefSticker";
   }
 
   .belief-note--ideas {
-    width: min(14.5rem, 82%);
+    width: min(11.6rem, 65.6%);
     justify-self: start;
     --note-angle: -0.5deg;
   }
 
   .belief-note--iterate {
-    width: min(21rem, 100%);
+    width: min(16.8rem, 80%);
     justify-self: end;
     --note-angle: 2deg;
     --tape-wash: rgb(200 228 151 / 78%);
@@ -90,11 +122,27 @@ import BeliefSticker from "./BeliefSticker";
   }
 
   .belief-note--value {
-    width: min(13.5rem, 72%);
+    width: min(10.8rem, 57.6%);
     justify-self: center;
     --note-angle: -1.5deg;
     --tape-wash: rgb(238 170 118 / 78%);
     --tape-angle: 4deg;
+  }
+
+  .belief-note--attention {
+    width: min(12.4rem, 68%);
+    justify-self: start;
+    --note-angle: 1.5deg;
+    --tape-wash: rgb(170 188 226 / 78%);
+    --tape-angle: -4deg;
+  }
+
+  .belief-note--bitter {
+    width: min(11.6rem, 65.6%);
+    justify-self: end;
+    --note-angle: -2deg;
+    --tape-wash: rgb(210 194 165 / 78%);
+    --tape-angle: 5deg;
   }
 
   .note-paper {
@@ -110,11 +158,11 @@ import BeliefSticker from "./BeliefSticker";
 
   .note-paper--taped::before {
     position: absolute;
-    top: -1.25rem;
+    top: -1rem;
     left: 41%;
     z-index: 1;
-    width: 4.5rem;
-    height: 1.75rem;
+    width: 3.6rem;
+    height: 1.4rem;
     content: "";
     pointer-events: none;
     background-image: linear-gradient(var(--tape-wash), var(--tape-wash)), url("/home/acu-note.png");
@@ -165,21 +213,25 @@ import BeliefSticker from "./BeliefSticker";
   @media (min-width: 40rem) {
     .belief-notes {
       grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-      column-gap: 1.5rem;
-      row-gap: 2.5rem;
+      column-gap: 1.2rem;
+      row-gap: 2rem;
     }
 
     .belief-note--ideas {
-      width: min(14.5rem, 100%);
+      width: min(11.6rem, 80%);
     }
 
     .belief-note--iterate {
-      margin-top: 3.5rem;
+      margin-top: 2.8rem;
     }
 
     .belief-note--value {
       grid-column: 1 / -1;
-      margin-right: 2rem;
+      margin-right: 1.6rem;
+    }
+
+    .belief-note--bitter {
+      margin-top: 2rem;
     }
   }
 

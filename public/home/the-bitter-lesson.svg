@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="960" viewBox="0 0 720 960">
+  <title>The Bitter Lesson — Rich Sutton, 2019</title>
+  <rect width="720" height="960" fill="#f2eee5"/>
+  <text x="66" y="112" fill="#797266" font-family="Arial, Helvetica, sans-serif" font-size="23" letter-spacing="2.5">THE BITTER LESSON</text>
+  <text x="62" y="246" fill="#242923" font-family="Georgia, 'Times New Roman', serif" font-size="65" letter-spacing="-1.8">
+    <tspan x="62">General methods</tspan>
+    <tspan x="62" dy="79">that leverage</tspan>
+    <tspan x="62" dy="79" fill="#8b6048" font-size="71" font-style="italic">computation</tspan>
+    <tspan x="62" dy="79">are ultimately</tspan>
+    <tspan x="62" dy="79">the most effective,</tspan>
+    <tspan x="62" dy="79">and by a</tspan>
+    <tspan x="62" dy="79" font-style="italic">large margin.</tspan>
+  </text>
+  <text x="66" y="865" fill="#797266" font-family="Arial, Helvetica, sans-serif" font-size="22">Rich Sutton</text>
+  <text x="66" y="901" fill="#999083" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="1.5">2019</text>
+</svg>

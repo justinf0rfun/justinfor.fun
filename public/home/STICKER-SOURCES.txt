@@ -1,0 +1,16 @@
+Additional poster artwork
+
+attention-is-all-you-need.jpg
+  Artwork supplied by the site owner.
+  Paper: Attention Is All You Need, Vaswani et al.
+  https://arxiv.org/abs/1706.03762
+
+the-bitter-lesson.svg
+  Original typographic layout created for this site.
+  Short excerpt from the opening paragraph; initial capitalization adjusted for display.
+  Original essay: The Bitter Lesson, Rich Sutton, March 13, 2019.
+  http://www.incompleteideas.net/IncIdeas/BitterLesson.html
+  University-hosted copy linked from the caption:
+  https://www.cs.utexas.edu/~eunsol/courses/data/bitter_lesson.pdf
+
+Source records do not assert ownership of the underlying essay or supplied artwork.
