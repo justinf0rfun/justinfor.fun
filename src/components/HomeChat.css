@@ -24,7 +24,8 @@
   /* Refero MCP's narrow, stretched entrance; desktop panels unfold from their top edge. */
   transform: scale(.5,2) translateY(40px);
   transform-origin: center top;
-  transition: opacity 160ms ease-out, transform 220ms cubic-bezier(.22,1,.36,1), visibility 0s 220ms;
+  /* Reset the entrance stretch only once the closing panel is fully transparent. */
+  transition: opacity 160ms ease-out, transform 0s 160ms, visibility 0s 160ms;
 }
 
 .home-chat[data-open="true"] { visibility: visible; opacity: 1; transform: scale(1) translateY(0); transition: opacity 500ms var(--chat-pop-ease), transform 500ms var(--chat-pop-ease), visibility 0s; }

@@ -12,6 +12,9 @@ const dockStyles = read("../src/components/HomeDock.astro").match(/<style>([\s\S
 assert.ok(dockStyles);
 assert.match(dockStyles, /\.dock-chat\s*\{[^}]*display:\s*flex/, "Say hi must occupy its final space before hydration");
 assert.doesNotMatch(dockStyles, /\.dock-chat[^{}]*:not\(:disabled\)/, "hydration readiness must not change the dock layout");
+const panelStyles = read("../src/components/HomeChat.css").match(/\.home-chat\s*\{([^}]+)\}/)?.[1];
+assert.ok(panelStyles);
+assert.match(panelStyles, /transform 0s 160ms/, "reset the stretched entrance pose only after the closing fade, without animating a tall strip");
 
 const island = html.match(/<astro-island\b[^>]*component-url="[^"]*HomeChat[^>]*>/)?.[0];
 assert.ok(island, "chat must be a separate island");
