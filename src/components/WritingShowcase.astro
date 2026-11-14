@@ -97,8 +97,8 @@ const formatDate = (date: Date) =>
         aria-controls={`writing-list-${mode} writing-details-${mode}`}
         aria-valuemin="15"
         aria-valuemax="85"
-        aria-valuenow="50"
-        aria-valuetext="50% list, 50% article"
+        aria-valuenow="25"
+        aria-valuetext="25% list, 75% article"
       >
         <span class="writing-grip" aria-hidden="true">
           <span></span><span></span><span></span>
@@ -144,7 +144,7 @@ const formatDate = (date: Date) =>
     <div class="writing-readout" aria-hidden="true" data-writing-reveal>
       <span data-writing-left-width>W 0</span>
       <span data-writing-right-width>W 0</span>
-      <span class="writing-readout-ratio" data-writing-ratio>50%</span>
+      <span class="writing-readout-ratio" data-writing-ratio>25%</span>
     </div>
 
     <LocalTimeFooter />
@@ -245,7 +245,7 @@ const formatDate = (date: Date) =>
   }
 
   .writing-list-pane {
-    flex: 0 0 var(--split-left, calc(50% - 0.625rem));
+    flex: 0 0 var(--split-left, calc(25% - 0.3125rem));
     padding: 1.25rem;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -677,7 +677,7 @@ const formatDate = (date: Date) =>
 
     if (!listPane || !detailPane || !divider || !leftWidth || !rightWidth || !ratioValue) return;
 
-    let ratio = 0.5;
+    let ratio = 0.25;
     let activePointer: number | null = null;
     let grabOffset = 0;
 
@@ -793,7 +793,7 @@ const formatDate = (date: Date) =>
     });
 
     new ResizeObserver(() => renderRatio(ratio, split.dataset.snapped === "true")).observe(split);
-    renderRatio(0.5, true);
+    renderRatio(ratio, true);
   });
 </script>
 
