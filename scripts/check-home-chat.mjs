@@ -8,6 +8,10 @@ assert.ok(trigger, "homepage must expose a Chat entry");
 assert.match(trigger, /aria-controls="home-chat"/);
 assert.match(trigger, /aria-expanded="false"/);
 assert.match(trigger, /\bdisabled\b/, "do not expose a dead button before hydration");
+const dockStyles = read("../src/components/HomeDock.astro").match(/<style>([\s\S]*?)<\/style>/)?.[1];
+assert.ok(dockStyles);
+assert.match(dockStyles, /\.dock-chat\s*\{[^}]*display:\s*flex/, "Say hi must occupy its final space before hydration");
+assert.doesNotMatch(dockStyles, /\.dock-chat[^{}]*:not\(:disabled\)/, "hydration readiness must not change the dock layout");
 
 const island = html.match(/<astro-island\b[^>]*component-url="[^"]*HomeChat[^>]*>/)?.[0];
 assert.ok(island, "chat must be a separate island");

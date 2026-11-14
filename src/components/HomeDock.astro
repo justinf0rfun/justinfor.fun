@@ -89,9 +89,9 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   button { border: 0; padding: 0; background: none; cursor: pointer; }
   button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
   .dock-controls { display: flex; align-items: center; gap: inherit; }
-  .dock-chat, .dock-chat-divider { display: none; }
-    .dock-chat:not(:disabled) { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: rgb(255 255 255 / .65); border-radius: 7px; font-size: 16px; transition: color 160ms; }
-    .dock-chat:not(:disabled) + .dock-chat-divider { display: block; }
+    .dock-chat { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: rgb(255 255 255 / .65); border-radius: 7px; font-size: 16px; transition: color 160ms; }
+    .dock-chat:disabled { cursor: wait; }
+    .dock-chat-divider { display: block; }
     .dock-chat:is(:hover, :focus-visible, [aria-expanded="true"]) { color: #fff; }
     .dock-chat img { object-fit: contain; flex: none; }
   .dock-email { display: flex; align-items: center; gap: 16px; color: rgb(255 255 255 / .5); border-radius: 7px; }
@@ -135,7 +135,7 @@ icons.light = icons.light.replace("</svg>", '<circle class="sun-center" cx="8" c
   }
   @media (max-width: 1023px) {
     .home-dock { gap: 10px; padding-inline: 14px; }
-    .dock-chat:not(:disabled) { gap: 5px; font-size: 14px; min-height: 44px; }
+    .dock-chat { gap: 5px; font-size: 14px; min-height: 44px; }
     .dock-email .email-text { display: none; }
     .dock-email { min-height: 44px; width: 32px; justify-content: center; }
     .theme-button { height: 44px; width: 32px; }
