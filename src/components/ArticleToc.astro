@@ -204,6 +204,8 @@ const entries = Astro.props.headings.filter(({ depth }) => depth === 2 || depth 
 
   if (toc) {
     const entries = [...toc.querySelectorAll<HTMLAnchorElement>("[data-toc-entry]")];
+    const mobileEntries = [...document.querySelectorAll<HTMLAnchorElement>("[data-reading-entry]")];
+    const mobileLabel = document.querySelector<HTMLElement>("[data-reading-current]");
     let active = entries[0]?.hash.slice(1) ?? "";
     let frame = 0;
 
@@ -223,13 +225,21 @@ const entries = Astro.props.headings.filter(({ depth }) => depth === 2 || depth 
     };
 
     const update = () => {
-      let next = entries[0]?.hash.slice(1) ?? "";
+      let next = "";
+      const mobile = matchMedia("(max-width: 47.999rem)").matches;
       for (const entry of entries) {
         const id = entry.hash.slice(1);
         const heading = document.getElementById(id);
-        if (heading && heading.getBoundingClientRect().top <= 81) next = id;
+        if (!heading) continue;
+        const threshold = mobile ? Number.parseFloat(getComputedStyle(heading).scrollMarginTop) + 1 : 81;
+        if (heading.getBoundingClientRect().top <= threshold) next = id;
       }
-      renderActive(next);
+      renderActive(next || entries[0]?.hash.slice(1) || "");
+      mobileEntries.forEach((entry) => {
+        if (entry.hash.slice(1) === (next || "article-top")) entry.setAttribute("aria-current", "location");
+        else entry.removeAttribute("aria-current");
+      });
+      if (mobileLabel) mobileLabel.textContent = entries.find((entry) => entry.hash.slice(1) === next)?.textContent?.trim() || "Introduction";
     };
 
     const scheduleUpdate = () => {

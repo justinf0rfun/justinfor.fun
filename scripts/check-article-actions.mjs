@@ -28,10 +28,12 @@ class Element {
 function fixture({ clipboardFails = false, reduced = false } = {}) {
   const document = new Element(), root = new Element(), actions = new Element(), dialog = new Element();
   const trigger = new Element(), close = new Element(), ai = new Element(), aiTrigger = new Element(), options = new Element();
+  const readingShare = new Element();
   const markdownButton = new Element(), linkButton = new Element(), markdownStatus = new Element(), linkStatus = new Element();
   const writes = [], animations = [], timers = [];
   document.documentElement = root;
   document.selectors = { "[data-article-actions]": actions, "[data-article-share]": dialog, "[data-article-copy]": [markdownButton, linkButton] };
+  document.selectors["[data-reading-share]"] = [readingShare];
   actions.dataset.articleUrl = "https://justinfor.fun/thoughts/example";
   actions.selectors = {
     "[data-article-share-open]": trigger, "[data-article-ai]": ai,
@@ -49,6 +51,7 @@ function fixture({ clipboardFails = false, reduced = false } = {}) {
   dialog.close = () => { dialog.open = false; };
   dialog.getBoundingClientRect = () => ({ left: 100, right: 500, top: 50, bottom: 550 });
   trigger.focus = () => { document.activeElement = trigger; };
+  readingShare.focus = () => { document.activeElement = readingShare; };
   close.focus = () => { document.activeElement = close; };
   linkButton.focus = () => { document.activeElement = linkButton; };
   aiTrigger.focus = () => { document.activeElement = aiTrigger; };
@@ -67,7 +70,7 @@ function fixture({ clipboardFails = false, reduced = false } = {}) {
     },
   });
   mount();
-  return { document, actions, dialog, trigger, close, ai, aiTrigger, options, markdownButton, linkButton, markdownStatus, linkStatus, writes, animations, timers };
+  return { document, actions, dialog, trigger, readingShare, close, ai, aiTrigger, options, markdownButton, linkButton, markdownStatus, linkStatus, writes, animations, timers };
 }
 
 test("Escape closes the modal, restores focus, and a second open starts cleanly", async () => {
@@ -104,6 +107,17 @@ test("outside clicks dismiss; dragging from the paper to outside does not", asyn
   f.dialog.fire("click", { clientX: 20, clientY: 20 });
   await setImmediate();
   assert.equal(f.dialog.open, false);
+});
+
+test("reading capsule shares through the existing dialog and restores the correct trigger", async () => {
+  const f = fixture();
+  for (const trigger of [f.readingShare, f.trigger]) {
+    trigger.fire("click");
+    assert.equal(f.dialog.open, true);
+    f.close.fire("click");
+    await setImmediate();
+    assert.equal(f.document.activeElement, trigger);
+  }
 });
 
 test("AI disclosure keeps hidden links inert and supports click, outside dismissal and Escape", () => {

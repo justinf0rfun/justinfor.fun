@@ -6,6 +6,7 @@ export function mountArticleActions() {
   const dialog = document.querySelector<HTMLDialogElement>("[data-article-share]");
   const trigger = actions?.querySelector<HTMLButtonElement>("[data-article-share-open]");
   if (!actions || !dialog || !trigger) return;
+  let shareTrigger = trigger;
 
   new ResizeObserver(() => {
     document.documentElement.style.setProperty("--article-actions-height", `${actions.offsetHeight}px`);
@@ -55,10 +56,13 @@ export function mountArticleActions() {
     dialog.close();
     dialog.removeAttribute("data-closing");
     closing = false;
-    trigger.focus({ preventScroll: true });
+    shareTrigger.focus({ preventScroll: true });
   };
 
-  trigger.addEventListener("click", openShare);
+  trigger.addEventListener("click", () => { shareTrigger = trigger; openShare(); });
+  document.querySelectorAll<HTMLButtonElement>("[data-reading-share]").forEach((button) => {
+    button.addEventListener("click", () => { shareTrigger = button; openShare(); });
+  });
   dialog.querySelector("[data-share-close]")?.addEventListener("click", () => void closeShare());
   dialog.addEventListener("cancel", (event) => { event.preventDefault(); void closeShare(); });
   dialog.addEventListener("keydown", (event) => {

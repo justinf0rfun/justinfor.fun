@@ -4,6 +4,7 @@ import ParentLink from "../components/ParentLink.astro";
 import ArticleActions from "../components/ArticleActions.astro";
 import { articleMarkdown } from "../lib/article-sharing";
 import ArticleToc from "../components/ArticleToc.astro";
+import ArticleReadingCapsule from "../components/ArticleReadingCapsule.astro";
 import LocalTimeFooter from "../components/LocalTimeFooter.astro";
 import Layout from "./Layout.astro";
 
@@ -35,10 +36,11 @@ const markdown = articleMarkdown(article, post.body ?? "");
   <ParentLink class="article-parent" label="Thoughts" href="/thoughts" />
 
   <ArticleToc headings={headings} />
+  <ArticleReadingCapsule headings={headings} />
 
   <main class="article-shell">
     <article class="article-prose">
-      <header>
+      <header id="article-top">
         <h1>{post.data.title}</h1>
         <p>{post.data.description}</p>
       </header>
@@ -163,6 +165,10 @@ const markdown = articleMarkdown(article, post.body ?? "");
       width: min(100% - 2rem, 43.25rem);
       padding-block: 3rem 6rem;
     }
+  }
+  @media (max-width: 47.999rem) {
+    .article-shell { padding-top: 3rem; }
+    .article-prose > header, .article-prose > h2, .article-prose > h3 { scroll-margin-top: calc(env(safe-area-inset-top) + 6rem); }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

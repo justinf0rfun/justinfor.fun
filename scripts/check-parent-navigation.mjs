@@ -13,13 +13,19 @@ test("all standalone pages return to their explicit parent, including direct art
     const html = read(file);
     if (/http-equiv="refresh"/.test(html)) continue;
     const controls = parents(html);
-    assert.equal(controls.length, 1, file);
     const article = file.startsWith("thoughts/") && file !== "thoughts/index.html";
-    assert.ok(controls[0].includes(`href="${article ? "/thoughts" : "/"}"`), file);
-    assert.ok(controls[0].includes(`aria-label="Back to ${article ? "Thoughts" : "Home"}"`), file);
-    assert.match(controls[0], /src="\/justin-avatar\.png"/);
-    assert.match(controls[0], /width="32" height="32"/);
-    assert.doesNotMatch(controls[0], /history\.back/);
+    assert.equal(controls.length, article ? 2 : 1, file);
+    if (article) {
+      assert.equal(controls.filter(control => /class="[^"]*\barticle-parent\b/.test(control)).length, 1);
+      assert.equal(controls.filter(control => /class="[^"]*\breading-back\b/.test(control)).length, 1);
+    }
+    for (const control of controls) {
+      assert.ok(control.includes(`href="${article ? "/thoughts" : "/"}"`), file);
+      assert.ok(control.includes(`aria-label="Back to ${article ? "Thoughts" : "Home"}"`), file);
+      assert.match(control, /src="\/justin-avatar\.png"/);
+      assert.match(control, /width="32" height="32"/);
+      assert.doesNotMatch(control, /history\.back/);
+    }
     checked++;
   }
   assert.ok(checked >= 10, "six collections and four articles must be covered");

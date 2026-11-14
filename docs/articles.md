@@ -28,6 +28,9 @@ The filename supplies the `/thoughts/<slug>` path. Drafts are excluded from the 
 - The homepage's `HomeNews.astro` capsule links to the latest published Thought using the same publication-date order and draft filter as the list. It expands at the page top and collapses on scroll without taking space from the introduction. Preserve the reference's actual Motion width morph (`32px` → `auto` → `32px`): 200ms opening, text revealed halfway with 50ms staggers, and 180ms closing after a 60ms text-exit lead. Do not replace this geometry with clip-path or scale effects. New articles require no separate homepage announcement edit.
 - Article metadata, canonical URL and Open Graph title/description come from the entry and `site` in `astro.config.mjs`. Share links always use the production canonical URL, including during local development.
 - `ArticleToc.astro` derives its entries from H2/H3 headings, tracks reading position and expands on hover or keyboard focus. It stays hidden below the desktop breakpoint.
+- Below 48rem, `ArticleReadingCapsule.astro` provides a fixed translucent reading capsule: the shared Thoughts parent control, current chapter, and the existing Share dialog. It starts hidden and inert, appears once the article title scrolls above the viewport, and hides again on returning to the title. The regular parent control remains in the document for the first screen. Its chapter list expands inside the same surface with an interruptible spring, stays independently scrollable, and closes on selection, outside press, Escape, focus departure, or leaving the mobile breakpoint. `ArticleToc` updates both desktop and mobile chapter indicators; headings account for the capsule and safe area. Keep Ask AI and Markdown copy available after the article.
+- The reading capsule entrance follows the public Dots `DotsSubNav` source: vertical keyframes −180px → 72px → 0 over 1091.6ms after 85ms, a centered 58px circle revealing the material after 558ms over 509ms, and a 24px ring mark moving from center to left. The centered chapter control uses the original navigation-link fade (630ms delay, 577ms duration); Share uses the original CTA fade (586ms delay, 430ms duration) and its coupled 32px sinusoidal stretch. Preserve the per-stage easing curves and matching `calc()`/`var()` slots in both clip-path endpoints: simplifying only one endpoint corrupts Motion's complex-value interpolation into a rectangular inset. The fixed wrapper and inline-size container stay still; only the navigation moves. Keep the surface separate so revealing it does not stretch text. Exit fades over 150ms; interrupted runs cannot re-enable or hide a newer run. Reduced motion reveals immediately.
+- The drop uses the original black ring SVG throughout; only after the entrance completes does it crossfade to the personal avatar over 120ms. Initialize clip, opacity and transforms synchronously before making the wrapper visible, rather than relying on delayed animation keyframes. During entry, keep the moving capsule's overflow visible: a clipping ancestor can square off the clipped backdrop in the browser compositor even when computed clip-path values are circular. Enable parent clipping with `data-entry-ready` only once entry finishes, for chapter expansion. Verify normal-playback startup frames; seeking a paused animation skips initialization bugs.
 - `ParentLink.astro` supplies the shared avatar-to-arrow return control, targeting `/thoughts`. Follow `docs/navigation.md` for other page levels and overlay behavior.
 - `ArticleActions.astro` provides Share, Ask AI and Copy as Markdown. It is fixed at the desktop's lower left and appears after the article on smaller screens.
 - `ArticleShareDialog.astro` provides the animated paper preview, X/LinkedIn/Bluesky/Email destinations and Copy link. It supports Escape, outside dismissal, native modal focus containment and focus restoration.
@@ -44,7 +47,7 @@ Use Node 22:
 ```sh
 pnpm build
 pnpm exec tsc --noEmit
-node --test scripts/check-article-sharing.mjs scripts/check-article-actions.mjs scripts/check-ai-app-links.mjs scripts/check-thought-transition.mjs
+node --test scripts/check-article-sharing.mjs scripts/check-article-actions.mjs scripts/check-ai-app-links.mjs scripts/check-thought-transition.mjs scripts/check-reading-capsule.mjs
 ```
 
 Also check Share open/close, Escape and focus restoration, Ask AI open/close, both copy controls, and the small-screen placement in a browser. Do not send a social post or AI prompt as part of verification; inspect the generated destination URLs.
@@ -52,6 +55,10 @@ Also check Share open/close, Escape and focus restoration, Ask AI open/close, bo
 Reference interaction: https://noechague.com/writing/make-your-design-system-ai-ready
 
 Page handoff reference: https://ehsandesigns.com/index.html (`app.js`, `mo` exit and `On` entrance). Check desktop preview selection, Open → article → Thoughts, browser back/forward, and mobile list → article → list; native transitions require a supporting browser. The CSS entrance easing approximates GSAP's `power3.out` without adding a second animation runtime to navigation.
+
+Reading capsule entrance reference: https://chatgpt.com/features/dots/ — public `DotsSubNav` module `/cdn/assets/ce99d8dd-a2d8bec223d945adb0e0e.js` and `/cdn/assets/dots-scenes-205172f2d475.css`. These were inspected as source; retain our article-specific controls and chapter expansion rather than the marketing navigation contents.
+
+Original ring artwork: https://images.ctfassets.net/8su2tbn87fck/6bOZMmGgntTC2XvtbGgBxZ/5ed7a3900b567a83f4f31707f97108d4/dots-o-icon-updated.svg (inlined in the reading capsule).
 
 ## App-first AI handoff
 

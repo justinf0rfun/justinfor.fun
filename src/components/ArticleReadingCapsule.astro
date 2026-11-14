@@ -1,0 +1,139 @@
+---
+import { Icon } from "astro-icon/components";
+import ParentLink from "./ParentLink.astro";
+
+interface Props { headings: { depth: number; slug: string; text: string }[] }
+const sections = Astro.props.headings.filter(({ depth }) => depth === 2 || depth === 3);
+---
+
+<div class="reading-wrap" data-reading-wrap aria-hidden="true" inert>
+  <div class="reading-container">
+  <div class="reading-capsule" data-reading-capsule>
+    <div class="reading-surface" data-reading-surface aria-hidden="true"></div>
+    <div class="reading-toolbar" data-reading-toolbar>
+      <div class="reading-brand" data-reading-brand>
+        <ParentLink class="reading-back" label="Thoughts" href="/thoughts" />
+        <span class="reading-dot" data-reading-dot aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 81 81" fill="none">
+            <path d="M40.0391 0C62.152 0 80.0781 17.9261 80.0781 40.0391C80.0781 62.152 62.152 80.0781 40.0391 80.0781C17.9261 80.0781 0 62.152 0 40.0391C0 17.9261 17.9261 0 40.0391 0ZM40.0391 24.1992C31.2907 24.1992 24.1992 31.2907 24.1992 40.0391C24.1992 48.7874 31.2907 55.8789 40.0391 55.8789C48.7874 55.8789 55.8789 48.7874 55.8789 40.0391C55.8789 31.2907 48.7874 24.1992 40.0391 24.1992Z" fill="#0D0D0D" />
+          </svg>
+        </span>
+      </div>
+      <button class="reading-toggle" type="button" data-reading-toggle aria-expanded="false" aria-controls="reading-chapters" disabled={sections.length === 0}>
+        <span class="reading-position"><span data-reading-current>Introduction</span><Icon name="ph:caret-down-bold" /></span>
+        <span class="reading-caption">On this page</span>
+      </button>
+      <button class="reading-share" type="button" data-reading-share aria-label="Share article" aria-haspopup="dialog">
+        <span class="reading-share-surface" data-reading-share-surface aria-hidden="true"></span>
+        <span class="reading-share-label" data-reading-share-label><Icon name="ph:share-fat" /></span>
+      </button>
+    </div>
+    <nav class="reading-chapters" id="reading-chapters" data-reading-chapters aria-label="Article chapters" aria-hidden="true" inert>
+      <div class="reading-chapters-scroll">
+        <a href="#article-top" data-reading-entry aria-current="location"><span class="reading-chapter-number">00</span><span>Introduction</span></a>
+        {sections.map((section, index) => (
+          <a href={`#${section.slug}`} data-reading-entry data-depth={section.depth}>
+            <span class="reading-chapter-number">{String(index + 1).padStart(2, "0")}</span><span>{section.text}</span>
+          </a>
+        ))}
+      </div>
+    </nav>
+  </div>
+  </div>
+</div>
+
+<style>
+  .reading-wrap { display: none; }
+
+  @media (max-width: 47.999rem) {
+    .reading-wrap {
+      position: fixed;
+      z-index: 30;
+      top: calc(env(safe-area-inset-top) + 8px);
+      inset-inline: 16px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      visibility: hidden;
+      opacity: 0;
+    }
+    .reading-wrap[data-visible] { visibility: visible; opacity: 1; }
+    .reading-container { width: min(100%, 727px); container-type: inline-size; }
+    .reading-capsule {
+      position: relative;
+      isolation: isolate;
+      width: 100%;
+      height: 58px;
+      overflow: visible;
+      border-radius: 29px;
+      color: #202020;
+      pointer-events: auto;
+    }
+    /* Clipping a transformed parent squares off its clipped backdrop during the drop. */
+    .reading-capsule[data-entry-ready] { overflow: hidden; }
+    .reading-surface {
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      border-radius: inherit;
+      background: rgb(242 242 242 / 80%);
+      backdrop-filter: blur(140px);
+      -webkit-backdrop-filter: blur(140px);
+    }
+    .reading-toolbar { display: flex; height: 58px; align-items: center; gap: 12px; padding: 8px; }
+    .reading-brand { position: relative; width: 42px; height: 42px; flex: none; }
+    .reading-dot { position: absolute; inset: 9px; width: 24px; height: 24px; pointer-events: none; }
+    .reading-toolbar :global(.reading-back) { width: 42px; height: 42px; justify-content: center; padding: 8px; border-radius: 999px; }
+    .reading-toolbar :global(.reading-back .parent-link-icon) { width: 24px; height: 24px; border-radius: 50%; }
+    /* Normalize the shared PNG's transparent padding to the original 24px mark. */
+    .reading-toolbar :global(.reading-back .parent-link-avatar img) { transform: translateY(7.2%) scale(1.61); }
+    .reading-toolbar :global(.reading-back .parent-link-label) { display: none; }
+    .reading-toggle {
+      display: flex;
+      min-width: 0;
+      min-height: 42px;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      padding-inline: 6px;
+      border-radius: 18px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .reading-position { display: flex; width: 100%; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; line-height: 18px; }
+    .reading-position > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reading-position :global(svg) { width: 10px; height: 10px; flex: none; color: #747474; transition: rotate 280ms cubic-bezier(0.32, 0.72, 0, 1); }
+    [data-open] .reading-position :global(svg) { rotate: 180deg; }
+    .reading-caption { color: #747474; font-size: 10px; line-height: 14px; }
+    .reading-toggle:disabled { cursor: default; }
+    .reading-toggle:disabled .reading-position :global(svg) { display: none; }
+    .reading-share { position: relative; isolation: isolate; display: grid; width: 42px; height: 42px; flex: none; place-items: center; border-radius: 999px; color: #fff; background: #111; cursor: pointer; }
+    .reading-share-surface { position: absolute; z-index: -1; inset-block: 0; inset-inline: -32px 0; border-radius: inherit; background: inherit; clip-path: inset(0px 0px 0px 32px round 999px); pointer-events: none; }
+    .reading-share-label { display: grid; place-items: center; }
+    .reading-share :global(svg) { width: 20px; height: 20px; }
+    .reading-toggle, .reading-share { transition: scale 160ms ease-out, background-color 160ms ease-out; }
+    .reading-toggle:active, .reading-share:active { scale: 0.96; }
+    .reading-toggle:focus-visible, .reading-share:focus-visible, .reading-chapters a:focus-visible { outline: 2px solid #747474; outline-offset: -2px; }
+    .reading-chapters { padding: 10px 4px 8px; opacity: 0; transform: translateY(-6px); filter: blur(3px); transition: opacity 180ms ease, transform 280ms cubic-bezier(0.32, 0.72, 0, 1), filter 200ms ease; }
+    [data-open] .reading-chapters { opacity: 1; transform: translateY(0); filter: none; }
+    .reading-chapters-scroll { max-height: min(55svh, 28rem); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+    .reading-chapters a { display: flex; min-height: 44px; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 16px; color: #646464; font-size: 13px; line-height: 19px; text-decoration: none; }
+    .reading-chapter-number { width: 20px; flex: none; color: #949494; font-size: 10px; font-variant-numeric: tabular-nums; }
+    .reading-chapters a[data-depth="3"] { padding-left: 26px; }
+    .reading-chapters a[aria-current] { color: #202020; background: #fff; box-shadow: 0 2px 5px rgb(0 0 0 / 3%); }
+    .reading-chapters a:active { background: #e7e7e7; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading-capsule, .reading-toggle, .reading-share, .reading-position :global(svg), .reading-chapters { transition: none; }
+    .reading-chapters { transform: none; filter: none; }
+  }
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .reading-surface { background: #f2f2f2; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  }
+</style>
+
+<script>
+  import { mountReadingCapsule } from "../scripts/reading-capsule";
+  mountReadingCapsule();
+</script>
