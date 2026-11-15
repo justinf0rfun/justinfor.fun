@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, useId, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useIsPresent } from "motion/react";
 import { finds, findDrawers, type Find } from "../data/finds";
 import { cardSpring, drawerSpring } from "../lib/finds-motion";
@@ -17,15 +17,28 @@ const ReadingNote = forwardRef<HTMLElement, { id: string; reduced: boolean; chil
 
 const FindsReader = forwardRef<HTMLElement, { note: Find; trail: string[]; reduced: boolean; onClose: () => void; onFollow: (id: string) => void }>(({ note, trail, reduced, onClose, onFollow }, ref) => {
   const present = useIsPresent();
+  const paperClip = useId();
+  const [pressed, setPressed] = useState(false);
   return <motion.section ref={ref} className="finds-reader" data-finds-reader tabIndex={-1} aria-label={`Reading ${note.title}`} inert={!present}
     style={{ pointerEvents: present ? "auto" : "none" }}
     initial={{ opacity: 0, y: reduced ? 0 : 72, scale: reduced ? 1 : .94, rotate: reduced ? 0 : 3 }}
     animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 72, scale: reduced ? 1 : .94, rotate: reduced ? 0 : 3 }}
     transition={reduced ? { duration: 0 } : cardSpring}>
     <div className="finds-reader-toolbar">
-      <button type="button" className="finds-reader-back" onClick={onClose}>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m7 4-4 4 4 4M3 8h10" /></svg>Back to drawer
-      </button>
+      <motion.button type="button" className="finds-reader-back" data-storing={!present || pressed} aria-label="Put back in drawer"
+        onTapStart={() => setPressed(true)} onTap={() => setPressed(false)} onTapCancel={() => setPressed(false)}
+        onClick={() => { setPressed(false); onClose(); }}>
+        <svg className="finds-put-back-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <defs><clipPath id={paperClip}><path d="M0 0h24v14H0z" /></clipPath></defs>
+          <path className="finds-put-back-slot" d="M3 14 5 11.5h1m12 0h1L21 14" />
+          <g clipPath={`url(#${paperClip})`}><g className="finds-put-back-paper">
+            <rect x="7" y="2.5" width="10" height="14" rx="1.5" fill="var(--finds-paper)" />
+            <path d="M10 6h4m-4 3h3" opacity=".45" />
+          </g></g>
+          <path className="finds-put-back-drawer" d="M3 14h18v6a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20Zm7 3.5h4" fill="var(--finds-paper)" />
+        </svg>
+        <span>Put back</span>
+      </motion.button>
       <span className="finds-reader-address"><i aria-hidden="true" />Card {note.number}</span>
     </div>
     <div className="finds-reader-content">

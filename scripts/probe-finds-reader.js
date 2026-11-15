@@ -45,7 +45,10 @@
       assert(link.querySelector('.finds-related-number').textContent === target.number, "Connections display the destination's fixed address.");
       assert(link.querySelector('.finds-related-title').textContent === target.title && link.querySelector('small').textContent.trim(), "Keep the connection's title and reason.");
     }
-    click('.finds-reader-back'); await until(() => !root.querySelector('[data-finds-reader]'));
+    click('.finds-reader-back'); await until(() => root.dataset.reading === "false");
+    const leaving = root.querySelector('[data-finds-reader]');
+    assert(!leaving || (leaving.inert && leaving.querySelector('.finds-reader-back').dataset.storing === "true"), "The put-back icon stays stored while the paper closes, with outgoing controls inert.");
+    await until(() => !root.querySelector('[data-finds-reader]'));
     const returned = root.querySelector(`[data-find-card="${card.id}"]`);
     returned.focus({ preventScroll: true });
     assert(getComputedStyle(returned).outlineStyle === "none", "Returning focus must not draw a frame around the paper.");

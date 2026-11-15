@@ -56,7 +56,7 @@ All cards use `FindsReader.tsx` and `finds/FindsReader.css`, in this order:
 
 | Part | Rule |
 | --- | --- |
-| Registry | A sticky return control and fixed card number. The number is identity, not a drawer position. |
+| Registry | A sticky `Put back` control and fixed card number. A small card settles into a drawer on hover, press and close. Closing starts immediately; the icon never delays it. The number is identity, not a drawer position. |
 | Reading path | Appears only after following a connection. Addresses form a compact path; accessible names retain each title. |
 | Heading | Editorial title, then topic labels and the sample marker when applicable. |
 | Personal note | `My take`, only when Justin has supplied one. No placeholder or invented opinion. |

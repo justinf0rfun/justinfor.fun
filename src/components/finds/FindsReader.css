@@ -6,6 +6,11 @@
 .finds-reader svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .finds-reader-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px;padding:8px 28px;border-bottom:1px solid var(--finds-rule);background:var(--finds-paper);color:var(--finds-muted)}
 .finds-reader-back{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-size:12px;cursor:pointer}
+.finds-reader .finds-put-back-icon{width:24px;height:24px;overflow:visible}
+.finds-put-back-paper{transform:translateY(0) rotate(-8deg);transform-origin:12px 13px;transition:transform 220ms var(--ease-out)}
+.finds-put-back-slot{opacity:.45}
+.finds-reader-back:active .finds-put-back-paper,.finds-reader-back[data-storing=true] .finds-put-back-paper{transform:translateY(13px) rotate(0deg) scale(.94);transition-duration:140ms}
+.finds-reader .finds-reader-back:is(:active,[data-storing=true]){opacity:1}
 .finds-reader-address{display:flex;align-items:center;justify-content:flex-end;gap:8px;max-width:45%;font:11px monospace;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .finds-reader-address i{width:6px;height:6px;flex:none;border-radius:50%;background:#ff670d}
 .finds-reader-content{position:relative;width:calc(100% - 64px);max-width:60ch;margin:0 auto;padding:28px 0 32px}
@@ -46,9 +51,9 @@ blockquote.finds-source-text{margin:0;padding:0 0 0 18px;border-left:1px solid v
 .finds-cabinet .finds-reader .finds-related-link:focus-visible{text-decoration:none}
 .finds-related-link:focus-visible .finds-related-title{text-decoration:underline;text-underline-offset:4px}
 .finds-reader button:active,.finds-source-link:active{opacity:.65}
-@media(hover:hover) and (pointer:fine){.finds-reader-back:hover,.finds-trail button:hover,.finds-source-head a:hover{color:var(--finds-ink)}.finds-source-link:hover{text-decoration-color:currentColor}.finds-related-link:hover .finds-related-title{text-decoration:underline;text-underline-offset:3px}.finds-related-link:hover svg{transform:translateX(3px)}}
+@media(hover:hover) and (pointer:fine){.finds-reader-back:hover,.finds-trail button:hover,.finds-source-head a:hover{color:var(--finds-ink)}.finds-reader-back:not(:active):not([data-storing=true]):hover .finds-put-back-paper{transform:translateY(2px) rotate(0deg)}.finds-source-link:hover{text-decoration-color:currentColor}.finds-related-link:hover .finds-related-title{text-decoration:underline;text-underline-offset:3px}.finds-related-link:hover svg{transform:translateX(3px)}}
 @media(max-width:1000px){.finds-reader{width:calc(100% - 260px)}.finds-reader-content{width:calc(100% - 48px)}.finds-reader-toolbar{padding-inline:20px}}
 @media(max-width:700px){.finds-reader{position:fixed;inset:calc(env(safe-area-inset-top) + 74px) 12px max(16px,env(safe-area-inset-bottom));width:auto;height:auto;max-height:calc(100svh - 94px);box-shadow:0 20px 100px 60px var(--color-neutral-50)}.finds-reader-toolbar{min-height:60px;padding:6px 20px}.finds-reader-content{width:calc(100% - 44px);padding-top:24px;padding-bottom:28px}.finds-reader h2{font-size:26px}.finds-note-header{margin-bottom:24px}.finds-source-footer{margin-top:12px}}
 @media(max-width:360px){.finds-reader-toolbar{padding-inline:16px}.finds-reader-content{width:calc(100% - 36px)}.finds-reader h2{font-size:24px}.finds-source-head time{font-size:10px}.finds-related-link{gap:10px}}
 @media(min-width:701px) and (max-height:600px){.finds-reader{position:fixed;top:16px;right:max(40px,calc((100vw - 1040px)/2));width:min(640px,calc(100vw - 80px));max-height:calc(100svh - 32px)}}
-@media(prefers-reduced-motion:reduce){.finds-related-link svg,.finds-desk .finds-scrubber{transition:none}}
+@media(prefers-reduced-motion:reduce){.finds-related-link svg,.finds-desk .finds-scrubber{transition:none}.finds-reader .finds-put-back-paper{transform:none!important;transition:none!important}}
