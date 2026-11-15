@@ -31,7 +31,7 @@ export const inspirations = [
   {
     id: "bencho", name: "Bencho", author: "Lorenzo Cabra", url: "https://bencho.dev/?c=card-stack&theme=light",
     relation: "Adapted from",
-    note: "The sticker stack’s fan-out, flip-to-inspect and return motion, adapted from Card Stack.",
+    note: "The sticker stack’s fan-out, flip and return motion, adapted from Card Stack. Wake Slider’s notch sound is recreated for Moments and article navigation.",
     license: { label: "MIT · Source", url: "https://github.com/cabralorenzo/bencho/tree/main/blocks/card-stack" },
     features: [{ label: "Sticker stack", selector: "[data-sticker-deck]", page: "/" }],
   },

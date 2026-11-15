@@ -200,9 +200,11 @@ const entries = Astro.props.headings.filter(({ depth }) => depth === 2 || depth 
 </style>
 
 <script>
+  import { mountTocSound } from "../scripts/wake-sound";
   const toc = document.querySelector<HTMLElement>("[data-article-toc]");
 
   if (toc) {
+    mountTocSound(toc);
     const entries = [...toc.querySelectorAll<HTMLAnchorElement>("[data-toc-entry]")];
     const mobileEntries = [...document.querySelectorAll<HTMLAnchorElement>("[data-reading-entry]")];
     const mobileLabel = document.querySelector<HTMLElement>("[data-reading-current]");

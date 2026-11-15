@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useReduce
 import { useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { momentCharacters, type Moment } from "../data/moments";
 import DotsCharacter from "./DotsCharacter";
+import { wakeSound } from "../lib/wake-sound";
 import { MOBILE_MOMENT_STEP, bubblePosition, characterCenter, clamp, indexProgress, majorTickScale, minorTickScale, mobileClickIndex, nearestMoment, tickDivisions } from "../lib/moment-timeline";
 import "./MomentsTimeline.css";
 
@@ -87,6 +88,15 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
   const role = momentCharacters[character];
   const drag = useRef<{ id: number; startX: number; startY: number; startProgress: number; offset: number; moved: boolean; range: boolean; element: HTMLElement } | null>(null);
   const suppressClick = useRef(false);
+  const soundGesture = useRef(false), soundTick = useRef(0);
+
+  function tickAt(value: number, steps: number) {
+    value = clamp(value, 0, 1);
+    const tick = Math.round(value * steps);
+    if (tick === soundTick.current) return;
+    soundTick.current = tick;
+    if (active && soundGesture.current && !document.hidden) wakeSound.play(value);
+  }
 
   function updateIndex(next: number) {
     selected.current = next;
@@ -95,6 +105,7 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
   }
 
   function choose(next: number, fromKeyboard = false) {
+    soundGesture.current = false;
     next = clamp(next, 0, moments.length - 1);
     setKeyboard(fromKeyboard);
     updateIndex(next);
@@ -120,6 +131,7 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
 
   useEffect(() => {
     if (mobile && scroller.current) {
+      soundGesture.current = false;
       mobileTarget.current = null;
       scroller.current.scrollLeft = selected.current * MOBILE_MOMENT_STEP;
       mobileX.set(scroller.current.scrollLeft);
@@ -131,6 +143,7 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
     const observer = new ResizeObserver(entries => {
       const nextWidth = entries[0].contentRect.width;
       if (nextWidth > 0 && previousWidth === 0 && scroller.current) {
+        soundGesture.current = false;
         mobileTarget.current = selected.current;
         scroller.current.scrollLeft = selected.current * MOBILE_MOMENT_STEP;
         mobileX.set(scroller.current.scrollLeft);
@@ -140,6 +153,8 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
     if (scroller.current) observer.observe(scroller.current);
     return () => observer.disconnect();
   }, [mobileX]);
+
+  useEffect(() => { if (!active) soundGesture.current = false; }, [active]);
 
   useEffect(() => {
     const blur = () => finishDrag(true);
@@ -156,6 +171,8 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
     const visualX = position.get() * travel;
     const local = event.clientX - rect.left;
     const inside = local >= visualX && local <= visualX + 116;
+    soundGesture.current = event.isTrusted;
+    soundTick.current = Math.round(position.get() * Math.max(0, moments.length - 1) * tickDivisions(travel, moments.length));
     drag.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, startProgress: position.get(), offset: !range || inside ? local - visualX : 58, moved: false, range, element };
     suppressClick.current = false;
     setKeyboard(false);
@@ -177,6 +194,7 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
     growth.set(reduce ? 0 : 1);
     const rect = stage.current!.getBoundingClientRect();
     const value = clamp((event.clientX - rect.left - current.offset) / Math.max(1, travel), 0, 1);
+    tickAt(value, Math.max(0, moments.length - 1) * tickDivisions(travel, moments.length));
     progress.set(value); position.jump(value);
     updateIndex(nearestMoment(value, moments.length));
   }
@@ -185,6 +203,7 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
     const current = drag.current;
     if (!current) return;
     drag.current = null;
+    soundGesture.current = false;
     if (current.element.hasPointerCapture(current.id)) current.element.releasePointerCapture(current.id);
     setDragging(false); growth.set(0); tilt.set(0);
     if (current.moved) choose(nearestMoment(position.get(), moments.length));
@@ -248,11 +267,18 @@ function Timeline({ moments, initialIndex, characterIndex, onCharacterChange, on
         const left = scroller.current!.scrollLeft;
         mobileX.set(left);
         const next = clamp(Math.round(left / MOBILE_MOMENT_STEP), 0, moments.length - 1);
-        if (mobileTarget.current === null) { setKeyboard(false); updateIndex(next); progress.set(indexProgress(next, moments.length)); }
+        if (mobileTarget.current === null) {
+          tickAt(mobileTravel ? left / mobileTravel : 0, Math.max(0, moments.length - 1) * 11);
+          setKeyboard(false); updateIndex(next); progress.set(indexProgress(next, moments.length));
+        }
         else if (Math.abs(left - mobileTarget.current * MOBILE_MOMENT_STEP) < 1) mobileTarget.current = null;
         clearTimeout(scrollIdle.current);
-        scrollIdle.current = setTimeout(() => { mobileTarget.current = null; }, 200);
-      }} onPointerDown={() => { mobileTarget.current = null; }}>
+        scrollIdle.current = setTimeout(() => { mobileTarget.current = null; soundGesture.current = false; }, 200);
+      }} onPointerDown={event => {
+        clearTimeout(scrollIdle.current);
+        mobileTarget.current = null; soundGesture.current = event.isTrusted;
+        soundTick.current = Math.round(scroller.current!.scrollLeft / 16);
+      }}>
       <div className="moments-mobile-track">
         {moments.map((item, i) => <span className="moments-snap" aria-hidden="true" key={item.id} style={{ left: i * MOBILE_MOMENT_STEP }} />)}
         <div className="moments-mobile-pinned">

@@ -40,7 +40,9 @@ const isThoughts = /^\/thoughts(?:\/|$)/.test(Astro.url.pathname);
 
 <script>
   import { mountReturnSound } from "../scripts/return-sound";
+  import { mountWakeSound } from "../scripts/wake-sound";
   mountReturnSound();
+  mountWakeSound();
 </script>
 
 <style>
