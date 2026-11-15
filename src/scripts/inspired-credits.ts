@@ -39,6 +39,8 @@ export function mountInspiredCredits() {
   function draw() {
     frame = 0;
     if (!opened || !target || (small.matches && root!.dataset.view === "list")) { hideMark(); return; }
+    const style = getComputedStyle(target);
+    if (target.closest('[hidden], [aria-hidden="true"]') || style.visibility === "hidden" || Number(style.opacity) === 0) { hideMark(); return; }
     if (target.closest("[data-reading-capsule]:not([data-entry-ready])")) { hideMark(); return; }
     const rect = target.getBoundingClientRect();
     const anchor = small.matches ? bar : picks.find(pick => pick.dataset.inspiredPick === selected)!;
@@ -67,6 +69,10 @@ export function mountInspiredCredits() {
     if (!element) return false;
     if (target) observer.unobserve(target);
     feature = link; target = element; observer.observe(element);
+    visibilityObserver.disconnect();
+    for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+      visibilityObserver.observe(node, { attributes: true, attributeFilter: ["hidden", "aria-hidden", "class", "style", "data-entry-ready"] });
+    }
     root!.querySelectorAll("[data-inspired-feature]").forEach(item => item.removeAttribute("aria-current"));
     link.setAttribute("aria-current", "true");
     const source = link.closest<HTMLElement>("[data-source]")!;
@@ -96,12 +102,16 @@ export function mountInspiredCredits() {
   }
   function select(id: string, inspect = !small.matches) {
     observer.disconnect(); observer.observe(panel);
+    visibilityObserver.disconnect();
     selected = id; target = null; feature = null; hideMark(); previewSource(null);
+    root!.querySelectorAll("[data-inspired-feature]").forEach(item => item.removeAttribute("aria-current"));
+    status.textContent = "";
     picks.forEach(pick => {
       const active = pick.dataset.inspiredPick === id;
       pick.setAttribute("aria-expanded", String(active));
       document.getElementById(pick.getAttribute("aria-controls")!)!.hidden = !active;
     });
+    if (!id) return;
     const source = root!.querySelector<HTMLElement>(`[data-source="${id}"]`)!;
     if (inspect) {
       const link = [...source.querySelectorAll<HTMLAnchorElement>("[data-inspired-feature]")].find(link => locate(link));
@@ -112,7 +122,7 @@ export function mountInspiredCredits() {
   }
   function list() {
     root!.dataset.view = "list"; panel.setAttribute("aria-modal", String(small.matches));
-    if (small.matches) { target = null; feature = null; hideMark(); previewSource(null); }
+    if (small.matches) { visibilityObserver.disconnect(); target = null; feature = null; hideMark(); previewSource(null); }
     (picks.find(pick => pick.dataset.inspiredPick === selected) ?? picks[0]).focus({ preventScroll: true });
     schedule();
   }
@@ -142,6 +152,7 @@ export function mountInspiredCredits() {
     if (version !== revision) return;
     opened = false; target = null; feature = null; hideMark();
     observer.disconnect(); observer.observe(panel);
+    visibilityObserver.disconnect();
     path.getAnimations().forEach(animation => animation.cancel());
     root!.hidePopover(); delete document.documentElement.dataset.inspiredOpen;
     document.querySelectorAll("[data-inspired-trigger]").forEach(button => button.setAttribute("aria-expanded", "false"));
@@ -157,7 +168,7 @@ export function mountInspiredCredits() {
     if (event.target.closest("[data-inspired-close]")) { close(); return; }
     if (event.target.closest("[data-inspired-list]")) { list(); return; }
     const pick = event.target.closest<HTMLElement>("[data-inspired-pick]");
-    if (pick) { select(pick.dataset.inspiredPick!); return; }
+    if (pick) { select(selected === pick.dataset.inspiredPick ? "" : pick.dataset.inspiredPick!); return; }
     const link = event.target.closest<HTMLAnchorElement>("[data-inspired-feature]");
     if (link?.getAttribute("aria-disabled") === "true") { event.preventDefault(); return; }
     if (link && showFeature(link)) event.preventDefault();
@@ -181,14 +192,13 @@ export function mountInspiredCredits() {
   window.addEventListener("home-chat-change", event => { if ((event as CustomEvent).detail) close(false); });
   const observer = new ResizeObserver(schedule);
   observer.observe(panel);
+  const visibilityObserver = new MutationObserver(schedule);
   const phone = matchMedia("(max-width: 47.999rem)");
   const phoneFeatures = () => root.querySelectorAll<HTMLAnchorElement>("[data-phone-only]").forEach(link => {
     link.setAttribute("aria-disabled", String(!phone.matches)); link.tabIndex = phone.matches ? 0 : -1;
     link.querySelector(".inspired-see")!.textContent = phone.matches ? "See it here" : "On mobile";
   });
   phone.addEventListener("change", phoneFeatures); phoneFeatures();
-  const reading = document.querySelector("[data-reading-capsule]");
-  if (reading) new MutationObserver(schedule).observe(reading, { attributes: true, attributeFilter: ["data-entry-ready"] });
 
   const url = new URL(location.href), id = url.searchParams.get("inspired");
   if (id && picks.some(pick => pick.dataset.inspiredPick === id)) {

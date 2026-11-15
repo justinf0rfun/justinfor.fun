@@ -24,11 +24,46 @@
     assert(mark.hidden, "Returning to the list should retract the mark.");
     assert(root.querySelector(".inspired-thread").hasAttribute("hidden"), "The SVG thread must also retract.");
   }
+  const pick = root.querySelector('[data-inspired-pick="bencho"]');
+  pick.click();
+  assert(pick.getAttribute("aria-expanded") === "false", "The expanded row’s cross should collapse it.");
+  assert(root.querySelector("#inspired-bencho").hidden, "Collapsing should hide the source details.");
+  assert(mark.hidden && root.querySelector(".inspired-thread").hasAttribute("hidden"), "Collapsing should retract the annotation.");
+  assert(!root.querySelector('[data-inspired-feature][aria-current="true"]'), "Collapsing should clear the selected feature.");
+  assert(root.matches(":popover-open"), "Collapsing a row should leave the credits panel open.");
+  pick.click();
+  assert(pick.getAttribute("aria-expanded") === "true", "The collapsed row should open again.");
+  if (innerWidth >= 1200) {
+    root.querySelector('[data-inspired-pick="noe"]').click();
+    await wait(500);
+    assert(!mark.hidden, "The visible New pill should be annotated.");
+    window.scrollTo({ top: 600, behavior: "instant" });
+    await wait(500);
+    assert(document.querySelector("[data-home-news]").getAttribute("aria-hidden") === "true", "Scrolling should hide the New pill.");
+    assert(mark.hidden && root.querySelector(".inspired-thread").hasAttribute("hidden"), "A hidden pill must not leave a floating annotation.");
+    window.scrollTo({ top: 0, behavior: "instant" });
+    await wait(500);
+    assert(!mark.hidden, "The annotation should return when the pill becomes visible again.");
+    const news = document.querySelector("[data-home-news]");
+    news.setAttribute("aria-hidden", "true");
+    await wait(50);
+    assert(mark.hidden, "Visibility changes should retract the annotation without another scroll.");
+    news.setAttribute("aria-hidden", "false");
+    await wait(50);
+    assert(!mark.hidden, "Restoring visibility should redraw the annotation.");
+    const opacity = news.style.opacity;
+    news.style.opacity = "0";
+    await wait(50);
+    assert(mark.hidden, "A transparent target should not retain its annotation.");
+    news.style.opacity = opacity;
+    await wait(50);
+    assert(!mark.hidden, "Restoring opacity should redraw the annotation.");
+  }
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   await wait(200);
   assert(!root.matches(":popover-open"), "Escape should close credits.");
   assert(Math.abs(scrollY - original) < 2, "Closing should restore the original scroll position.");
   assert(document.activeElement === trigger, "Closing should restore keyboard focus.");
   assert(!document.documentElement.dataset.inspiredOpen, "Closing should release the autoplay pause.");
-  return { passed: true, sources: 7, mark: true, mobileBar: innerWidth < 1200, scrollAndFocusRestored: true };
+  return { passed: true, sources: 7, mark: true, mobileBar: innerWidth < 1200, rowToggle: true, hiddenTarget: innerWidth >= 1200, scrollAndFocusRestored: true };
 })();

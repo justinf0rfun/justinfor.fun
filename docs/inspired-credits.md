@@ -13,6 +13,9 @@ opens as a sheet; “See it here” replaces it with a small bar on the opposite
 from the target. A feature on another page navigates normally, then resumes its
 annotation through `?inspired=<id>&part=<index>`; those temporary parameters are
 removed after loading. Explicitly closing restores scroll and focus.
+Clicking an expanded source row collapses it and retracts its annotation. Marks
+follow the target’s visibility as well as its geometry: the hidden New pill keeps
+a layout box, so its remaining bounds alone cannot determine whether to draw.
 
 While credits are open, sticker autoplay pauses. `inspired-preview` asks the
 existing Bencho stack to fan once or the existing Dots renderer to respond; it
