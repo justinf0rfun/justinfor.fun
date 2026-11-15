@@ -1,5 +1,22 @@
 Additional poster artwork
 
+acu-note-portrait.webp
+  3:4 portrait extension of acu-note-untaped.webp.
+  Matching cream paper extended above and below; quote retained without tape.
+  Image edit, encoded as lossless WebP with the generated alpha preserved.
+  Original source: https://acu.sh/
+
+first-do-it-portrait.webp
+  3:4 portrait extension of first-do-it.jpg.
+  Original horizontal composition retained centrally, with black space above and below.
+  Image edit, encoded as lossless WebP.
+  Source: https://addyo.substack.com/p/first-do-it-then-do-it-right-then
+
+acu-note-untaped.webp
+  Derived from acu-note.png: gray tape removed and the paper edge restored.
+  Image edit with transparent output; lossless WebP web asset.
+  Original source: https://acu.sh/
+
 attention-is-all-you-need.jpg
   Artwork supplied by the site owner.
   Paper: Attention Is All You Need, Vaswani et al.
