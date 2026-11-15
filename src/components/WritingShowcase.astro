@@ -774,6 +774,12 @@ const formatDate = (date: Date) =>
 </script>
 
 <style is:global>
+  @media (max-width: 47.999rem) {
+    /* The carried paper overlaps the phone's text-only list instead of becoming its surface. */
+    body:has([data-writing-stage="overlay"].is-open) .writing-flight { display: none; }
+    .folder.is-stage[data-layout="writing"].is-writing-source-hidden { visibility: hidden; }
+  }
+
   html.is-writing-resizing,
   html.is-writing-resizing * {
     cursor: grabbing !important;

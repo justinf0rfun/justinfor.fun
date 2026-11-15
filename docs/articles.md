@@ -39,6 +39,7 @@ The filename supplies the `/thoughts/<slug>` path. Drafts are excluded from the 
 - Copy success changes the icon for two seconds and announces a status. Clipboard failures show an error instead of success.
 - Dialog and disclosure motion respects reduced-motion preferences. The article sidebar reserves space for the action controls, including expanded Ask AI options.
 - Thoughts navigation uses the Ehsan reference's blur-and-rise handoff: exit upward 8px with 5px blur in 160ms, then enter from 14px below in 600ms. `thought-transitions.css` customizes the existing native cross-document transition for Thoughts routes, including parent links and browser back/forward; it does not install a client router. Unsupported browsers keep normal navigation. Desktop preview changes reuse the same timing through `createThoughtTransition`; rapid selections cancel stale swaps and continue from the current visual state. Keyboard preview selection and reduced motion are immediate. New articles inherit both paths automatically.
+- Opening the homepage Thoughts folder keeps the list overlay's fade. Below 48rem, hide its disposable `.writing-flight` paper while the overlay is open, and the complete source folder while `is-writing-source-hidden` owns the handoff: its small paper and rotating cover otherwise flash over the phone's text-only timeline. Preserve the source layout for closing geometry. Desktop paper travel, other folder types, and article-to-list navigation keep their existing transitions.
 
 ## Verify
 
