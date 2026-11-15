@@ -1,6 +1,13 @@
-<footer class="local-time-footer" aria-label="Local time and design credits">
+---
+interface Props {
+  showInspired?: boolean;
+}
+const { showInspired = false } = Astro.props;
+---
+
+<footer class="local-time-footer" aria-label={showInspired ? "Local time and design credits" : "Local time in Beijing"}>
   <time data-beijing-time title="China Standard Time (UTC+8)">--:-- in Beijing, China</time>
-  <button class="inspired-entry" type="button" data-inspired-trigger aria-haspopup="dialog" aria-controls="inspired-credits" aria-expanded="false"><span aria-hidden="true">※</span> Inspired</button>
+  {showInspired && <button class="inspired-entry" type="button" data-inspired-trigger aria-haspopup="dialog" aria-controls="inspired-credits" aria-expanded="false"><span aria-hidden="true">※</span> Inspired</button>}
 </footer>
 
 <style>
