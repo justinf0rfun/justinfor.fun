@@ -88,6 +88,10 @@ export default function HomeMoments() {
       if (event.pointerType !== "mouse" || !hoverMotion.matches || wanted.current || homeDock.dataset.momentsOpen === "true") return;
       setDockResponse(value => value + 1);
     };
+    const creditResponse = () => {
+      if (document.documentElement.dataset.inspiredSource === "dots" && !wanted.current && !reducedRef.current) setDockResponse(value => value + 1);
+    };
+    const closeForCredits = () => { if (wanted.current) changeRef.current(false); };
     const resize = () => {
       measureRef.current();
       requestAnimationFrame(() => {
@@ -100,12 +104,16 @@ export default function HomeMoments() {
     };
     button.addEventListener("click", toggle);
     button.addEventListener("pointerenter", respond);
+    window.addEventListener("inspired-preview", creditResponse);
+    window.addEventListener("inspired-opening", closeForCredits);
     window.addEventListener("resize", resize);
     window.visualViewport?.addEventListener("resize", resize);
     return () => {
       ++sequence.current; animation.current?.cancel(); restoreBackground.current?.();
       button.removeEventListener("click", toggle); button.disabled = true;
       button.removeEventListener("pointerenter", respond);
+      window.removeEventListener("inspired-preview", creditResponse);
+      window.removeEventListener("inspired-opening", closeForCredits);
       button.setAttribute("aria-expanded", "false");
       window.removeEventListener("resize", resize);
       window.visualViewport?.removeEventListener("resize", resize);

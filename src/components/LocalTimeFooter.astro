@@ -1,9 +1,14 @@
-<footer class="local-time-footer" aria-label="Local time in Beijing">
+<footer class="local-time-footer" aria-label="Local time and design credits">
   <time data-beijing-time title="China Standard Time (UTC+8)">--:-- in Beijing, China</time>
+  <button class="inspired-entry" type="button" data-inspired-trigger aria-haspopup="dialog" aria-controls="inspired-credits" aria-expanded="false"><span aria-hidden="true">※</span> Inspired</button>
 </footer>
 
 <style>
   .local-time-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     width: 100%;
     margin-inline: auto;
     margin-top: 4rem;
@@ -15,6 +20,11 @@
   .local-time-footer time {
     font-variant-numeric: tabular-nums;
   }
+  .inspired-entry { display: inline-flex; align-items: center; gap: 5px; flex: none; min-height: 44px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+  .inspired-entry span { display: inline-block; font-size: 17px; transition: rotate 280ms var(--ease-out), translate 280ms var(--ease-out); }
+  .inspired-entry:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 4px; }
+  @media (hover: hover) and (pointer: fine) { .inspired-entry:hover { color: var(--home-ink, #202221); } .inspired-entry:hover span { rotate: 45deg; translate: 0 -2px; } }
+  @media (prefers-reduced-motion: reduce) { .inspired-entry span { transition: none; } }
 </style>
 
 <script>

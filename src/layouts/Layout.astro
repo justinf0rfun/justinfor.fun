@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import "../styles/thought-transitions.css";
+import InspiredCredits from "../components/InspiredCredits.astro";
 
 interface Props {
   title?: string;
@@ -33,6 +34,7 @@ const isThoughts = /^\/thoughts(?:\/|$)/.test(Astro.url.pathname);
       )
     }
     <slot />
+    <InspiredCredits />
   </body>
 </html>
 

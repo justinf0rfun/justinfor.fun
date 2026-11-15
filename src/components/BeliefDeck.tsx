@@ -76,6 +76,7 @@ export default function BeliefDeck({ items }: { items: Belief[] }) {
   const [shuffle, setShuffle] = useState(false), [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false), [visible, setVisible] = useState(false), [hidden, setHidden] = useState(false);
   const [covered, setCovered] = useState(false);
+  const [previewFan, setPreviewFan] = useState(false);
   const [artReady, setArtReady] = useState(false);
   const [pressed, setPressed] = useState(false), [focused, setFocused] = useState(false), [activity, setActivity] = useState(0);
   const reduced = useSyncExternalStore(subscribe, readReduced, () => false);
@@ -157,10 +158,10 @@ export default function BeliefDeck({ items }: { items: Belief[] }) {
     if (root.current) intersection.observe(root.current);
     const visibility = () => setHidden(document.hidden);visibility();
     const release = () => { touch.current = null;setPressed(false);if (tilt.current) tilt.current.style.transform = ""; };
-    const isCovered = () => document.documentElement.style.overflow === "hidden" || !!document.querySelector('#home-chat[data-open="true"],.home-dock[data-moments-open="true"]');
+    const isCovered = () => document.documentElement.style.overflow === "hidden" || document.documentElement.dataset.inspiredOpen === "true" || !!document.querySelector('#home-chat[data-open="true"],.home-dock[data-moments-open="true"]');
     const cover = () => setCovered(isCovered());
     const covering = new MutationObserver(cover);
-    covering.observe(document.documentElement, { attributes: true, attributeFilter: ["style"] });
+    covering.observe(document.documentElement, { attributes: true, attributeFilter: ["style", "data-inspired-open"] });
     for (const element of document.querySelectorAll("#home-chat,.home-dock")) covering.observe(element, { attributes: true, attributeFilter: ["data-open", "data-moments-open"] });
     cover();
     const outside = (event: PointerEvent) => {
@@ -182,6 +183,17 @@ export default function BeliefDeck({ items }: { items: Belief[] }) {
       for (const image of images) { image.removeEventListener("load", loaded);image.removeEventListener("error", loaded); }
     };
   }, []);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const preview = () => {
+      clearTimeout(timer); setPreviewFan(false);
+      if (document.documentElement.dataset.inspiredSource !== "bencho" || reduced) return;
+      actions.current?.request(null, false, false);
+      setPreviewFan(true); timer = setTimeout(() => setPreviewFan(false), 1400);
+    };
+    window.addEventListener("inspired-preview", preview); preview();
+    return () => { clearTimeout(timer); window.removeEventListener("inspired-preview", preview); };
+  }, [reduced]);
   useEffect(() => { if (reduced) flight.current?.finish(); }, [reduced]);
   const running = canAutoplay(visible && artReady, hidden, paused, hover || focused || pressed || covered, reduced, phase);
   useEffect(() => {
@@ -229,7 +241,7 @@ export default function BeliefDeck({ items }: { items: Belief[] }) {
       else { setPaused(value => !value);poke(); }
     }
   };
-  const on = hover || !!view || wanted.current !== null;
+  const on = hover || previewFan || !!view || wanted.current !== null;
   const selected = view ? items[view.id] : items[active], large = sizeOf(view?.id ?? active);
   return <section ref={root} className="belief-notes belief-deck" style={{ "--stack-width": STAGE_W, "--stack-height": STAGE_H } as CSSProperties} data-sticker-deck data-ready={ready} data-phase={phase} data-active={active}
     data-target={wanted.current ?? "none"} data-viewing={view?.id ?? "none"} data-auto-running={running} data-autoplay-paused={paused} aria-label="Things I believe" aria-keyshortcuts="P"
