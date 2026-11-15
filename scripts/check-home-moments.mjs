@@ -12,6 +12,9 @@ for (const width of [320, 390, 768, 1024]) {
   assert.ok(place.maxHeight <= 530 - 16);
 }
 const from = { left: 500, top: 750, width: 44, height: 44 };
+const compactDock = momentsPlacement({ width: 390, height: 844 }, 16, { left: 75, top: 700, width: 240, height: 70 });
+assert.equal(compactDock.width, 320, "a compact Dock must not squeeze the Moments reading surface");
+assert.equal(compactDock.left, 35);
 const to = { left: 140, top: 300, width: 164, height: 164 };
 const flight = flightTransform(from, to);
 assert.equal(to.left + to.width / 2 + flight.x, from.left + from.width / 2);

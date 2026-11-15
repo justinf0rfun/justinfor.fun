@@ -6,7 +6,7 @@ export function momentsPlacement(viewport: { width: number; height: number }, ma
     const top = Math.max(20, (viewport.height - 560) / 2);
     return { mode: "side" as const, left: (mainLeft - width) / 2, top, width, anchor: dock.top, maxHeight: viewport.height - top - 20 };
   }
-  const width = Math.min(dock.width, viewport.width - 32);
+  const width = Math.min(Math.max(dock.width, 320), viewport.width - 32);
   const left = Math.min(viewport.width - width - 16, Math.max(16, dock.left + (dock.width - width) / 2));
   return { mode: "sheet" as const, left, top: 16, width, anchor: dock.top + 1, maxHeight: Math.max(160, dock.top - 16) };
 }
