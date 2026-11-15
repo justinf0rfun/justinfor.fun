@@ -66,4 +66,10 @@ export const inspirations = [
     note: "The floating foil pack, ragged tear, curling strip, card reveal and synthesized sounds. The full-screen five-card scene retains the original artwork and motion, with a separate offer link for each card.",
     features: [{ label: "Card pack", selector: "[data-ride-coupon]", page: "/" }],
   },
+  {
+    id: "bubble-navbar", name: "Bubble Navbar", author: "yashb.xyz", url: "https://bubblenavbar.yashb.xyz/",
+    relation: "Adapted from",
+    note: "The Dock’s glass hover bubble and white selection pill, adapted from the original two-layer spring navigation.",
+    features: [{ label: "Dock bubbles", selector: ".home-dock .dock-controls", page: "/" }],
+  },
 ];

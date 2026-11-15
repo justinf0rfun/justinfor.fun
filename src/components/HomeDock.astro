@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import ThemeDial from "./ThemeDial.astro";
+import DockBubbles from "./DockBubbles";
 const icons = {
   "plane": "<svg width=\"19\" height=\"19\" viewBox=\"0 0 19 19\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M17.7838 0L0.0215456 6.34366L0 8.1279L7.72046 11.0973C7.80423 11.1295 7.87042 11.1957 7.90263 11.2795L10.872 18.9999L12.6563 18.9784L19 1.21615L17.7838 0ZM8.35275 9.30149L3.07822 7.27281L14.4388 3.21547L8.35275 9.30149ZM9.69845 10.6472L11.7271 15.9217L15.7845 4.56116L9.69845 10.6472Z\" fill=\"currentColor\"/>\n</svg>",
   "copy": "<svg data-test height=\"16\" stroke-linejoin=\"round\" width=\"16\" style=\"color:currentcolor\" ><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.75.5A1.75 1.75 0 0 0 1 2.25v7.5c0 .966.784 1.75 1.75 1.75H4.5V10H2.75a.25.25 0 0 1-.25-.25v-7.5A.25.25 0 0 1 2.75 2h5.5a.25.25 0 0 1 .25.25V3H10v-.75A1.75 1.75 0 0 0 8.25.5h-5.5Zm5 4A1.75 1.75 0 0 0 6 6.25v7.5c0 .966.784 1.75 1.75 1.75h5.5A1.75 1.75 0 0 0 15 13.75v-7.5a1.75 1.75 0 0 0-1.75-1.75h-5.5ZM7.5 6.25A.25.25 0 0 1 7.75 6h5.5a.25.25 0 0 1 .25.25v7.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25v-7.5Z\" fill=\"currentColor\"/></svg>",
@@ -34,6 +35,8 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
   </div>
   <span class="sr-only" role="status" data-dock-status></span>
 </div>
+
+<DockBubbles client:load />
 
 <span class="chat-guide-hand" data-chat-guide-hand aria-hidden="true"><img src="/guide/pointing-hand.png" width="56" height="56" alt="" draggable="false" /></span>
 <span class="chat-guide-ring" data-chat-guide-ring aria-hidden="true"></span>
