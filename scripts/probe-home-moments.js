@@ -9,6 +9,7 @@
  assert(trigger&&!trigger.disabled&&canvas,'Dock not ready');
  click(trigger);await delay(60);const opening=panel.getAttribute('data-phase');await delay(800);
  assert(panel.getAttribute('data-phase')==='open','did not finish opening');
+ assert(getComputedStyle(visible('#home-moments input[type=range]')).opacity==='0','native range chrome is visible under the custom timeline');
  assert(panel.contains(canvas),'canvas did not land in scene');
  const mode=panel.getAttribute('data-mode');
  if(mode==='sheet')assert(main.inert&&document.documentElement.style.overflow==='hidden','mobile background not locked');

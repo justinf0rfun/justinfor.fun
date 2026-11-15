@@ -14,6 +14,12 @@ runtime, React compiler cache, React Three Fiber, account state or remote script
 | `postprocess.js` | https://chatgpt.com/cdn/assets/21c2b846-d8a84d7604b862bba1623.js |
 | Neutral O torus | https://chatgpt.com/cdn/assets/c871dc1d-ac4a7b42c50206d051098.js |
 | Color resolve | https://chatgpt.com/cdn/assets/b093033a-7ce364afacb01375a7f48.js |
+| Popup background material (`.dots-sub-nav-surface`) | https://chatgpt.com/cdn/assets/dots-scenes-205172f2d475.css |
+
+The popup uses the source navigation material: `color-mix(in srgb,
+var(--bg-elevated-secondary) 80%, transparent)` and `blur(140px)` for both
+backdrop-filter declarations. The source light token is `#f3f3f3`; Dots overrides
+the dark token to `#212121`. The popup keeps its own connected Dock geometry.
 
 The URLs contain build hashes and may change. Model, poster and font provenance is
 recorded in `public/moments-reference/sources.json`. Character names in the GLB
