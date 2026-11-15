@@ -1,9 +1,10 @@
-import { forwardRef, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { animate, AnimatePresence, motion, useIsPresent, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, useVelocity, type MotionValue } from "motion/react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { animate, AnimatePresence, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform, useVelocity, type MotionValue } from "motion/react";
 import { finds, findDrawers, inDrawer, type Find } from "../data/finds";
 import { cardPose, cardSpring, clampCard, drawerSpring, fanLayout, followFind, indexSpring, stackLift } from "../lib/finds-motion";
 import FindsScrubber from "./FindsScrubber";
 import FindsReadTab from "./FindsReadTab";
+import FindsReader from "./FindsReader";
 import { scrubVelocity } from "../lib/finds-scrubber";
 import { createDrawerTransfer } from "../lib/finds-drawer-transfer";
 import { paperArrival } from "../lib/drawer-flight";
@@ -40,25 +41,6 @@ function Paper({ note, index, position, speed, spread, arrival, hover, selected,
     <span className="finds-paper-source">{note.mock ? "Card index" : `@${note.snapshot.authorHandle}`}</span>
   </motion.button>;
 }
-
-const date = (value: string) => new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(value));
-
-const ReadingSurface = forwardRef<HTMLElement, { title: string; reduced: boolean; children: ReactNode }>(({ title, reduced, children }, ref) => {
-  const present = useIsPresent();
-  return <motion.section ref={ref} className="finds-reader" data-finds-reader tabIndex={-1} aria-label={`Reading ${title}`} inert={!present}
-    style={{ pointerEvents: present ? "auto" : "none" }}
-    initial={{ opacity: 0, y: reduced ? 0 : 72, scale: reduced ? 1 : .94, rotate: reduced ? 0 : 3 }}
-    animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }} exit={{ opacity: 0, y: reduced ? 0 : 72, scale: reduced ? 1 : .94, rotate: reduced ? 0 : 3 }}
-    transition={reduced ? { duration: 0 } : cardSpring}>{children}</motion.section>;
-});
-
-const ReadingNote = forwardRef<HTMLElement, { id: string; reduced: boolean; children: ReactNode }>(({ id, reduced, children }, ref) => {
-  const present = useIsPresent();
-  return <motion.article ref={ref} data-finds-article={id} inert={!present} aria-hidden={!present}
-    style={{ pointerEvents: present ? "auto" : "none" }}
-    initial={{ opacity: 0, x: reduced ? 0 : 36 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: reduced ? 0 : -36 }}
-    transition={reduced ? { duration: 0 } : drawerSpring}>{children}</motion.article>;
-});
 
 export default function FindsCabinet() {
   const [drawer, setDrawer] = useState("all"), [selected, setSelected] = useState(finds[0].id);
@@ -268,22 +250,7 @@ export default function FindsCabinet() {
       </div>
 
       <AnimatePresence initial={false}>
-        {reading && <ReadingSurface ref={reader} key="reader" title={current.title} reduced={!!reduced}>
-          <div className="finds-reader-toolbar"><button type="button" onClick={close}>← Back to drawer</button><span>{current.number}</span></div>
-          {trail.length > 1 && <nav className="finds-trail" aria-label="Reading path">{trail.map((id, index) => <button key={id} type="button" aria-current={id === selected ? "step" : undefined} onClick={() => follow(id)}>{finds.find(note => note.id === id)?.title}{index < trail.length - 1 && <span aria-hidden="true"> / </span>}</button>)}</nav>}
-          <AnimatePresence initial={false} mode="popLayout">
-            <ReadingNote key={current.id} id={current.id} reduced={!!reduced}>
-              <p className="finds-note-category">{current.topics.map(id => findDrawers.find(item => item.id === id)?.label).join(" / ")}</p>
-              <h2>{current.title}</h2>
-              {current.thought && <section className="finds-take"><h3>My take</h3><p>{current.thought}</p></section>}
-              {current.mock ? <p className="finds-sample-label">Sample note</p> : <div className="finds-source-head"><img src={current.snapshot.avatarUrl} alt="" width="32" height="32" /><a href={current.snapshot.authorUrl} target="_blank" rel="noreferrer">{current.snapshot.authorName}<span>@{current.snapshot.authorHandle}</span></a><time dateTime={current.snapshot.publishedAt}>{date(current.snapshot.publishedAt)}</time></div>}
-              <p className="finds-source-text">{current.snapshot.text.startsWith("https://t.co/") ? "This saved post contains media. View the original on X." : current.snapshot.text}</p>
-              {!current.mock && <a className="finds-source-link" href={current.url} target="_blank" rel="noreferrer">Open original on X <span aria-hidden="true">↗</span></a>}
-              {current.links.length > 0 && <section className="finds-connections"><h3>Connected notes</h3>{current.links.map(link => <button key={link.id} type="button" data-find-follow={link.id} onClick={() => follow(link.id)}><span>{finds.find(note => note.id === link.id)?.title}<span aria-hidden="true">↗</span></span><small>{link.reason}</small></button>)}</section>}
-              {!current.mock && <p className="finds-saved">Saved {date(current.savedAt)}</p>}
-            </ReadingNote>
-          </AnimatePresence>
-        </ReadingSurface>}
+        {reading && <FindsReader ref={reader} key="reader" note={current} trail={trail} reduced={!!reduced} onClose={close} onFollow={follow} />}
       </AnimatePresence>
     </div>
     {handoff && <motion.div key={handoff.token} className="finds-paper finds-link-flight" aria-hidden="true" data-finds-transfer

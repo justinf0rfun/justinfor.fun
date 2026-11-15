@@ -23,9 +23,12 @@ The fixed-width index pairs a stable readout with a continuously moving ruler.
 Mouse and touch drag the same fractional position as the cards; release snaps
 with limited momentum, and both ends resist gently. Its ARIA slider supports the
 existing arrows, Home and End. A numbered paper pull tab hangs beneath that control:
-tap or keyboard opens the selected note, while a downward pull follows the hand
-and opens on release after 28px. Short or sideways pulls spring back; cancellation,
-focus loss, drawer changes and closing the overlay never commit a read. Pulling
+Tap or keyboard opens the selected note. A downward pull follows the hand and
+opens at 18px without waiting for release.
+Direction is reevaluated throughout the gesture so initial sideways jitter does
+not lock out a later downward pull. Short or sideways pulls spring back. Before
+the trigger, cancellation, focus loss, drawer changes and closing the overlay
+never commit a read. Pulling
 freezes any unfinished card selection so the tab cannot open a different note.
 Personal takes remain blank until Justin supplies them. The media-only post links
 to its source instead of inventing an explanation of its media.
@@ -47,6 +50,37 @@ A short final fade restores the native 3D occlusion order. Copies are inert and
 removed on completion, close, scrolling, resizing, visibility loss and unmount.
 The original dialing physics are separate from this handoff.
 
+## Reading format
+
+All cards use `FindsReader.tsx` and `finds/FindsReader.css`, in this order:
+
+| Part | Rule |
+| --- | --- |
+| Registry | A sticky return control and fixed card number. The number is identity, not a drawer position. |
+| Reading path | Appears only after following a connection. Addresses form a compact path; accessible names retain each title. |
+| Heading | Editorial title, then topic labels and the sample marker when applicable. |
+| Personal note | `My take`, only when Justin has supplied one. No placeholder or invented opinion. |
+| Content | Samples use plain prose. Real saved sources use `Saved excerpt`, the real author, publication date and a semantic quotation preserving the stored paragraphs. Media-only snapshots use the existing honest media message. |
+| Provenance | One canonical original link and the saved date, only for real sources. |
+| Connections | Target card number, title and the existing reason. Internal arrows point right; external links point outward. Omit the entire section if no connections exist. |
+
+The paper, ink and rule colors come from the existing Finds palette, including
+dark mode. Titles are 24–30px, body text 16px at 1.7 line height, and the reading
+column is capped at 60ch. Metadata uses 11–12px; monospace is reserved for card
+addresses. A 12 / 18 / 24 / 28px spacing rhythm groups metadata, separates source
+prose and keeps connections secondary. Desktop paper follows its content up to a
+720px scroll limit within the available viewport; mobile keeps a stable reading sheet with its return bar always
+available. Long text wraps rather than overflowing. Empty optional sections leave
+no headings or gaps. Existing reader / article presence transitions, keyboard
+return, reading trail, drawer handoff and dialing physics remain on their paths.
+Keyboard focus on paper titles and reading controls uses a text underline instead
+of an enclosing outline; focus restoration also stays enabled for touch and assistive input.
+Short landscape viewports use the available screen height rather than a small
+desktop paper. Impeccable's static scan reports local palette, radius and type
+steps against the older design sidecar. The reading format intentionally retains
+Finds' warm paper, existing orange marker and compact metadata; its exact type
+and spacing choices are specified above.
+
 ## Verification
 
 - Node 22: `node scripts/check-finds.mjs`, `node scripts/check-inspired-credits.mjs`,
@@ -59,6 +93,8 @@ The original dialing physics are separate from this handoff.
   Covers original source links, populated drawers, connected reading, cross-drawer
   navigation, reading-path retention, shared-card identity, rapid latest-choice
   switching, copy cleanup and Escape returning before leaving Finds.
+- `scripts/probe-finds-reader.js`: real-source and sample formats, quote paragraphs,
+  source metadata, omitted empty sections, connected-card addresses and reading path.
 - `scripts/probe-held-scrubber.js`: run after a native fast drag while keeping the
   pointer down and still; the selected paper must return to its 160-unit lift.
   Before the live velocity fix it remained at 250. Native pointer tests also verify

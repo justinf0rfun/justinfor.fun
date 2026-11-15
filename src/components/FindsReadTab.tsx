@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { drawerSpring } from "../lib/finds-motion";
-import { readTabOffset, readTabShouldOpen } from "../lib/finds-read-tab";
+import { readTabIsPulling, readTabOffset, readTabShouldOpen } from "../lib/finds-read-tab";
 
 const readReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const subscribe = (notify: () => void) => {
@@ -15,16 +15,17 @@ export default function FindsReadTab({ number, reading, onGrab, onOpen }: {
 }) {
   const element = useRef<HTMLButtonElement>(null), reduced = useSyncExternalStore(subscribe, readReduced, () => false);
   const y = useMotionValue(0), pitch = useTransform(y, [0, 64], [0, -7]);
-  const gesture = useRef<{ pointer: number; x: number; y: number; start: number; moved: boolean; pulling: boolean } | null>(null);
+  const gesture = useRef<{ pointer: number; x: number; y: number; start: number; moved: boolean } | null>(null);
   const [pressed, setPressed] = useState(false);
   const callbacks = useRef({ onGrab, onOpen });
   useLayoutEffect(() => { callbacks.current = { onGrab, onOpen }; });
-  const release = (cancelled: boolean, event?: { pointerId: number; clientY: number }) => {
+  const release = (cancelled: boolean, event?: { pointerId: number; clientX: number; clientY: number }) => {
     const current = gesture.current;
     if (!current || (event && current.pointer !== event.pointerId)) return;
     gesture.current = null; setPressed(false);
     if (element.current?.hasPointerCapture(current.pointer)) element.current.releasePointerCapture(current.pointer);
-    if (!cancelled && readTabShouldOpen((event?.clientY ?? current.y) - current.y, current.moved, current.pulling)) callbacks.current.onOpen();
+    const dx = (event?.clientX ?? current.x) - current.x, dy = (event?.clientY ?? current.y) - current.y;
+    if (!cancelled && readTabShouldOpen(dy, current.moved || Math.hypot(dx, dy) >= 6, readTabIsPulling(dx, dy))) callbacks.current.onOpen();
     else animate(y, 0, reduced ? { duration: 0 } : drawerSpring);
   };
   useLayoutEffect(() => { release(true); if (!reading) y.jump(0); }, [reading, reduced, y]);
@@ -50,14 +51,17 @@ export default function FindsReadTab({ number, reading, onGrab, onOpen }: {
         // Safari's default mouse focus would blur the tab and cancel this gesture.
         event.preventDefault();
         callbacks.current.onGrab(); y.stop();
-        gesture.current = { pointer: event.pointerId, x: event.clientX, y: event.clientY, start: y.get(), moved: false, pulling: false };
+        gesture.current = { pointer: event.pointerId, x: event.clientX, y: event.clientY, start: y.get(), moved: false };
         setPressed(true); event.currentTarget.focus({ preventScroll: true }); event.currentTarget.setPointerCapture(event.pointerId);
       }} onPointerMove={event => {
         const current = gesture.current; if (!current || current.pointer !== event.pointerId) return;
         const dx = event.clientX - current.x, dy = event.clientY - current.y;
         if (!current.moved && Math.hypot(dx, dy) < 6) return;
-        if (!current.moved) { current.moved = true; current.pulling = dy > Math.abs(dx); }
-        if (current.pulling) y.set(readTabOffset(current.start + dy));
+        current.moved = true;
+        if (readTabIsPulling(dx, dy)) {
+          y.set(readTabOffset(current.start + dy));
+          if (readTabShouldOpen(dy, true, true)) release(false, event);
+        }
       }} onPointerUp={event => release(false, event)} onPointerCancel={event => release(true, event)}
       onLostPointerCapture={event => { if (event.target === event.currentTarget) release(true, event); }}>
       <span className="finds-read-tab-print" aria-hidden="true"><span>READ</span><span>{number}</span></span>

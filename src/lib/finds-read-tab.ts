@@ -4,5 +4,7 @@ export function readTabOffset(distance: number) {
 }
 
 export function readTabShouldOpen(distance: number, moved: boolean, pulling: boolean) {
-  return !moved || (pulling && distance >= 28);
+  return !moved || (pulling && distance >= 18);
 }
+
+export const readTabIsPulling = (dx: number, dy: number) => dy > Math.abs(dx) * .75;

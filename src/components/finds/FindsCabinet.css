@@ -28,7 +28,8 @@
 @supports(color:color(display-p3 0 0 0)){.finds-selection-dot{background:color(display-p3 .99 .4 .02)}}
 .finds-paper-heading{max-width:240px;font-size:25.2px;font-weight:500;line-height:28px;letter-spacing:-.01em;text-wrap:balance}
 .finds-paper-source{display:flex;justify-content:space-between;color:#7b7366;font-size:12px}
-.finds-paper:focus-visible{outline:3px solid #a6753d;outline-offset:3px}
+.finds-cabinet .finds-paper:focus-visible{outline:none}
+.finds-paper:focus-visible .finds-paper-heading{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}
 .finds-segments:focus-visible{outline:none;box-shadow:inset 0 0 0 1px #ffffff8c}
 .finds-open-row{position:relative;z-index:0;display:flex;justify-content:center;margin-top:-6px;padding-bottom:64px;perspective:500px}
 .finds-read-tab{display:flex;flex-direction:column;align-items:center;gap:5px;width:148px;min-height:68px;padding:15px 16px 8px;border:1px solid var(--finds-rule);border-top:0;border-radius:0 0 10px 10px;background:var(--finds-paper);color:var(--finds-ink);box-shadow:0 4px 7px -4px #30271830,inset 0 9px 8px -9px #30271866;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;transform-origin:50% 0}
@@ -39,46 +40,18 @@
 .finds-read-tab-grip{width:20px;height:2px;margin-top:1px;border-radius:1px;background:var(--finds-muted);opacity:.4}
 .finds-cabinet .finds-read-tab:focus-visible{outline:none}
 .finds-read-tab:focus-visible .finds-read-tab-label{text-decoration:underline;text-underline-offset:3px}
-.finds-reader{position:absolute;z-index:20;top:0;right:0;bottom:0;width:calc(100% - 350px);overflow:auto;overscroll-behavior:contain;padding:28px 34px 34px;border:1px solid var(--finds-rule);border-radius:13px;background:var(--finds-paper);color:var(--finds-ink);box-shadow:0 18px 60px -25px #40352240;scrollbar-width:thin;transform-origin:50% 80%;outline:none}
-.finds-reader-toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--finds-muted);font-size:11px;margin-bottom:28px}
-.finds-reader-toolbar button{min-height:44px;cursor:pointer}
-.finds-reader-toolbar>span{font-family:monospace}
-.finds-trail{display:flex;flex-wrap:wrap;gap:0 8px;margin-bottom:20px}
-.finds-trail button{max-width:100%;min-height:44px;overflow:hidden;text-overflow:ellipsis;font-size:10px;color:#796c58;cursor:pointer;text-align:left}
-.finds-trail [aria-current]{color:#514839}
-.finds-note-category{font:10px monospace;color:#93632b;margin-bottom:12px}
-.finds-reader h2{font-size:clamp(24px,3vw,34px);line-height:1.12;font-weight:550;letter-spacing:-.035em;text-wrap:balance;margin-bottom:28px}
-.finds-take{padding-bottom:24px;margin-bottom:24px;border-bottom:1px solid var(--finds-rule)}
-.finds-take h3{color:var(--finds-muted);font-size:11px;margin-bottom:8px}
-.finds-take p,.finds-source-text{font-size:14px;line-height:1.65;white-space:pre-line;overflow-wrap:anywhere}
-.finds-source-head{display:flex;gap:9px;align-items:center;margin-bottom:16px}
-.finds-source-head img{width:32px;height:32px;border-radius:50%;object-fit:cover}
-.finds-source-head a{font-size:12px;font-weight:500}
-.finds-source-head a span{display:block;font-size:10px;color:var(--finds-muted);font-weight:400}
-.finds-source-head time{margin-left:auto;font-size:10px;color:var(--finds-muted)}
-.finds-source-link{display:inline-flex;min-height:44px;align-items:center;gap:12px;font-size:12px;margin-top:12px;text-decoration:underline;text-underline-offset:4px;text-decoration-color:#c3b59e}
-.finds-connections{margin-top:28px;border-top:1px solid var(--finds-rule);padding-top:22px}
-.finds-connections h3{font-size:10px;font-weight:500;color:var(--finds-muted);margin-bottom:12px;letter-spacing:.04em}
-.finds-connections button{display:block;text-align:left;width:100%;padding:14px 0;border-bottom:1px solid var(--finds-rule);cursor:pointer}
-.finds-connections button>span{display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:500}
-.finds-connections small{display:block;color:var(--finds-muted);font-size:11px;line-height:1.5;margin-top:5px}
-.finds-saved{margin-top:28px;font-size:10px;color:var(--finds-muted)}
-.finds-cabinet button:focus-visible,.finds-reader a:focus-visible{outline:2px solid #a6753d;outline-offset:3px}
-.finds-reader button:active,.finds-source-link:active{opacity:.65}
-@media(hover:hover) and (pointer:fine){.finds-drawer:not([aria-pressed=true]):hover .finds-drawer-face{filter:brightness(1.06)}.finds-connections button:hover>span,.finds-reader-toolbar button:hover{color:#8f602d}}
+.finds-cabinet button:focus-visible{outline:2px solid #a6753d;outline-offset:3px}
+@media(hover:hover) and (pointer:fine){.finds-drawer:not([aria-pressed=true]):hover .finds-drawer-face{filter:brightness(1.06)}}
 html[data-home-theme=dark] .finds-cabinet{--finds-paper:#282722;--finds-ink:#e9e4da;--finds-rule:#454137;--finds-muted:#a69e90}
-@media(max-width:1000px){.finds-workspace{grid-template-columns:230px minmax(0,1fr);gap:32px}.finds-drawer{height:95px}.finds-label-frame{font-size:10px;width:calc(100% - 18px);padding-inline:4px;border-width:2px;gap:4px}.finds-reader{width:calc(100% - 260px);padding:24px}.finds-rail-scale{transform:scale(var(--finds-fan-scale,.63))}}
+@media(max-width:1000px){.finds-workspace{grid-template-columns:230px minmax(0,1fr);gap:32px}.finds-drawer{height:95px}.finds-label-frame{font-size:10px;width:calc(100% - 18px);padding-inline:4px;border-width:2px;gap:4px}.finds-rail-scale{transform:scale(var(--finds-fan-scale,.63))}}
 @media(max-width:700px){
  .finds-workspace{display:flex;flex-direction:column;gap:24px;min-height:0;align-items:stretch}
  .finds-cabinet-bank{width:min(100% - 32px,310px);align-self:center;margin-top:8px}
  .finds-drawer{height:82px}.finds-drawer-face{gap:10px}.finds-label-frame{font-size:11px;width:calc(100% - 26px);border-width:3px;padding-inline:5px}
  .finds-bank-label{margin-top:28px}.finds-desk{padding-top:20px}.finds-rail{height:340px;margin-top:4px}
  .finds-rail-scale{transform:scale(var(--finds-fan-scale,.57));transform-origin:50% 34%}.finds-rail-plane{top:-58px}
-
- .finds-reader{position:fixed;inset:calc(env(safe-area-inset-top) + 74px) 12px max(16px,env(safe-area-inset-bottom));width:auto;max-height:calc(100svh - 94px);padding:18px 22px 28px;box-shadow:0 20px 100px 60px var(--color-neutral-50)}
- .finds-reader-toolbar{margin-bottom:18px}.finds-reader h2{font-size:28px}.finds-source-head time{font-size:9px}.finds-source-text{font-size:15px}
 }
-@media(max-width:360px){.finds-reader{padding-inline:18px}.finds-label-frame{font-size:10px}.finds-rail-scale{transform:scale(var(--finds-fan-scale,.51))}}
+@media(max-width:360px){.finds-label-frame{font-size:10px}.finds-rail-scale{transform:scale(var(--finds-fan-scale,.51))}}
 @media(prefers-reduced-motion:reduce){.finds-rail-plane{transform:rotateX(0) rotateZ(0)}.finds-rail-scale{transform:scale(var(--finds-fan-scale,.6))}}
 /* The homepage entry is the same drawer face, within the existing folder footprint. */
 .folder[data-layout="x-bookmarks"] .back{display:none}
@@ -103,9 +76,8 @@ html[data-home-theme=dark] .x-bookmarks-stage{--color-neutral-50:#151615;--color
 html[data-home-theme=dark] .home-surface>main .folder[data-layout="x-bookmarks"] .finds-home-face{background-image:repeating-linear-gradient(0deg,#ffffff05 0 1px,#25120805 1px 3px,transparent 3px 9px),linear-gradient(#b47b4d,#a66f43 65%,#956039)}
 @media(max-width:360px){.finds-rail-scale{transform:scale(var(--finds-fan-scale,.44))}}
 .x-bookmarks-stage .x-bookmarks-header .parent-link{color:var(--color-neutral-500)}
-.finds-sample-label{margin-bottom:16px;color:var(--finds-muted);font-size:11px}
-html[data-home-theme=dark] .finds-paper-number,html[data-home-theme=dark] .finds-note-category{color:#d1ac77}
-html[data-home-theme=dark] .finds-paper-number span,html[data-home-theme=dark] .finds-paper-source,html[data-home-theme=dark] .finds-trail button{color:#b7afa1}
+html[data-home-theme=dark] .finds-paper-number{color:#d1ac77}
+html[data-home-theme=dark] .finds-paper-number span,html[data-home-theme=dark] .finds-paper-source{color:#b7afa1}
 .finds-drawer-copy{z-index:55;pointer-events:none!important;user-select:none;transform-origin:center;will-change:transform,opacity}
 .finds-paper[data-drawer-covered]{visibility:hidden}
 

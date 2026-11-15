@@ -84,7 +84,8 @@ card and nearby cards retain their full original lift. The original selection sl
 hover peek, speed-dependent wave, card/index springs and gesture-to-index mapping
 are retained. A width-only ResizeObserver sets the fan's reach and camera scale;
 there is no per-frame layout measurement. Counting moves into the segmented index,
-while card identities remain on the paper. The reading surface is unchanged.
+while card identities remain on the paper. Reading is laid out separately in
+`FindsReader.tsx`; its source-preserving format is specified in `docs/finds.md`.
 
 Drawer switching has a separate handoff controller (`finds-drawer-transfer.ts`).
 The old fan's inert snapshot gathers back into its drawer. A single leading-paper
@@ -129,8 +130,9 @@ The original 3D paper rail retains its own drag mapping and spring parameters.
 
 The reading entry is a locally designed numbered paper tab tucked under the
 index. It follows downward pointer travel directly for 32px, then resists toward
-a 64px limit. Releasing after 28px opens the same existing reading surface; a
-short or sideways pull returns with the existing drawer spring. Tap, Enter and
+a 64px limit. Downward travel opens the existing reading surface at 18px without
+waiting for release. Direction is reevaluated after initial jitter; a short or
+sideways pull returns with the existing drawer spring. Tap, Enter and
 Space remain available. Pointer cancellation, blur, group changes, navigation
 keys, overlay close and reduced-motion changes cancel the held gesture. The tab
 adds no sound, asset, dependency or alternate reader.
