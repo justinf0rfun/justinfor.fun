@@ -146,6 +146,8 @@ const { article, markdown } = Astro.props;
   @media (max-width: 47.999rem) {
     /* Stay hidden before JS adds popover, avoiding an initial animated dismissal. */
     .article-actions:not([popover]) { display: none; }
+    /* Safari treats even a transparent backdrop as a full-screen dimmer when tinting its bars. */
+    .article-actions[popover]::backdrop { display: none; }
     .article-actions[popover] {
       position: fixed;
       inset: calc(env(safe-area-inset-top) + 74px) 16px auto auto;
