@@ -3,6 +3,7 @@ import { Icon } from "astro-icon/components";
 import ParentLink from "./ParentLink.astro";
 import Card from "./Card.astro";
 import { normalise, type Collection } from "../data/collections";
+import { finds } from "../data/finds";
 
 interface Props {
   collection: Collection;
@@ -12,6 +13,7 @@ interface Props {
 const { collection, class: className = "" } = Astro.props;
 const { slug, title, meta } = collection;
 const cards = normalise(collection.items);
+const isFinds = collection.layout === "x-bookmarks";
 
 // Gradients are per-instance, so the id has to be too.
 const fillId = `folder-${slug}`;
@@ -69,8 +71,9 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     {/* front flap - the only other edge, so it reads as a fold, not a card */}
     <div
       data-folder-flap
-      class="flap absolute inset-x-0 top-[24%] bottom-0 z-10 inset-ring inset-ring-white/60 [transform-origin:bottom_center] [box-shadow:0_-2px_6px_-1px_rgb(0_0_0/0.08)]"
+      class:list={["flap absolute inset-x-0 top-[24%] bottom-0 z-10 inset-ring inset-ring-white/60 [transform-origin:bottom_center] [box-shadow:0_-2px_6px_-1px_rgb(0_0_0/0.08)]", isFinds && "finds-home-face"]}
     >
+      {isFinds ? <><span class="finds-label-frame"><span>Finds</span><span class="finds-drawer-count">{finds.length.toString().padStart(2, "0")}</span></span><span class="finds-metal-handle" aria-hidden="true" /><span class="finds-home-meta">A small card index</span></> : (
       <div class="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
         <div class="min-w-0">
           <div class="flex items-center gap-2">
@@ -87,6 +90,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         </div>
         <Icon name="ph:arrow-up-right-bold" class="size-4 shrink-0 text-neutral-400" />
       </div>
+      )}
     </div>
   </div>
 </a>
@@ -259,8 +263,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   a.folder.is-stage[data-layout="projects"].is-project-source-hidden
     [data-folder-item],
   a.folder.is-stage[data-layout="writing"].is-writing-source-hidden
-    [data-folder-item],
-  a.folder.is-stage[data-layout="x-bookmarks"].is-x-bookmarks-source-hidden
     [data-folder-item] {
     visibility: hidden;
   }
@@ -322,8 +324,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   import { createProjectsTransition } from "../scripts/projects-transition";
   import {
     createWritingTransition,
-    createXBookmarksTransition,
   } from "../scripts/writing-transition";
+  import { createXBookmarksTransition } from "../scripts/finds-transition";
   import { mountMusicPreviews, pauseMusicPreviews } from "../scripts/music-preview";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -460,7 +462,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       restack();
       animate(
         flap,
-        { rotateX: isOpen ? -30 : 0 },
+        folder.dataset.layout === "x-bookmarks" ? { y: isOpen ? 12 : 0 } : { rotateX: isOpen ? -30 : 0 },
         folderSpring(isOpen ? openSpring : closeSpring),
       );
       apply(folderSpring(isOpen ? openSpring : closeSpring), isOpen ? 0.04 : 0.02);
@@ -897,7 +899,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
 
     // The flap flings right out of the way and vanishes; the cards pour out.
-    animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
+    if (!xBookmarks) animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
     if (uses) openUses();
     else if (projects) openProjects();
     else if (music) void openMusic();

@@ -31,9 +31,9 @@ export const inspirations = [
   {
     id: "bencho", name: "Bencho", author: "Lorenzo Cabra", url: "https://bencho.dev/?c=card-stack&theme=light",
     relation: "Adapted from",
-    note: "The sticker stack’s fan-out, flip and return motion, adapted from Card Stack. Wake Slider’s notch sound is recreated for Moments and article navigation.",
+    note: "The sticker stack’s fan-out, flip and return motion, adapted from Card Stack. Wake Slider’s notch sound is recreated for Moments and article navigation; Finds uses the original Step sound recipe.",
     license: { label: "MIT · Source", url: "https://github.com/cabralorenzo/bencho/tree/main/blocks/card-stack" },
-    features: [{ label: "Sticker stack", selector: "[data-sticker-deck]", page: "/" }],
+    features: [{ label: "Sticker stack", selector: "[data-sticker-deck]", page: "/" }, { label: "Finds sound", selector: ".finds-segments", page: "/x-threads" }],
   },
   {
     id: "skullet", name: "Skullet", author: "Lochie Axon", url: "https://github.com/lochie/skullet",
@@ -71,5 +71,18 @@ export const inspirations = [
     relation: "Adapted from",
     note: "The Dock’s glass hover bubble and white selection pill, adapted from the original two-layer spring navigation.",
     features: [{ label: "Dock bubbles", selector: ".home-dock .dock-controls", page: "/" }],
+  },
+  {
+    id: "mantras", name: "Devouring Details · Mantras", author: "Devouring Details", url: "https://devouringdetails.com/mantras",
+    relation: "Adapted from",
+    note: "The Finds card index’s perspective, tightly spaced papers, outward selection and spring motion, adapted from the original implementation for a finite, connected collection. Its selected card carries the orange circle from Devouring Details’ homepage.",
+    features: [{ label: "Finds cards", selector: "[data-finds-rail]", page: "/x-threads" }],
+  },
+  {
+    id: "segmented-navigation", name: "Segmented Navigation", author: "Till Janek", url: "https://www.framer.com/marketplace/components/segmented-navigation/",
+    relation: "Inspired by",
+    note: "The compact black-and-white Finds control and graduated marks reference Segmented Navigation. Its continuous ruler, direct dragging and magnetic detents are implemented for this card index.",
+    license: { label: "Limited Commercial License", url: "https://www.framer.com/legal/community-terms#7-ownership-license-grants" },
+    features: [{ label: "Card index", selector: ".finds-segments", page: "/x-threads" }],
   },
 ];

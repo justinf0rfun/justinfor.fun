@@ -213,11 +213,3 @@ export const createWritingTransition = (overlay: HTMLElement) =>
     stateKey: "writingState",
     sourceHiddenClass: "is-writing-source-hidden",
   });
-
-export const createXBookmarksTransition = (overlay: HTMLElement) =>
-  createPaperTransition(overlay, {
-    targetSelector: "[data-x-bookmark-paper-target]",
-    revealSelector: "[data-x-bookmark-reveal]",
-    stateKey: "xBookmarksState",
-    sourceHiddenClass: "is-x-bookmarks-source-hidden",
-  });
