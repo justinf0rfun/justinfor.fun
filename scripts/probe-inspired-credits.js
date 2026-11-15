@@ -9,7 +9,7 @@
   const original = scrollY;
   trigger.click();
   assert(root.matches(":popover-open"), "Credits should open.");
-  assert(root.querySelectorAll("[data-inspired-pick]").length === 7, "All seven sources should be present.");
+  assert(root.querySelectorAll("[data-inspired-pick]").length === 8, "All eight sources should be present.");
   root.querySelector('[data-inspired-pick="bencho"]').click();
   root.querySelector('[data-source="bencho"] [data-inspired-feature]').click();
   await wait(500);
@@ -65,5 +65,5 @@
   assert(Math.abs(scrollY - original) < 2, "Closing should restore the original scroll position.");
   assert(document.activeElement === trigger, "Closing should restore keyboard focus.");
   assert(!document.documentElement.dataset.inspiredOpen, "Closing should release the autoplay pause.");
-  return { passed: true, sources: 7, mark: true, mobileBar: innerWidth < 1200, rowToggle: true, hiddenTarget: innerWidth >= 1200, scrollAndFocusRestored: true };
+  return { passed: true, sources: 8, mark: true, mobileBar: innerWidth < 1200, rowToggle: true, hiddenTarget: innerWidth >= 1200, scrollAndFocusRestored: true };
 })();

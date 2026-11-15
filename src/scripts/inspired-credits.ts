@@ -71,7 +71,7 @@ export function mountInspiredCredits() {
     feature = link; target = element; observer.observe(element);
     visibilityObserver.disconnect();
     for (let node: HTMLElement | null = element; node; node = node.parentElement) {
-      visibilityObserver.observe(node, { attributes: true, attributeFilter: ["hidden", "aria-hidden", "class", "style", "data-entry-ready"] });
+      visibilityObserver.observe(node, { attributes: true });
     }
     root!.querySelectorAll("[data-inspired-feature]").forEach(item => item.removeAttribute("aria-current"));
     link.setAttribute("aria-current", "true");
@@ -89,7 +89,7 @@ export function mountInspiredCredits() {
       const title = document.querySelector<HTMLElement>(".article-prose h1");
       if (title && title.getBoundingClientRect().bottom >= 0) window.scrollTo({ top: scrollY + title.getBoundingClientRect().bottom + 16, behavior: "instant" });
     }
-    else if (!element.closest(".home-dock-wrap, [data-reading-wrap]")) {
+    else if (getComputedStyle(element).position !== "fixed" && !element.closest(".home-dock-wrap, [data-reading-wrap]")) {
       const rect = element.getBoundingClientRect();
       window.scrollTo({ top: window.scrollY + (rect.top + rect.bottom) / 2 - innerHeight / 2, behavior: "instant" });
     }
@@ -189,6 +189,7 @@ export function mountInspiredCredits() {
   window.visualViewport?.addEventListener("resize", schedule);
   small.addEventListener("change", () => { if (opened) list(); });
   window.addEventListener("home-moments-opening", () => close(false));
+  window.addEventListener("ride-coupon-opening", () => close(false));
   window.addEventListener("home-chat-change", event => { if ((event as CustomEvent).detail) close(false); });
   const observer = new ResizeObserver(schedule);
   observer.observe(panel);

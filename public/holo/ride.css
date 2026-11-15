@@ -1,0 +1,9 @@
+/* The full-screen scene keeps the original geometry over the homepage. */
+html,body{background:transparent}
+body{background:none}
+[data-mode=compact] .ground,[data-mode=compact] .flow,[data-mode=compact] .again,[data-mode=compact] .mute{display:none}
+.card{text-decoration:none;color:inherit}
+.card .name{display:flex;align-items:center;z-index:4}
+.card .name img{display:block;width:10cqw;height:10cqw;object-fit:contain}
+.coupon-description{position:absolute;left:7%;right:7%;top:76%;z-index:4;margin:0;font:500 max(9px,4.5cqw)/1.3 system-ui,sans-serif;color:var(--text);opacity:.85;white-space:nowrap}
+.mute{top:calc(16px + var(--host-safe-top,0px));right:calc(72px + var(--host-safe-right,0px))}

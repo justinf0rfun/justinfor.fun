@@ -1,0 +1,42 @@
+---
+import { rideCouponLinks } from "../data/ride-coupon";
+const params = new URLSearchParams();
+if (Object.values(rideCouponLinks).some(Boolean)) params.set("links", JSON.stringify(rideCouponLinks));
+const src = `/holo/ride-pack.html${params.size ? `?${params}` : ""}`;
+---
+
+<dialog class="ride-coupon" data-ride-coupon data-ready="false" data-expanded="false" open inert aria-labelledby="ride-pack-title">
+  <h2 id="ride-pack-title" class="sr-only" tabindex="-1">Holo card pack</h2>
+  <div class="ride-coupon-frame"><iframe src={src} title="Holo card pack" width="360" height="620" allow="autoplay" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>
+  <button class="ride-coupon-close" data-ride-close type="button" aria-label="Close card pack" hidden>×</button>
+</dialog>
+
+<script>
+  import { mountRideCoupon } from "../scripts/ride-coupon";
+  mountRideCoupon();
+</script>
+
+<style>
+  .ride-coupon { --ride-width: min(360px, calc(100vw - 24px)); --ride-height: min(620px, calc(100svh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); --ride-scale: .46; --preview-edge: 18px; --preview-bleed: calc(var(--preview-edge) / var(--ride-scale)); position: fixed; z-index: 24; top: 48%; right: calc(18px - var(--ride-width) * (1 - var(--ride-scale)) / 2); left: auto; bottom: auto; width: var(--ride-width); height: var(--ride-height); max-width: none; max-height: none; padding: 0; margin: 0; border: 0; overflow: visible; background: transparent; color: #141414; transform: translateY(-50%) scale(var(--ride-scale)); transform-origin: center; pointer-events: none; opacity: 0; }
+  .ride-coupon[data-ready=true] { opacity: 1; }
+  .ride-coupon[data-covered=true] { visibility: hidden; }
+  .ride-coupon-frame { position: absolute; inset: 0; clip-path: inset(17% 9%); pointer-events: auto; }
+  .ride-coupon[data-entering=true] .ride-coupon-frame { clip-path: none; }
+  .ride-coupon iframe { position: absolute; left: calc(0px - var(--preview-bleed)); display: block; width: calc(100% + var(--preview-bleed) * 2); height: 100%; border: 0; background: transparent; }
+  .ride-coupon[data-expanded=true] { inset: 0; z-index: 55; width: 100vw; height: 100dvh; transform: none; translate: none; background: rgb(0 0 0 / .14); -webkit-backdrop-filter: blur(7px); backdrop-filter: blur(7px); }
+  .ride-coupon[data-expanded=true] .ride-coupon-frame { clip-path: none; }
+  .ride-coupon[data-expanded=true] iframe { left: 0; width: 100%; }
+  :global([data-home-theme=dark]) .ride-coupon[data-expanded=true] { background: rgb(0 0 0 / .48); }
+  .ride-coupon::backdrop { background: transparent; }
+  :global(html:has([data-ride-coupon][data-expanded=true])) { overflow: hidden; }
+  .ride-coupon-close { position: fixed; top: calc(16px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right)); z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: #333; background: rgb(255 255 255 / .8); font-size: 28px; line-height: 1; cursor: pointer; pointer-events: auto; transition: scale 150ms var(--ease-out); }
+  .ride-coupon-close[hidden] { display: none; }
+  .ride-coupon-close:active { scale: .95; }
+  .ride-coupon-close:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  @media (max-width: 1199px) {
+    .ride-coupon { --ride-scale: .28; --preview-edge: 8px; top: auto; bottom: calc(max(108px, env(safe-area-inset-bottom) + 90px) - var(--ride-height) * (1 - var(--ride-scale)) / 2); right: calc(8px - var(--ride-width) * (1 - var(--ride-scale)) / 2); transform: scale(var(--ride-scale)); }
+    .ride-coupon[data-footer=true]:not([data-expanded=true]) { translate: 0 -128px; }
+    .ride-coupon[data-expanded=true] { inset: 0; transform: none; translate: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ride-coupon-close { transition: none; } }
+</style>

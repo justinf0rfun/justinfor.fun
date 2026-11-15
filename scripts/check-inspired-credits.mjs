@@ -30,8 +30,8 @@ test("thread joins the nearest target edge and disappears beyond the viewport", 
   assert.equal(inspiredGeometry({ ...target, top: 901, bottom: 950 }, target, 1440, 900).visible, false);
 });
 
-test("all seven credits have unique identities, original URLs and real local destinations", () => {
-  assert.equal(inspirations.length, 7);
+test("all eight credits have unique identities, original URLs and real local destinations", () => {
+  assert.equal(inspirations.length, 8);
   assert.equal(new Set(inspirations.map(source => source.id)).size, inspirations.length);
   for (const source of inspirations) {
     assert.equal(new URL(source.url).protocol, "https:");

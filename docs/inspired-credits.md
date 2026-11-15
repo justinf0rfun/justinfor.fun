@@ -3,7 +3,7 @@
 Only the homepage opts into the `LocalTimeFooter` Inspired entry with `showInspired`.
 Inner-page footers show local time only. The one `InspiredCredits` instance stays
 mounted by `Layout` so cross-page annotations can resume from a homepage credit.
-The seven audited sources live in `src/data/inspirations.ts`; each feature pairs an
+The eight audited sources live in `src/data/inspirations.ts`; each feature pairs an
 existing DOM selector with its actual local page. Credits distinguish visual
 references, adapted implementations and third-party assets. Existing MIT notices
 remain with the Bencho and Skullet implementations; Dots asset provenance remains

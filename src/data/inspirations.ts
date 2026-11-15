@@ -60,4 +60,10 @@ export const inspirations = [
       { label: "Sticker peel", selector: "[data-sticker-deck]", page: "/" },
     ],
   },
+  {
+    id: "holo", name: "Holo", author: "yashb.xyz", url: "https://holo.yashb.xyz/",
+    relation: "Adapted from · Assets from",
+    note: "The floating foil pack, ragged tear, curling strip, card reveal and synthesized sounds. The full-screen five-card scene retains the original artwork and motion, with a separate offer link for each card.",
+    features: [{ label: "Card pack", selector: "[data-ride-coupon]", page: "/" }],
+  },
 ];

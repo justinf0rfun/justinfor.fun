@@ -158,11 +158,11 @@ export default function BeliefDeck({ items }: { items: Belief[] }) {
     if (root.current) intersection.observe(root.current);
     const visibility = () => setHidden(document.hidden);visibility();
     const release = () => { touch.current = null;setPressed(false);if (tilt.current) tilt.current.style.transform = ""; };
-    const isCovered = () => document.documentElement.style.overflow === "hidden" || document.documentElement.dataset.inspiredOpen === "true" || !!document.querySelector('#home-chat[data-open="true"],.home-dock[data-moments-open="true"]');
+    const isCovered = () => document.documentElement.style.overflow === "hidden" || document.documentElement.dataset.inspiredOpen === "true" || !!document.querySelector('#home-chat[data-open="true"],.home-dock[data-moments-open="true"],[data-ride-coupon][data-expanded="true"]');
     const cover = () => setCovered(isCovered());
     const covering = new MutationObserver(cover);
     covering.observe(document.documentElement, { attributes: true, attributeFilter: ["style", "data-inspired-open"] });
-    for (const element of document.querySelectorAll("#home-chat,.home-dock")) covering.observe(element, { attributes: true, attributeFilter: ["data-open", "data-moments-open"] });
+    for (const element of document.querySelectorAll("#home-chat,.home-dock,[data-ride-coupon]")) covering.observe(element, { attributes: true, attributeFilter: ["data-open", "data-moments-open", "data-expanded"] });
     cover();
     const outside = (event: PointerEvent) => {
       if (!event.isTrusted || !current.current || isCovered() || !(event.target instanceof Element)) return;
