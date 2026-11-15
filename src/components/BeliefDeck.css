@@ -1,0 +1,22 @@
+.belief-deck{position:relative;isolation:isolate;color:var(--home-ink,#202221);container-type:inline-size;overflow:clip;overflow-clip-margin:8px}
+.belief-stage{position:relative;height:280px;touch-action:pan-y pinch-zoom}
+.belief-card{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(calc(100cqw - 64px),276px,calc(226px * var(--paper-ratio)));aspect-ratio:var(--paper-ratio);margin:0;transform-origin:50% 60%;outline:none;touch-action:pan-y pinch-zoom}
+.belief-card[data-front=true]{cursor:grab}
+.belief-deck[data-dragging=true] .belief-card[data-front=true]{cursor:grabbing}
+.belief-card:focus-visible .belief-card-art{outline:2px solid var(--home-ink,#202221);outline-offset:6px}
+.belief-card-art{width:100%;height:100%;filter:drop-shadow(0 2px 2px rgb(0 0 0/.08)) drop-shadow(0 12px 12px rgb(0 0 0/.10))}
+.belief-pick{display:block;width:100%;height:100%;padding:0;border:0;background:none;cursor:pointer}
+.belief-pick img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.belief-card[data-taped=true]::before{position:absolute;top:-12px;left:48%;z-index:1;width:48px;height:18px;content:"";pointer-events:none;background-image:linear-gradient(var(--tape-wash),var(--tape-wash)),url('/home/acu-note.png');background-size:100% 100%,260% auto;background-position:center,45% top;clip-path:polygon(1% 7%,16% 4%,35% 7%,55% 2%,74% 5%,98% 0,100% 90%,82% 96%,60% 93%,39% 100%,20% 96%,0 100%);transform:translateX(-50%) rotate(-5deg);transition:opacity 160ms}
+.belief-card:has([data-peeling=true])::before{opacity:0}
+.belief-card-credit{display:none;margin-top:8px;text-align:center;font-size:12px}
+.belief-deck-footer{display:flex;width:min(276px,calc(100% - 48px));height:44px;align-items:center;justify-content:space-between;margin:0 auto}
+.belief-deck-footer button{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;border-radius:50%;color:color-mix(in srgb,var(--home-ink,#202221) 60%,transparent);background:none;cursor:pointer;transition:color 120ms,background 120ms,transform 120ms}
+.belief-deck-footer button:disabled{cursor:default;opacity:.3}
+.belief-deck-footer button:active{transform:scale(.9)}
+.belief-source{display:flex;min-height:44px;align-items:center;gap:5px;color:color-mix(in srgb,var(--home-ink,#202221) 65%,transparent);font-size:11px;text-decoration:none}
+.belief-source span{font-size:12px;opacity:.6}
+.belief-source:focus-visible,.belief-deck-footer button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media(min-width:48rem){.belief-stage{height:320px}.belief-card{width:min(calc(100cqw - 64px),276px,calc(258px * var(--paper-ratio)))}}
+@media(hover:hover) and (pointer:fine){.belief-deck-footer button:hover{background:color-mix(in srgb,var(--home-ink,#202221) 6%,transparent);color:var(--home-ink,#202221)}.belief-source:hover{color:var(--home-ink,#202221)}}
+@media(prefers-reduced-motion:reduce){.belief-deck-footer button,.belief-card::before{transition:none}}

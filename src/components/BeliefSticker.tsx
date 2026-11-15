@@ -25,9 +25,10 @@ interface Props {
   width: number;
   height: number;
   backColor: string;
+  reveal?: boolean;
 }
 
-export default function BeliefSticker({ src, alt, width, height, backColor }: Props) {
+export default function BeliefSticker({ src, alt, width, height, backColor, reveal = true }: Props) {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false);
   const [peeling, setPeeling] = useState(false);
   const [phase, setPhase] = useState<"loading" | "revealing" | "ready" | "error">("loading");
@@ -49,8 +50,8 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
           return;
         }
         // This is a once-per-visit entrance, including when the image is cached.
-        const remaining = canAnimate() ? Math.max(0, 550 - (performance.now() - enteredAt)) : 0;
-        revealTimer = window.setTimeout(() => setPhase("revealing"), remaining);
+        const remaining = reveal && canAnimate() ? Math.max(0, 550 - (performance.now() - enteredAt)) : 0;
+        revealTimer = window.setTimeout(() => setPhase(reveal ? "revealing" : "ready"), remaining);
       }
     };
     if (cached) {
@@ -68,11 +69,11 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
       window.clearTimeout(revealTimer);
       loader.onload = loader.onerror = null;
     };
-  }, [src]);
+  }, [src, reveal]);
 
   const image = (
     <div className="belief-sticker-static">
-      <img ref={imageRef} src={src} alt={alt} width={width} height={height} loading="lazy" crossOrigin="anonymous"
+      <img ref={imageRef} src={src} alt={alt} width={width} height={height} loading="lazy" crossOrigin="anonymous" draggable={false}
         style={{
           display: "block", width: "100%", height: "auto", aspectRatio: `${width} / ${height}`,
         }} />
@@ -104,12 +105,12 @@ export default function BeliefSticker({ src, alt, width, height, backColor }: Pr
   );
 
   // Only the image is measured; mount the interactive canvas after its reveal finishes.
-  if (!animated || phase !== "ready") return preview;
+  if (!animated || phase !== "ready") return reveal ? preview : image;
 
   return (
     <div data-peeling={peeling} style={{ position: "relative" }}>
       <StickerBoundary key={src} fallback={image}>
-      <Suspense fallback={preview}>
+      <Suspense fallback={reveal ? preview : image}>
         <ElasticSticker
           src={src} alt={alt} width={width} height={height}
           radius={0} border={0} backColor={backColor}
