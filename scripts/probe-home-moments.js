@@ -6,8 +6,15 @@
  const click=el=>{assert(el,'missing control');el.dispatchEvent(new MouseEvent('click',{bubbles:true,detail:1}));};
  await delay(2500);
  const trigger=document.querySelector('[data-home-moments-trigger]'),panel=document.querySelector('#home-moments'),canvas=document.querySelector('[data-home-moments-slot] canvas'),main=document.querySelector('.home-content');
+ const syncedSurface=()=>{
+  const surface=Number(getComputedStyle(panel,'::before').opacity);
+  for(const selector of ['.home-moments-header','.moments-bubble-slot','.moments-mobile-bubble','.moments-slider']){
+   const content=visible(`#home-moments ${selector}`);
+   if(content)assert(Math.abs(surface-Number(getComputedStyle(content).opacity))<.05,`background and ${selector} are out of sync`);
+  }
+ };
  assert(trigger&&!trigger.disabled&&canvas,'Dock not ready');
- click(trigger);await delay(60);const opening=panel.getAttribute('data-phase');await delay(800);
+ click(trigger);await delay(60);syncedSurface();const opening=panel.getAttribute('data-phase');await delay(800);syncedSurface();
  assert(panel.getAttribute('data-phase')==='open','did not finish opening');
  assert(getComputedStyle(visible('#home-moments input[type=range]')).opacity==='0','native range chrome is visible under the custom timeline');
  assert(panel.contains(canvas),'canvas did not land in scene');
@@ -25,7 +32,7 @@
  click(visible('#home-moments [aria-label="上一条动态"]'));await delay(350);
  const selected=visible('#home-moments input[type=range]').value;
  assert(selected==='3','date navigation failed');
- click(trigger);await delay(80);const closing=panel.getAttribute('data-phase');await delay(520);
+ click(trigger);await delay(80);syncedSurface();const closing=panel.getAttribute('data-phase');await delay(520);
  assert(panel.hidden,'panel not hidden after return');
  panel.querySelector('.moments-mobile-scroll').dispatchEvent(new Event('scroll'));await delay(50);
  assert(document.querySelector('[data-home-moments-slot]').contains(canvas),'canvas did not return to Dock');
@@ -34,6 +41,7 @@
  assert(visible('#home-moments input[type=range]').value===selected,'reopen reset the date');
  click(trigger);await delay(120);click(trigger);await delay(850);
  assert(panel.getAttribute('data-phase')==='open','interrupted reverse failed');
+ syncedSurface();
  assert(panel.contains(canvas),'reversal remounted/lost the canvas');
  assert(!canvas.getAttribute('data-renderer-error'),'renderer error');
  if(mode==='sheet'){
