@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ParentLink from "../components/ParentLink.astro";
+import Resume from "../components/Resume";
+---
+
+<Layout title="Resume · Backend Engineering" full>
+  <Fragment slot="head">
+    <meta name="description" content="10 years of backend engineering: growth platforms, distributed systems, reliability and AI-native development." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="page-type" content="service" />
+    <meta name="site-kind" content="other" />
+    <meta property="og:title" content="Resume · Backend Engineering" />
+    <meta property="og:description" content="Experience in core business systems, platform architecture and team-wide AI engineering." />
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="https://justinfor.fun/resume" />
+    <script is:inline>document.documentElement.dataset.type = "service";</script>
+  </Fragment>
+  <div class="resume-page">
+    <a class="resume-skip" href="#resume-content">Skip to resume</a>
+    <div class="resume-sheet">
+      <header class="resume-header"><ParentLink label="Home" href="/" /><span>Resume / EN</span></header>
+      <Resume client:load />
+    </div>
+  </div>
+</Layout>
