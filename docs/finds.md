@@ -50,6 +50,15 @@ A short final fade restores the native 3D occlusion order. Copies are inert and
 removed on completion, close, scrolling, resizing, visibility loss and unmount.
 The original dialing physics are separate from this handoff.
 
+The handles keep their original silhouette, responsive dimensions, border widths
+and recess proportions in both entry points. Polished stainless-steel reflections
+paint only the metal rim; its central slot is transparent and reveals the actual
+drawer wood beneath it. No material layer or inset highlight fills that opening.
+The finish uses neutral steel, a restrained upper-left reflection, a fine bevel
+and a slightly warm lower reflection from the wooden face, with a close contact
+shadow. Width, height, roundings, edge thickness and the slot stay at the original
+values; the finish does not introduce a new hover or animation path.
+
 ## Reading format
 
 All cards use `FindsReader.tsx` and `finds/FindsReader.css`, in this order:
@@ -82,6 +91,12 @@ Finds' warm paper, existing orange marker and compact metadata; its exact type
 and spacing choices are specified above.
 
 ## Verification
+
+The 2026-11-16 handle-only `design-taste-frontend` pass records `GATE: OPEN 99`
+for the full Finds page, with zero waivers. Every open finding is retained in
+`.taste-skill/handle-polish/report.md`. Its performance check reports zero failures
+and warnings; the original handle geometry and actual homepage hydration were
+verified. The whole-page findings were not counted as passes for this material edit.
 
 - Node 22: `node scripts/check-finds.mjs`, `node scripts/check-inspired-credits.mjs`,
   `pnpm exec tsc --noEmit`, `node scripts/check-step-sound.mjs`,
