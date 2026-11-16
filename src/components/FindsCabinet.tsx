@@ -24,14 +24,14 @@ function Paper({ note, index, position, speed, spread, arrival, hover, selected,
   const z = useTransform(() => cardPose(index, position.get(), hover, 0, spread.get()).z * phase.get());
   const size = useTransform(phase, value => .96 + value * .04);
   const turn = useTransform(() => (1 - phase.get()) * Math.sign(index - position.get()) * 4);
-  const readingFade = useMotionValue(reading && selected ? 0 : 1);
+  const readingFade = useMotionValue(reading ? 0 : 1);
   const opacity = useTransform(() => readingFade.get() * Math.min(1, phase.get() * 2));
   useLayoutEffect(() => {
-    const target = reading && selected ? 0 : 1;
+    const target = reading ? 0 : 1;
     if (readingFade.get() === target) return;
     const control = animate(readingFade, target, { duration: reduced ? 0 : .16 });
     return () => control.stop();
-  }, [readingFade, reading, selected, reduced]);
+  }, [readingFade, reading, reduced]);
   return <motion.button type="button" className="finds-paper" data-find-card={note.id} data-find-mock={note.mock} aria-label={`${selected ? "Read" : "Select"} ${note.title}`}
     aria-pressed={selected} style={{ x, y, z, opacity, scale: size, rotateZ: turn }} onClick={onPick}
     onPointerEnter={event => { if (event.pointerType === "mouse") onHover(index); }}>

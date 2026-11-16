@@ -84,6 +84,9 @@ no headings or gaps. Existing reader / article presence transitions, keyboard
 return, reading trail, drawer handoff and dialing physics remain on their paths.
 Keyboard focus on paper titles and reading controls uses a text underline instead
 of an enclosing outline; focus restoration also stays enabled for touch and assistive input.
+While a detail is open, the whole background fan fades out, including unselected
+neighbors. Putting the note back restores every card with the same poses and
+browsing position, so short details cannot expose paper corners underneath.
 Short landscape viewports use the available screen height rather than a small
 desktop paper. Impeccable's static scan reports local palette, radius and type
 steps against the older design sidecar. The reading format intentionally retains

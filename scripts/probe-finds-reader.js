@@ -19,6 +19,7 @@
   const read = async id => {
     if (root.dataset.selected !== id) { click(`[data-find-card="${id}"]`); await until(() => root.dataset.selected === id); }
     click('.finds-read-tab'); await until(() => root.dataset.reading === "true");
+    await until(() => [...root.querySelectorAll('[data-find-card]')].every(card => Number(getComputedStyle(card).opacity) <= .01));
     return root.querySelector(`[data-finds-article="${id}"]`);
   };
   for (const card of cards.filter(card => !card.mock || card.id === "sample-connections")) {
@@ -49,6 +50,7 @@
     const leaving = root.querySelector('[data-finds-reader]');
     assert(!leaving || (leaving.inert && leaving.querySelector('.finds-reader-back').dataset.storing === "true"), "The put-back icon stays stored while the paper closes, with outgoing controls inert.");
     await until(() => !root.querySelector('[data-finds-reader]'));
+    assert([...root.querySelectorAll('[data-find-card]')].every(card => Number(getComputedStyle(card).opacity) >= .99), "Putting a note back must restore every card in the fan.");
     const returned = root.querySelector(`[data-find-card="${card.id}"]`);
     returned.focus({ preventScroll: true });
     assert(getComputedStyle(returned).outlineStyle === "none", "Returning focus must not draw a frame around the paper.");
