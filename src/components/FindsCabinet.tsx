@@ -196,7 +196,13 @@ export default function FindsCabinet() {
         <div className="finds-drawers">
           {findDrawers.map((item, index) => <button type="button" key={item.id} className="finds-drawer" data-find-drawer={item.id}
             aria-pressed={drawer === item.id} aria-label={`Open ${item.label} drawer`} onClick={() => switchDrawer(item.id)}>
-            <span className="finds-drawer-box" aria-hidden="true"><span className="finds-drawer-papers" /></span>
+            <span className="finds-drawer-box" aria-hidden="true"><span className="finds-drawer-papers">
+              <svg viewBox="0 0 100 20" preserveAspectRatio="none" focusable="false">
+                {["#e9dfc7", "#f9eed5", "#f9eed5"].map((fill, layer) => <path key={layer}
+                  d="M3 7.5H51C53 7.5 54.5 7 56 5.5L60.5 1.8C62 .5 63 0 65 0H97Q100 0 100 3V20H0V10.5Q0 7.5 3 7.5Z"
+                  fill={fill} stroke="#bfb094" strokeWidth=".5" vectorEffect="non-scaling-stroke" transform={`translate(0 ${layer * 1.5})`} />)}
+              </svg>
+            </span></span>
             <motion.span className="finds-drawer-face" data-finds-home-target={index === 0 ? "" : undefined}
               animate={{ y: drawer === item.id ? 18 : 0, z: drawer === item.id ? 30 : 0 }} transition={reduced ? { duration: 0 } : drawerSpring}>
               <span className="finds-label-frame"><span>{item.label}</span><span className="finds-drawer-count">{finds.filter(note => inDrawer(note, item.id)).length.toString().padStart(2, "0")}</span></span>

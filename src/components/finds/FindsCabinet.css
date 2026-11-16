@@ -5,7 +5,8 @@
 .finds-drawers{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:7px;background:linear-gradient(95deg,#7c4b2b,#a66d43 40%,#6b4029);border:1px solid #70452a;border-top:0;box-shadow:inset 3px 0 3px #e5b38352,inset -3px 0 3px #35211452,8px 14px 24px #30201421,0 30px 40px -15px #3324122e}
 .finds-drawer{position:relative;display:block;height:108px;perspective:650px;transform-style:preserve-3d;border-radius:2px;background:#412a1d;cursor:pointer;text-align:left;isolation:isolate}
 .finds-drawer-box{position:absolute;inset:0 4px 2px;border:4px solid #bc8c5b;background:linear-gradient(#6b4429,#a1764a);border-radius:2px;overflow:hidden}
-.finds-drawer-papers{position:absolute;inset:8px 1px 4px;background:repeating-linear-gradient(0deg,#e9dfc7 0 2px,#bfb094 2px 3px,#f9eed5 3px 5px);border:1px solid #ac9775;box-shadow:0 -2px 4px #271d134d}
+.finds-drawer-papers{position:absolute;inset:2px 1px 4px;pointer-events:none}
+.finds-drawer-papers svg{display:block;width:100%;height:20px;overflow:visible}
 .finds-drawer-face{position:absolute;inset:0;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:17px;border:1px solid #8c5735;border-radius:3px;background:linear-gradient(110deg,#ffffff0c,#ffffff00 40%,#2c160b12),repeating-linear-gradient(0deg,#ffffff04 0 1px,#25120805 1px 3px,transparent 3px 9px),linear-gradient(#bf8657,#b37a4a 65%,#a46b40);box-shadow:inset 0 1px 1px #ffe2b785,inset 0 -2px 2px #5c381855,0 2px 3px #2c1a1552;transform-style:preserve-3d;will-change:transform}
 .finds-label-frame{display:flex;align-items:center;gap:8px;justify-content:space-between;width:calc(100% - 28px);padding:5px 7px;border:3px solid #a19a7d;border-radius:3px;background:#f0e9d7;color:#514839;box-shadow:0 1px 1px #3a2c1a6b,inset 0 1px 2px #6353384d,0 -1px #eadbb9;font-size:11px;font-weight:500;white-space:nowrap}
 .finds-drawer-count{font-family:monospace;font-size:9px;color:#766951}

@@ -50,6 +50,11 @@ A short final fade restores the native 3D occlusion order. Copies are inert and
 removed on completion, close, scrolling, resizing, visibility loss and unmount.
 The original dialing physics are separate from this handoff.
 
+The files visible inside an open drawer use three slightly offset warm-paper
+dividers. Their upper edge has a raised right tab joined by a rounded, sloping
+shoulder. The contour stays clipped inside the existing wooden box; the drawer
+face, handle, main card fan and opening motion keep their existing geometry.
+
 The handles keep their original silhouette, responsive dimensions, border widths
 and recess proportions in both entry points. Polished stainless-steel reflections
 paint only the metal rim; its central slot is transparent and reveals the actual
