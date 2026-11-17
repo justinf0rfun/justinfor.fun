@@ -22,6 +22,10 @@ export interface UseSection {
 export interface HardwareUse {
   name: string;
   image: string;
+  width: number;
+  height: number;
+  size: number;
+  bounds?: readonly [number, number, number, number];
   visualTreatment?: "zoomed";
 }
 
@@ -351,35 +355,48 @@ export const hardwareUses: HardwareUse[] = [
   {
     name: "MacBook Pro M1 Max",
     image: "/uses/hardware/macbook-pro-m1-max.png",
+    width: 1254, height: 1254, size: 224,
+    bounds: [13, 41, 1228, 1146],
   },
   {
     name: "iPhone 17 Pro Max",
     image: "/uses/hardware/iphone-17-pro-max.png",
+    width: 1254, height: 1254, size: 192,
+    bounds: [435, 367, 384, 493],
   },
   {
     name: "Apple Watch Ultra 1",
     image: "/uses/hardware/apple-watch-ultra.png",
+    width: 1254, height: 1254, size: 128,
+    bounds: [335, 117, 598, 985],
   },
   {
     name: "AirPods Pro 2",
     image: "/uses/hardware/airpods-pro-2.png",
+    width: 1254, height: 1254, size: 104,
+    bounds: [276, 195, 702, 866],
   },
   {
     name: "Studio Display",
     image: "/uses/hardware/studio-display.jpg",
+    width: 1200, height: 1200, size: 208,
     visualTreatment: "zoomed",
   },
   {
     name: "HHKB Professional BT",
     image: "/uses/hardware/hhkb-professional-bt.png",
+    width: 1742, height: 903, size: 116,
+    bounds: [279, 175, 1310, 647],
   },
   {
     name: "Skylrk MagSafe Power Bank",
     image: "/uses/hardware/skylrk-power-bank.jpg",
+    width: 1200, height: 800, size: 148,
   },
   {
     name: "iPod classic",
     image: "/uses/hardware/ipod-classic.jpg",
+    width: 1200, height: 800, size: 152,
   },
 ];
 

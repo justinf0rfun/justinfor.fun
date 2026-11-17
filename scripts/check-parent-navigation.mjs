@@ -4,7 +4,12 @@ import test from "node:test";
 
 const dist = new URL("../dist/", import.meta.url);
 const read = path => readFileSync(new URL(path, dist), "utf8");
-const parents = html => [...html.matchAll(/<a\b[^>]*data-parent-navigation\b[^>]*>[\s\S]*?<\/a>/g)].map(match => match[0]);
+const parents = html => [...html.matchAll(/<a\b[^>]*\sdata-parent-navigation(?=[\s=>])[^>]*>[\s\S]*?<\/a>/g)].map(match => match[0]);
+
+test("selector text in an Inspired link is not a parent navigation control", () => {
+  assert.equal(parents('<a href="/thoughts" data-selector="[data-parent-navigation]">Back navigation</a>').length,0);
+  assert.equal(parents('<a data-parent-navigation="true" href="/">Home</a>').length,1);
+});
 
 test("all standalone pages return to their explicit parent, including direct article visits", () => {
   let checked = 0;

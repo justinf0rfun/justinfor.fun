@@ -560,15 +560,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const overlayMeta = overlay.querySelector<HTMLElement>(".fstage-meta")!;
   const usesOverlay = document.querySelector<HTMLElement>('[data-uses-stage="overlay"]');
   const usesContent = usesOverlay?.querySelector<HTMLElement>(".uses-content");
-  const usesTargets = usesOverlay
-    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-logo-target]")]
-    : [];
-  const usesPreviewLogos = usesOverlay
-    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-preview-logo]")]
-    : [];
-  const usesReveal = usesOverlay
-    ? [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-reveal]")]
-    : [];
+  const usesTargetFor = (index: number) => usesOverlay?.querySelector<HTMLElement>(`[data-use-logo-target="${index}"]`);
   const projectsOverlay = document.querySelector<HTMLElement>(
     '[data-projects-stage="overlay"]',
   );
@@ -688,6 +680,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     const { c, base } = stage;
 
     usesOverlay.scrollTop = 0;
+    usesOverlay.dispatchEvent(new Event("uses-prepare"));
+    const usesReveal = [...usesOverlay.querySelectorAll<HTMLElement>("[data-use-reveal]")];
     if (usesContent) animate(usesContent, { opacity: 1 }, instant);
     usesReveal.forEach((item) => animate(item, { opacity: 0, y: 12 }, instant));
     usesOverlay.classList.add("is-carrying", "is-open");
@@ -699,7 +693,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     );
 
     const flights = c.items.map((item, i) => {
-      const target = usesTargets[i];
+      const target = usesTargetFor(i);
       if (!target) return Promise.resolve();
       const rect = target.getBoundingClientRect();
       const scale = rect.width / item.offsetWidth;
@@ -937,14 +931,20 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
        reads if the cards are already home. */
     if (stage.uses && usesOverlay) {
       c.folder.classList.remove("is-landed");
+      usesOverlay.inert = true;
       usesOverlay.scrollTop = 0;
       await new Promise(requestAnimationFrame);
       usesOverlay.classList.add("is-carrying");
       if (usesContent) animate(usesContent, { opacity: 0 }, { duration: 0.18 });
-      usesPreviewLogos.forEach((logo) => (logo.style.opacity = ""));
+      usesOverlay.querySelectorAll<HTMLElement>("[data-use-preview-logo]").forEach(logo => (logo.style.opacity = ""));
       c.items.forEach((item, i) => {
-        const target = usesTargets[i];
-        if (!target) return;
+        const target = usesTargetFor(i);
+        if (!target) {
+          // This category does not show the preview; restore it inside the folder.
+          const width = c.folder.getBoundingClientRect().width;
+          animate(item, { x: c.offset(i) * .06 * width, y: 0, rotate: c.closedRotate(i), scale: 1, opacity: 0 }, instant);
+          return;
+        }
         const rect = target.getBoundingClientRect();
         animate(
           item,
