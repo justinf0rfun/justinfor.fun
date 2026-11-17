@@ -24,13 +24,14 @@
 
 <style>
   .theme-control { position: relative; flex: none; width: 44px; height: 44px; }
-  .theme-dial { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: #fff; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .theme-dial:focus-visible { outline: 2px solid white; outline-offset: 2px; background: rgb(255 255 255 / .08); }
+  .theme-dial { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: var(--dock-ink); background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .theme-dial:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; background: var(--dock-hover); }
   .theme-orbit { overflow: visible; transition: transform 200ms var(--ease-out); }
   .theme-dial:active .theme-orbit { transform: translateY(1px) scale(.88) rotate(12deg); }
   .theme-rays { opacity: 0; transform: scale(.65) rotate(40deg); transform-origin: 16px 16px; transition: opacity 160ms ease, transform 350ms var(--ease-out); }
   .theme-shadow { transform: translate(16px, -16px); transition: transform 350ms cubic-bezier(.65,0,.35,1); }
   .theme-half, .theme-system-ring, .theme-auto { opacity: 1; transition: opacity 180ms ease; }
+  .theme-half { fill: var(--dock-cutout); }
   .theme-auto { font-family: inherit; font-size: 7px; font-weight: 600; }
   :global(html[data-home-mode="light"]) .theme-rays { opacity: 1; transform: scale(1) rotate(0deg); }
   :global(html[data-home-mode="dark"]) .theme-shadow { transform: translate(-4.5px, 4.5px); }

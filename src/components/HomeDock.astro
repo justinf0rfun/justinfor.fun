@@ -5,6 +5,7 @@ const email = "hello@jiaq.ing";
 ---
 <div class="home-dock-wrap">
   <div class="home-dock" role="group" aria-label="Contact and appearance">
+    <div class="dots-sub-nav-surface" aria-hidden="true"></div>
     <div class="dock-controls">
     <button class="dock-chat" type="button" data-home-chat-trigger aria-controls="home-chat" aria-expanded="false" disabled>
       <img src="/justin-avatar.png" alt="" width="26" height="30" />
@@ -72,17 +73,29 @@ const email = "hello@jiaq.ing";
     transform: translateX(-50%);
   }
   .home-dock {
+    --bg-elevated-secondary: var(--dock-elevated-secondary);
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     gap: 16px;
     padding: 13px 20px 13px 24px;
     border-radius: 39px;
-    background: #000;
     box-shadow: 0 .602px .602px -1.25px rgb(0 0 0 / .281),
       0 2.289px 2.289px -2.5px rgb(0 0 0 / .248),
       0 10px 10px -3.75px rgb(0 0 0 / .098);
-    outline: 1.5px solid var(--home-dock-border, #000);
+    outline: 1.5px solid var(--home-dock-border);
     outline-offset: -1.5px;
+  }
+  /* DotsSubNav's separate material layer; radius follows the existing Dock. */
+  .dots-sub-nav-surface {
+    z-index: -1;
+    background: color-mix(in srgb, var(--bg-elevated-secondary) 80%, transparent);
+    -webkit-backdrop-filter: blur(140px);
+    backdrop-filter: blur(140px);
+    border-radius: inherit;
+    position: absolute;
+    inset: 0;
   }
   .home-dock-wrap::before {
     content: "";
@@ -98,25 +111,25 @@ const email = "hello@jiaq.ing";
     mask-image: linear-gradient(transparent, #000 75%);
   }
   button { border: 0; padding: 0; background: none; cursor: pointer; }
-  button:focus-visible { outline: 2px solid white; outline-offset: 4px; }
+  button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
   .dock-controls { display: flex; align-items: center; gap: inherit; }
-  .dock-moments { display: flex; align-items: center; gap: 7px; min-height: 35px; color: rgb(255 255 255 / .65); white-space: nowrap; border-radius: 7px; font-size: 16px; transition: color 160ms; }
+  .dock-moments { display: flex; align-items: center; gap: 7px; min-height: 35px; color: var(--dock-muted); white-space: nowrap; border-radius: 7px; font-size: 16px; transition: color 160ms; }
   .dock-moments:disabled { cursor: wait; }
-  .dock-moments:is(:hover, :focus-visible) { color: #fff; }
+  .dock-moments:is(:hover, :focus-visible) { color: var(--dock-ink); }
   .moments-entry-art { position: relative; display: grid; place-items: center; width: 28px; height: 30px; flex: none; }
   .moments-entry-art > img { width: 26px; height: 26px; object-fit: contain; }
   .moments-entry-close { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); opacity: 0; transition: opacity 150ms; }
-    .dock-chat { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: rgb(255 255 255 / .65); border-radius: 7px; font-size: 16px; transition: color 160ms; }
+    .dock-chat { display: flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--dock-muted); border-radius: 7px; font-size: 16px; transition: color 160ms; }
     .dock-chat:disabled { cursor: wait; }
     .dock-chat-divider { display: block; }
-    .dock-chat:is(:hover, :focus-visible, [aria-expanded="true"]) { color: #fff; }
+    .dock-chat:is(:hover, :focus-visible, [aria-expanded="true"]) { color: var(--dock-ink); }
     .dock-chat img { object-fit: contain; flex: none; }
-  .dock-email { --mail-edge: #c3beb3; --mail-fold: #b9b1a4; display: flex; align-items: center; gap: 8px; color: rgb(255 255 255 / .5); border-radius: 7px; }
+  .dock-email { --mail-edge: #c3beb3; --mail-fold: #b9b1a4; display: flex; align-items: center; gap: 8px; color: var(--dock-muted); border-radius: 7px; }
   .dock-email:disabled { cursor: wait; }
   .email-label { width: 70px; white-space: nowrap; font-size: 16px; line-height: 1.8; letter-spacing: .01em; }
   .email-icons { display: grid; place-items: center; flex: none; width: 28px; height: 28px; }
   .email-icons :global(svg) { width: 28px; height: 28px; overflow: visible; filter: drop-shadow(0 .75px .75px rgb(0 0 0 / .25)); }
-  .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(rgb(255 255 255 / .39),rgb(255 255 255 / .39)) center / 1px 24px no-repeat; }
+  .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(var(--dock-divider),var(--dock-divider)) center / 1px 24px no-repeat; }
   @media (max-width: 400px) {
     .home-dock-wrap { --dock-gap: max(20px, env(safe-area-inset-bottom)); }
     .home-dock { gap: 10px; padding-inline: 16px; }
@@ -147,11 +160,28 @@ const email = "hello@jiaq.ing";
 </style>
 
 <style is:global>
-  body.home-surface { --home-background: #f7f7f8; --home-ink: #202221; --home-muted: rgb(32 34 33 / .5); }
+  body.home-surface {
+    --home-background: #f7f7f8; --home-ink: #202221; --home-muted: rgb(32 34 33 / .5);
+    --dock-elevated-secondary: #f3f3f3;
+    --dock-ink: #202221;
+    --dock-muted: rgb(32 34 33 / .68);
+    --dock-divider: rgb(32 34 33 / .2);
+    --dock-hover: rgb(32 34 33 / .06);
+    --dock-active-shadow: 0 1px 3px rgb(32 34 33 / .1);
+    --dock-cutout: #f3f3f3;
+    --home-dock-border: transparent;
+  }
   html[data-home-theme="dark"] body.home-surface {
     --home-background: #000;
     --home-ink: #f7f7f8;
     --home-muted: rgb(255 255 255 / .5);
+    --dock-elevated-secondary: #212121;
+    --dock-ink: #fff;
+    --dock-muted: rgb(255 255 255 / .65);
+    --dock-divider: rgb(255 255 255 / .39);
+    --dock-hover: rgb(255 255 255 / .1);
+    --dock-active-shadow: inset 0 1.5px 2px rgb(0 0 0 / .5);
+    --dock-cutout: #000;
     --home-dock-border: #232323;
   }
   .home-surface > main { padding-bottom: 9rem; }
