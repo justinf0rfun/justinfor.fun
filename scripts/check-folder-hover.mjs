@@ -9,7 +9,7 @@ function fixture(returning) {
   const listeners = new Map(); let enter, starts = 0, stops = 0;
   const element = { addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: name => listeners.delete(name) };
   const folderHover = runInNewContext(`${source}\nfolderHover`, {
-    document: { querySelector: () => returning ? {} : null },
+    document: { querySelector: selector => returning === "music" ? (selector.includes('[data-music-returning="true"]') ? {} : null) : returning ? {} : null },
     hover: (_, callback) => { enter = callback; },
   });
   folderHover(element, () => { ++starts; return () => ++stops; });
@@ -41,4 +41,11 @@ test("pen hover keeps the same deferred activation as mouse hover", () => {
   const f = fixture(true), leave = f.enter();
   f.move("pen"); assert.equal(f.counts().starts, 1);
   leave(); assert.equal(f.counts().stops, 1);
+});
+
+test("music overlay returns use the same real-pointer-movement guard", () => {
+  const f = fixture("music"), leave=f.enter();
+  assert.equal(f.counts().starts,0);
+  f.move("mouse");assert.equal(f.counts().starts,1);
+  leave();assert.equal(f.counts().stops,1);
 });

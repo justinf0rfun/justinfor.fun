@@ -98,10 +98,6 @@ const toggle = (target: MusicTarget) => {
   else void play(target);
 };
 
-const preloadHomeFolder = (targets: MusicTarget[]) => {
-  targets.forEach(getPlayer);
-};
-
 const preloadUpcomingTracks = (targets: MusicTarget[]) => {
   if (!("IntersectionObserver" in window)) {
     targets.slice(0, 2).forEach(getPlayer);
@@ -148,27 +144,10 @@ export const mountMusicPreviews = (root: ParentNode = document) => {
     });
   });
 
-  root.querySelectorAll<HTMLElement>("[data-music-folder]").forEach((folder) => {
-    folder.addEventListener("click", (event) => {
-      const target = (event.target as HTMLElement).closest<MusicTarget>(
-        "[data-music-track][data-preview-url]",
-      );
-      if (!target) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      toggle(target);
-    });
-  });
-
   if (preloadRoots.has(root)) return;
   preloadRoots.add(root);
 
-  const folder = root.querySelector("[data-music-folder]");
-  if (folder) {
-    preloadHomeFolder(targets.filter((target) => target.closest("[data-music-folder]")));
-  } else {
-    preloadUpcomingTracks(targets);
-  }
+  preloadUpcomingTracks(targets);
 };
 
 addEventListener("pagehide", () => pause());

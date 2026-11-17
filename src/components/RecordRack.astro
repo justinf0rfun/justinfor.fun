@@ -1,0 +1,53 @@
+---
+import { musicTracks } from "../data/music";
+import { INITIAL_RECORD } from "../lib/record-rack";
+interface Props { compact?: boolean; id: string; }
+const { compact = false, id } = Astro.props;
+---
+<div class:list={["record-rack", compact && "is-compact"]} style={`--record-count:${musicTracks.length};--record-start:${INITIAL_RECORD}`} data-record-rack={compact ? "compact" : "full"} data-record-id={id} role={compact ? undefined : "listbox"} tabindex={compact ? undefined : "0"} aria-label={compact ? undefined : "Record collection. Use arrow keys to browse and Enter to take out a record."} aria-hidden={compact ? "true" : undefined} aria-activedescendant={compact ? undefined : `${id}-${musicTracks[INITIAL_RECORD].slug}`}>
+  <div class="record-camera" data-record-camera>
+    <div class="record-scene" data-record-scene>
+      {musicTracks.map((track,index)=><div class="record-option" data-record-option={index} data-record-slug={track.slug} data-record-title={track.title} data-record-artist={track.artist} id={`${id}-${track.slug}`} role={compact ? undefined : "option"} aria-label={`${track.title} by ${track.artist}`} aria-selected={compact ? undefined : index===INITIAL_RECORD} aria-posinset={compact ? undefined : index+1} aria-setsize={compact ? undefined : musicTracks.length} style={`--record-order:${index};--record-flip:${index<INITIAL_RECORD?180:0}deg;--record-art:url('${track.artwork}')`}>
+        <div class="record-cover" data-record-cover>
+          {track.motionArtwork ? <video src={track.motionArtwork} poster={track.artwork} preload="none" loop muted playsinline aria-hidden="true" /> : <img src={track.artwork} alt="" draggable="false" loading={index<6?"eager":"lazy"} />}
+          <span class="record-reflection" aria-hidden="true"></span>
+        </div>
+        <span class="record-spine"><strong>{track.title}</strong><span>{track.artist}</span></span>
+        <span class="record-edge" aria-hidden="true"></span>
+      </div>)}
+    </div>
+  </div>
+  <div class="record-scroll" data-record-scroll>
+    <div class="record-space" data-record-space>
+      {musicTracks.map((_,index)=><span class="record-snap" data-record-snap style={`--record-order:${index}`} aria-hidden="true"></span>)}
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .record-rack{--record-size:min(68vw,340px,60svh);--record-step:64px;--record-height:600px;--record-thickness:calc(var(--record-size) / 28);position:relative;width:100%;height:100%;min-height:0;outline:none}
+  .record-rack.is-compact{--record-size:160px;--record-step:28px;--record-height:160px;touch-action:pan-y}
+  .record-camera{position:absolute;inset:0;overflow:hidden;perspective:950px;perspective-origin:50% 50%;pointer-events:none;mask-image:linear-gradient(transparent,#000 10%,#000 68%,transparent 85%)}
+  .is-compact .record-camera{mask-image:linear-gradient(transparent,#000 10%,#000 90%,transparent)}
+  .record-rack[data-detail] .record-camera{mask-image:none}
+  .record-camera[data-morph]{position:fixed;inset:0;z-index:1;mask-image:none}
+  .record-scene{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+  .record-option{position:absolute;left:calc(var(--record-size) / -2);top:calc(var(--record-size) / -2);width:var(--record-size);height:var(--record-size);transform-style:preserve-3d;transform:translateY(calc((var(--record-order) - var(--record-start)) * var(--record-step))) rotateX(90deg);--record-opacity:1}
+  .record-cover{position:absolute;inset:0;border-radius:2px;overflow:hidden;background:#27292a;transform:rotateX(var(--record-flip)) translateZ(calc(var(--record-thickness) / 2 + .2px));backface-visibility:hidden;opacity:var(--record-opacity);box-shadow:inset 0 0 0 .6px #ffffff30}
+  .record-cover img,.record-cover video{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
+  .record-reflection{position:absolute;inset:0;background:linear-gradient(125deg,#ffffff16,transparent 38%,#ffffff0a 70%,#00000010);pointer-events:none}
+  .record-spine{position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:4px;width:100%;height:var(--record-thickness);padding:0 7px;transform-origin:50% 100%;transform:translateZ(calc(var(--record-thickness) / -2)) rotateX(-90deg);color:#fff;background:linear-gradient(#0009,#000b),var(--record-art) center/cover;box-shadow:inset 0 .5px #ffffff60,inset 0 -.5px #0008;font-size:calc(var(--record-size) * .027);line-height:1;white-space:nowrap;overflow:hidden;backface-visibility:hidden;opacity:var(--record-opacity)}
+  .record-spine strong{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+  .record-spine>span{max-width:42%;overflow:hidden;text-overflow:ellipsis;font-size:.86em;opacity:.8}
+  .record-edge{position:absolute;right:0;top:0;width:var(--record-thickness);height:100%;transform-origin:100% 50%;transform:translateZ(calc(var(--record-thickness) / -2)) rotateY(90deg);background:linear-gradient(90deg,#555,#141414);opacity:var(--record-opacity)}
+  .record-scroll{position:absolute;inset:0;z-index:2;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y;cursor:grab;scroll-snap-type:y proximity}
+  .record-scroll::-webkit-scrollbar{display:none}
+  .record-scroll[data-dragging]{cursor:grabbing;scroll-snap-type:none}
+  .record-scroll[data-coasting]{scroll-snap-type:none}
+  .record-space{position:relative;height:calc(var(--record-height) + (var(--record-count) - 1) * var(--record-step));pointer-events:none}
+  .record-snap{position:absolute;left:0;top:calc(var(--record-order) * var(--record-step));width:1px;height:var(--record-height);scroll-snap-align:center}
+  .is-compact .record-scroll{overflow:hidden;scroll-snap-type:none;cursor:inherit}
+  .record-rack[data-detail] .record-scroll{pointer-events:none}
+  .record-rack:focus-visible .record-option[aria-selected=true] .record-spine{outline:2px solid var(--music-accent,#316ff0);outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){.record-scroll{scroll-behavior:auto}}
+</style>

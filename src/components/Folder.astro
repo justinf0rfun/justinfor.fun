@@ -2,6 +2,7 @@
 import { Icon } from "astro-icon/components";
 import ParentLink from "./ParentLink.astro";
 import Card from "./Card.astro";
+import MusicFolder from "./MusicFolder.astro";
 import { normalise, type Collection } from "../data/collections";
 import { finds } from "../data/finds";
 
@@ -27,13 +28,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   A30,30 0 0 1 370,340 L30,340 A30,30 0 0 1 0,310 Z`;
 ---
 
-<a
+{collection.layout === "music" ? <MusicFolder class={className} /> : (<a
   href={`/${slug}`}
   data-folder={slug}
   data-layout={collection.layout ?? "carousel"}
   data-title={title}
   data-meta={meta}
-  data-music-folder={collection.layout === "music" ? "" : undefined}
   class:list={["folder group block", className]}
 >
   <div class="relative aspect-20/17 w-full [perspective:1000px]">
@@ -56,9 +56,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
             data-folder-item
             data-w={card.w}
             data-kind={card.kind}
-            data-music-track={card.music?.slug}
-            data-music-title={card.music ? `${card.music.title} by ${card.music.artist}` : undefined}
-            data-preview-url={card.music?.previewUrl}
             class="item absolute left-1/2"
             style={`top:${card.top}%;width:${card.w}%;margin-left:${-card.w / 2}%;aspect-ratio:${card.ratio}`}
           >
@@ -78,13 +75,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <p class="truncate text-sm font-medium text-neutral-800">{title}</p>
-            {
-              collection.layout === "music" && (
-                <span class="folder-music-eq" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                </span>
-              )
-            }
           </div>
           {meta && <p class="mt-0.5 truncate text-xs text-neutral-500">{meta}</p>}
         </div>
@@ -94,6 +84,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     </div>
   </div>
 </a>
+)}
 
 <template data-folder-parent-control>
   <ParentLink label="Home" data-folder-parent-close />
@@ -129,37 +120,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       rgb(255 255 255 / 0.38)
     );
     backdrop-filter: blur(16px) saturate(180%);
-  }
-
-  .folder-music-eq {
-    display: flex;
-    align-items: center;
-    gap: 1.5px;
-    width: 0.8rem;
-    height: 0.7rem;
-    opacity: 0;
-    transition: opacity 180ms var(--ease-out);
-  }
-
-  .folder-music-eq span {
-    width: 1.5px;
-    height: 100%;
-    border-radius: 999px;
-    background: var(--color-neutral-500);
-    transform: scaleY(0.35);
-    animation: folder-music-bar 680ms ease-in-out infinite alternate;
-  }
-
-  .folder-music-eq span:nth-child(2) { animation-delay: -360ms; }
-  .folder-music-eq span:nth-child(3) { animation-delay: -160ms; }
-
-  .folder:has([data-music-state="playing"]) .folder-music-eq {
-    opacity: 1;
-  }
-
-  @keyframes folder-music-bar {
-    from { transform: scaleY(0.25); }
-    to { transform: scaleY(1); }
   }
 
   /* Presses should feel heard, but only where there's a real pointer. */
@@ -234,7 +194,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      grid while it remains at its home position underneath them. */
   a.folder.is-stage[data-layout="uses"] .back,
   a.folder.is-stage[data-layout="projects"] .back,
-  a.folder.is-stage[data-layout="music"] .back,
   a.folder.is-stage[data-layout="memory"] .back,
   a.folder.is-stage[data-layout="writing"] .back {
     opacity: 0;
@@ -242,7 +201,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
   a.folder.is-stage[data-layout="uses"],
   a.folder.is-stage[data-layout="projects"],
-  a.folder.is-stage[data-layout="music"],
   a.folder.is-stage[data-layout="memory"],
   a.folder.is-stage[data-layout="writing"] {
     pointer-events: none;
@@ -253,7 +211,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
      its layout box stays intact so the reverse flight keeps the same geometry. */
   a.folder.is-stage[data-layout="uses"].is-landed,
   a.folder.is-stage[data-layout="projects"].is-landed,
-  a.folder.is-stage[data-layout="music"].is-landed,
   a.folder.is-stage[data-layout="memory"].is-landed,
   a.folder.is-stage[data-layout="writing"].is-landed,
   a.folder.is-stage[data-layout="x-bookmarks"].is-landed {
@@ -327,7 +284,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     createWritingTransition,
   } from "../scripts/writing-transition";
   import { createXBookmarksTransition } from "../scripts/finds-transition";
-  import { mountMusicPreviews, pauseMusicPreviews } from "../scripts/music-preview";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const instant = { duration: 0 } as const;
@@ -381,7 +337,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     closing: boolean;
     uses: boolean;
     projects: boolean;
-    music: boolean;
     memory: boolean;
     writing: boolean;
     xBookmarks: boolean;
@@ -391,7 +346,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   /* Folders: hover fan, single-out, press                               */
   /* ------------------------------------------------------------------ */
 
-  document.querySelectorAll<HTMLElement>("[data-folder]").forEach((folder) => {
+  document.querySelectorAll<HTMLElement>("[data-folder]:not([data-music-entry])").forEach((folder) => {
     const slug = folder.dataset.folder ?? "";
     const folderSpring = (s: object) =>
       folder.dataset.layout === "uses" || folder.dataset.layout === "projects"
@@ -520,11 +475,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     folder.addEventListener("focusout", () => !stage && setOpen(false));
 
     folder.addEventListener("click", (event) => {
-      if (
-        folder.dataset.layout === "music" &&
-        (event.target as HTMLElement).closest("[data-folder-item]")
-      )
-        return;
       event.preventDefault();
       if (stage?.c === controllers.get(slug) && !stage.closing) {
         // On stage, clicking a side card steps to it; anywhere else closes.
@@ -579,20 +529,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   const xBookmarksTransition = xBookmarksOverlay
     ? createXBookmarksTransition(xBookmarksOverlay)
     : null;
-  const musicOverlay = document.querySelector<HTMLElement>('[data-music-stage="overlay"]');
-  const musicTargets = new Map(
-    musicOverlay
-      ? [...musicOverlay.querySelectorAll<HTMLElement>("[data-music-visual-target]")].map(
-          (target) => [target.dataset.musicVisualTarget ?? "", target] as const,
-        )
-      : [],
-  );
-  const musicReveals = musicOverlay
-    ? [...musicOverlay.querySelectorAll<HTMLElement>("[data-music-reveal]")]
-    : [];
-  const musicVideos = musicOverlay
-    ? [...musicOverlay.querySelectorAll<HTMLVideoElement>("video")]
-    : [];
   const memoryOverlay = document.querySelector<HTMLElement>('[data-memory-stage="overlay"]');
   const memoryTargets = memoryOverlay
     ? [...memoryOverlay.querySelectorAll<HTMLElement>("[data-memory-visual-target]")]
@@ -626,7 +562,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       !stage ||
       stage.uses ||
       stage.projects ||
-      stage.music ||
       stage.memory ||
       stage.writing ||
       stage.xBookmarks
@@ -735,60 +670,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     void xBookmarksTransition.open({ folder: stage.c.folder, items: stage.c.items });
   };
 
-  const musicTargetFor = (item: HTMLElement) =>
-    musicTargets.get(item.dataset.musicTrack ?? "");
-
-  const openMusic = async () => {
-    if (!stage || !stage.music || !musicOverlay) return;
-    const openingStage = stage;
-    const { c, base } = openingStage;
-
-    musicOverlay.scrollTop = 0;
-    musicOverlay.classList.add("is-carrying", "is-open");
-    musicOverlay.setAttribute("aria-hidden", "false");
-    musicOverlay.inert = false;
-    mountMusicPreviews(musicOverlay);
-    musicVideos.forEach((video) => void video.play().catch(() => undefined));
-
-    musicReveals.forEach((item) => animate(item, { opacity: 0, y: 10 }, instant));
-    musicReveals.forEach((item, index) =>
-      animate(
-        item,
-        { opacity: 1, y: 0 },
-        { duration: 0.26, ease: [0.23, 1, 0.32, 1], delay: 0.12 + index * 0.035 },
-      ),
-    );
-
-    const flights = c.items.map((item, index) => {
-      const target = musicTargetFor(item);
-      if (!target) return Promise.resolve();
-      const rect = target.getBoundingClientRect();
-      item.style.zIndex = String(70 + index);
-      return animate(
-        item,
-        {
-          x: rect.left + rect.width / 2 - base[index].x,
-          y: rect.top + rect.height / 2 - base[index].y,
-          scale: rect.width / item.offsetWidth,
-          rotate: 0,
-          opacity: 1,
-        },
-        { ...stageSpring, delay: Math.abs(c.offset(index)) * 0.035 },
-      ).finished.catch(() => undefined);
-    });
-
-    await Promise.all(flights);
-    if (stage !== openingStage || stage.closing) return;
-    musicOverlay.classList.remove("is-carrying");
-    await Promise.all(
-      c.items.map((item) =>
-        animate(item, { opacity: 0 }, { duration: 0.1 }).finished.catch(() => undefined),
-      ),
-    );
-    if (stage !== openingStage || stage.closing) return;
-    c.folder.classList.add("is-landed");
-  };
-
   const openMemory = async () => {
     if (!stage || !stage.memory || !memoryOverlay) return;
     const openingStage = stage;
@@ -844,11 +725,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (!c || stage) return;
     const uses = c.folder.dataset.layout === "uses";
     const projects = c.folder.dataset.layout === "projects";
-    const music = c.folder.dataset.layout === "music";
     const memory = c.folder.dataset.layout === "memory";
     const writing = c.folder.dataset.layout === "writing";
     const xBookmarks = c.folder.dataset.layout === "x-bookmarks";
-    const carried = uses || projects || music || memory || writing || xBookmarks;
+    const carried = uses || projects || memory || writing || xBookmarks;
     stage = {
       slug,
       c,
@@ -857,7 +737,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       closing: false,
       uses,
       projects,
-      music,
       memory,
       writing,
       xBookmarks,
@@ -897,7 +776,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (!xBookmarks) animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
     if (uses) openUses();
     else if (projects) openProjects();
-    else if (music) void openMusic();
     else if (memory) void openMemory();
     else if (writing) openWriting();
     else if (xBookmarks) openXBookmarks();
@@ -912,7 +790,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (
       !stage.uses &&
       !stage.projects &&
-      !stage.music &&
       !stage.memory &&
       !stage.writing &&
       !stage.xBookmarks
@@ -960,37 +837,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       });
     }
 
-    if (stage.music && musicOverlay) {
-      pauseMusicPreviews();
-      c.folder.classList.remove("is-landed");
-      musicOverlay.scrollTop = 0;
-      await new Promise(requestAnimationFrame);
-      musicReveals.forEach((item) =>
-        animate(item, { opacity: 0, y: 8 }, { duration: 0.14, ease: [0.23, 1, 0.32, 1] }),
-      );
-      c.items.forEach((item, index) => {
-        const target = musicTargetFor(item);
-        if (!target) return;
-        const rect = target.getBoundingClientRect();
-        animate(
-          item,
-          {
-            x: rect.left + rect.width / 2 - stage!.base[index].x,
-            y: rect.top + rect.height / 2 - stage!.base[index].y,
-            scale: rect.width / item.offsetWidth,
-            rotate: 0,
-            opacity: 0,
-          },
-          instant,
-        );
-      });
-      await Promise.all(
-        c.items.map((item) =>
-          animate(item, { opacity: 1 }, { duration: 0.1 }).finished.catch(() => undefined),
-        ),
-      );
-      musicOverlay.classList.add("is-carrying");
-    }
+
 
     if (stage.memory && memoryOverlay) {
       c.folder.classList.remove("is-landed");
@@ -1073,7 +920,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
                 opacity: 1,
               },
               {
-                ...(stage!.uses || stage!.music || stage!.memory
+                ...(stage!.uses || stage!.memory
                   ? homeSpring
                   : spring(homeSpring)),
                 delay: Math.abs(c.offset(i)) * 0.03,
@@ -1089,15 +936,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       usesOverlay.inert = true;
     }
 
-    if (stage.music && musicOverlay) {
-      // Keep the page artwork hidden while the overlay fades. Revealing it here
-      // makes the original covers flash back underneath the cards that already
-      // flew home.
-      musicOverlay.classList.remove("is-open");
-      musicOverlay.setAttribute("aria-hidden", "true");
-      musicOverlay.inert = true;
-      musicVideos.forEach((video) => video.pause());
-    }
+
 
     if (stage.memory && memoryOverlay) {
       memoryOverlay.classList.remove("is-open");
@@ -1110,7 +949,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       { rotateX: 0, opacity: 1 },
       stage.uses ||
         stage.projects ||
-        stage.music ||
         stage.memory ||
         stage.writing ||
         stage.xBookmarks
@@ -1118,7 +956,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
         : spring(shutSpring),
     ).finished;
 
-    if (stage.music && musicOverlay) musicOverlay.classList.remove("is-carrying");
     if (stage.memory && memoryOverlay) {
       memoryOverlay.classList.remove("is-carrying", "is-positioning");
     }
@@ -1139,7 +976,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       stage.closing ||
       stage.uses ||
       stage.projects ||
-      stage.music ||
       stage.memory ||
       stage.writing ||
       stage.xBookmarks
@@ -1171,10 +1007,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ?.querySelector<HTMLElement>("[data-projects-close]")
     ?.addEventListener("click", requestClose);
 
-  musicOverlay
-    ?.querySelector<HTMLElement>("[data-music-close]")
-    ?.addEventListener("click", requestClose);
-
   memoryOverlay
     ?.querySelector<HTMLElement>("[data-memory-close]")
     ?.addEventListener("click", requestClose);
@@ -1192,7 +1024,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (
       !stage.uses &&
       !stage.projects &&
-      !stage.music &&
       !stage.memory &&
       !stage.writing &&
       !stage.xBookmarks &&
@@ -1202,7 +1033,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     else if (
       !stage.uses &&
       !stage.projects &&
-      !stage.music &&
       !stage.memory &&
       !stage.writing &&
       !stage.xBookmarks &&
@@ -1232,7 +1062,6 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (
       !stage.uses &&
       !stage.projects &&
-      !stage.music &&
       !stage.memory &&
       !stage.writing &&
       !stage.xBookmarks
@@ -1240,5 +1069,4 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       render(instant);
   });
 
-  mountMusicPreviews(document);
 </script>
