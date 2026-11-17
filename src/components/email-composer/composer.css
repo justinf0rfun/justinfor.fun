@@ -1,16 +1,18 @@
 /* Source: LauraBeatris/laurabeatris.com, pinned in SOURCE.md. Original motion follows the Dock adapters. */
-.home-email-layer { position:fixed; inset:0; z-index:40; pointer-events:none; }
-.home-email-composer {
+.home-email-layer {
   --background:0 0% 100%; --foreground:0 0% 10%; --muted:0 0% 44%; --border:0 0% 89%;
   --ask-glass-fill:linear-gradient(#f5f5f5,#ebebeb);
   --ask-glass-shadow:inset 0 0 0 1px #00000024,inset 0 1.5px 0 #ffffffe6,0 1px 2px #0000000f;
+  position:fixed; inset:0; z-index:40; pointer-events:none;
+}
+.home-email-composer {
   position:fixed; z-index:50; left:var(--composer-left,16px); bottom:var(--composer-bottom,110px);
   display:flex; flex-direction:column; width:384px; max-width:calc(100vw - 32px);
   max-height:var(--composer-max-height,calc(100dvh - 7rem)); border:1px solid hsl(var(--border));
   border-radius:16px; outline:none; background:hsl(var(--background)); color:hsl(var(--foreground));
   font-family:var(--font-sans); font-size:14px; line-height:1.5; pointer-events:auto;
 }
-html[data-home-theme="dark"] .home-email-composer {
+html[data-home-theme="dark"] .home-email-layer {
   --background:0 0% 7%; --foreground:0 0% 95%; --muted:0 0% 65%; --border:0 0% 17%;
   --ask-glass-fill:linear-gradient(#4d4d4d,#424242);
   --ask-glass-shadow:inset 0 0 0 .5px #ffffff38,inset 0 1px 0 #ffffff24,0 1px 2px #0006;
@@ -383,23 +385,6 @@ html[data-home-theme="dark"] .home-email-composer {
     animation-delay: 0.18s;
   }
 
-  .email-send-done {
-    opacity: 0;
-    transform: translateY(3px);
-    filter: blur(2px);
-  }
-
-  /* Comes in while the plane is still on its way out */
-  [data-stage="flown"] .email-send-done {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition:
-      opacity 0.4s var(--ease-out) 0.3s,
-      transform 0.4s var(--ease-out) 0.3s,
-      filter 0.4s var(--ease-out) 0.3s;
-  }
-
   /* With reduced motion nothing travels: each step fades into the next */
   @media (prefers-reduced-motion: reduce) {
     .home-email-composer,
@@ -410,8 +395,7 @@ html[data-home-theme="dark"] .home-email-composer {
     .home-email-composer-key[data-pressed="true"],
     .email-send-button .email-send-letter,
     .email-send-button .email-send-plane,
-    .email-send-button .email-send-envelope,
-    .email-send-button .email-send-done {
+    .email-send-button .email-send-envelope {
       transform: none;
     }
 
@@ -603,4 +587,35 @@ html[data-home-theme="dark"] .home-email-composer {
       }
     }
   }
+}
+
+/* Local letter layout; the original sender and sheet mechanics remain below. */
+.home-email-composer-header { position:relative; display:flex; align-items:center; justify-content:space-between; height:64px; flex-shrink:0; padding:0 20px; border-bottom:1px solid hsl(var(--border)); }
+.home-email-recipient { display:flex; align-items:center; gap:12px; min-width:0; }
+.home-email-recipient img { width:32px; height:32px; object-fit:contain; flex:none; }
+.home-email-recipient h2 { font-size:16px; font-weight:550; line-height:1.4; letter-spacing:-.025em; }
+.home-email-recipient span { display:block; color:hsl(var(--muted)); font:12px/1.5 ui-monospace,SFMono-Regular,monospace; }
+.home-email-composer-row { display:flex; height:44px; flex-shrink:0; align-items:center; gap:12px; padding:0 20px; }
+.home-email-composer-row>span { width:52px; flex:none; color:hsl(var(--muted)); font-size:13px; }
+.home-email-composer-message { padding-inline:20px; font-size:16px; line-height:1.65; }
+.home-email-footer { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-shrink:0; min-height:64px; padding:16px 20px; }
+.home-email-actions-note { display:flex; align-items:center; gap:12px; color:hsl(var(--muted)); font-size:13px; }
+.home-email-flight { position:fixed; z-index:60; top:-16px; left:-16px; width:32px; height:32px; overflow:visible; color:hsl(var(--foreground)); pointer-events:none; transform-origin:50% 50%; }
+.email-send-button[data-stage=flown] .email-send-plane { opacity:0; transform:none; transition:none; }
+.home-email-draft-paper { opacity:0; transform:translateY(4px); transition:opacity 160ms,transform 220ms var(--ease-out); }
+.dock-email[data-draft=true][data-open=false] .home-email-draft-paper { opacity:1; transform:translateY(0); transition-delay:160ms; }
+.dock-email[data-draft=true][data-open=false] .home-email-mail-heart { opacity:0; }
+.dock-email::after { content:"Preview complete"; position:absolute; left:50%; bottom:calc(100% + 20px); padding:7px 11px; border-radius:8px; background:#202221; color:#fff; white-space:nowrap; font:12px/1.5 var(--font-sans); opacity:0; visibility:hidden; transform:translate(-50%,4px); transition:opacity 140ms,transform 180ms var(--ease-out),visibility 0s 180ms; pointer-events:none; }
+.dock-email[data-preview-complete=true]::after { opacity:1; visibility:visible; transform:translate(-50%,0); transition-delay:0s; }
+
+@media (min-width:640px) and (pointer:fine), (min-width:640px) and (min-height:521px) {
+  .home-email-composer { border-radius:20px; transform:translateY(var(--paper-travel,40px)); clip-path:inset(var(--paper-top,100%) var(--paper-right,0px) 0 var(--paper-left,0px) round 24px); transition:opacity 180ms var(--ease-out),transform 240ms var(--ease-out),clip-path 240ms var(--ease-out),visibility 0s 240ms; }
+  .home-email-composer[data-open=true] { transform:none; clip-path:inset(0 0 0 0 round 20px); transition:opacity 180ms var(--ease-out),transform 300ms var(--ease-out),clip-path 300ms var(--ease-out),visibility 0s; }
+  @starting-style { .home-email-composer[data-open=true] { opacity:0; transform:translateY(var(--paper-travel,40px)); clip-path:inset(var(--paper-top,100%) var(--paper-right,0px) 0 var(--paper-left,0px) round 24px); } }
+}
+@media (prefers-reduced-motion:reduce) {
+  .home-email-composer,.home-email-composer[data-open=true] { clip-path:none; transform:none; transition-property:opacity,visibility; }
+  @starting-style { .home-email-composer[data-open=true] { clip-path:none; transform:none; } }
+  .home-email-draft-paper { transition:none; }
+  .dock-email::after,.dock-email[data-preview-complete=true]::after { transform:translate(-50%,0); transition-property:opacity,visibility; }
 }

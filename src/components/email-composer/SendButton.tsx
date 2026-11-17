@@ -1,7 +1,7 @@
 // Adapted from LauraBeatris/laurabeatris.com; see SOURCE.md.
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useLayoutEffect, useRef, useState } from "react";
 
 export type SendStatus = "idle" | "sending" | "sent" | "failed";
 
@@ -24,7 +24,6 @@ const STAGE_MS = {
   open: 300,
   sealing: 460,
   plane: 200,
-  flown: 720,
 };
 
 type Point = [number, number];
@@ -123,14 +122,15 @@ const easeInOut = cubicBezier(0.77, 0, 0.175, 1);
 
 export function SendButton({
   status,
-  onSent,
+  onFlight,
 }: {
   status: SendStatus;
-  onSent: () => void;
+  onFlight: (button: HTMLButtonElement) => void;
 }) {
   const [stage, setStage] = useState<Stage>("idle");
   const outline = useRef<SVGPathElement>(null);
-  const notifySent = useEffectEvent(onSent);
+  const button = useRef<HTMLButtonElement>(null);
+  const notifyFlight = useEffectEvent(onFlight);
 
   if (status === "sending" && stage === "idle") setStage("morph");
   if ((status === "idle" || status === "failed") && stage !== "idle") {
@@ -138,6 +138,10 @@ export function SendButton({
   }
   // The envelope waits for the answer however long sealing it took
   if (status === "sent" && stage === "waiting") setStage("plane");
+
+  useLayoutEffect(() => {
+    if (stage === "flown" && button.current) notifyFlight(button.current);
+  }, [stage]);
 
   useEffect(() => {
     const path = outline.current;
@@ -184,13 +188,12 @@ export function SendButton({
       };
     }
 
-    if (stage === "waiting") return;
+    if (stage === "waiting" || stage === "flown") return;
 
-    const next: Record<Exclude<Stage, "idle" | "morph" | "waiting">, () => void> = {
+    const next: Record<Exclude<Stage, "idle" | "morph" | "waiting" | "flown">, () => void> = {
       open: () => setStage("sealing"),
       sealing: () => setStage("waiting"),
       plane: () => setStage("flown"),
-      flown: () => notifySent(),
     };
     const timer = setTimeout(next[stage], STAGE_MS[stage]);
     return () => clearTimeout(timer);
@@ -200,6 +203,7 @@ export function SendButton({
 
   return (
     <button
+      ref={button}
       type="submit"
       data-stage={stage}
       aria-disabled={isBusy}
@@ -234,8 +238,7 @@ export function SendButton({
         </g>
 
         <g className="email-send-plane">
-          <path d="M10 -10L3 10L-1 1L-10 -3Z" className="email-send-paper" />
-          <path d="M10 -10L-1 1" />
+          <PlaneShape />
           <path d="M-8 8L-10.5 10.5" className="email-send-dash" />
           <path d="M-3.5 11.5L-5.5 13.5" className="email-send-dash" />
           <path d="M-13 12.5L-15 14.5" className="email-send-dash" />
@@ -245,12 +248,10 @@ export function SendButton({
       <span className="email-send-label absolute inset-0 flex items-center justify-center text-sm font-medium">
         Send
       </span>
-      <span
-        aria-hidden="true"
-        className="email-send-done absolute inset-y-0 right-3 flex items-center whitespace-nowrap text-sm font-medium"
-      >
-        Preview complete
-      </span>
     </button>
   );
+}
+
+export function PlaneShape() {
+  return <><path d="M10 -10L3 10L-1 1L-10 -3Z" className="email-send-paper" /><path d="M10 -10L-1 1" /></>;
 }
