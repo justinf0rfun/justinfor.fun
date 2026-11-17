@@ -2,6 +2,12 @@ const article = "/thoughts/how-tanstack-start-became-my-default-framework";
 
 export const inspirations = [
   {
+    id: "laura-email", name: "Laura Beatris", author: "Laura Beatris", url: "https://laurabeatris.com/",
+    relation: "Adapted from",
+    note: "The email composer, keyboard controls, mobile sheet and envelope-to-paper-plane animation. This version is a local preview: no email is sent.",
+    features: [{ label: "Email composer", selector: "[data-home-email-trigger]", page: "/" }],
+  },
+  {
     id: "noe", name: "Noé Chagué", author: "Design Engineer", url: "https://noechague.com/",
     relation: "Adapted from",
     note: "The expanding New pill, article navigation, and the Share and Ask AI interactions.",

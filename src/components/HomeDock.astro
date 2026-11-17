@@ -1,13 +1,7 @@
 ---
-import { Icon } from "astro-icon/components";
 import ThemeDial from "./ThemeDial.astro";
 import DockBubbles from "./DockBubbles";
-const icons = {
-  "plane": "<svg width=\"19\" height=\"19\" viewBox=\"0 0 19 19\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" >\n<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M17.7838 0L0.0215456 6.34366L0 8.1279L7.72046 11.0973C7.80423 11.1295 7.87042 11.1957 7.90263 11.2795L10.872 18.9999L12.6563 18.9784L19 1.21615L17.7838 0ZM8.35275 9.30149L3.07822 7.27281L14.4388 3.21547L8.35275 9.30149ZM9.69845 10.6472L11.7271 15.9217L15.7845 4.56116L9.69845 10.6472Z\" fill=\"currentColor\"/>\n</svg>",
-  "copy": "<svg data-test height=\"16\" stroke-linejoin=\"round\" width=\"16\" style=\"color:currentcolor\" ><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.75.5A1.75 1.75 0 0 0 1 2.25v7.5c0 .966.784 1.75 1.75 1.75H4.5V10H2.75a.25.25 0 0 1-.25-.25v-7.5A.25.25 0 0 1 2.75 2h5.5a.25.25 0 0 1 .25.25V3H10v-.75A1.75 1.75 0 0 0 8.25.5h-5.5Zm5 4A1.75 1.75 0 0 0 6 6.25v7.5c0 .966.784 1.75 1.75 1.75h5.5A1.75 1.75 0 0 0 15 13.75v-7.5a1.75 1.75 0 0 0-1.75-1.75h-5.5ZM7.5 6.25A.25.25 0 0 1 7.75 6h5.5a.25.25 0 0 1 .25.25v7.5a.25.25 0 0 1-.25.25h-5.5a.25.25 0 0 1-.25-.25v-7.5Z\" fill=\"currentColor\"/></svg>",
-};
 const email = "hello@jiaq.ing";
-icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
 ---
 <div class="home-dock-wrap">
   <div class="home-dock" role="group" aria-label="Contact and appearance">
@@ -21,19 +15,21 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
       <span class="moments-entry-art" data-home-moments-slot aria-hidden="true"><img src="/moments-reference/alfred.webp" alt="" width="26" height="26" /><svg class="moments-entry-close" viewBox="0 0 20 20" width="18" height="18"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg></span>
       <span class="moments-entry-label">Moments</span>
     </button>
-    <button class="dock-email" type="button" aria-label={`Copy email address ${email}`} data-copy-email={email}>
-      <span class="email-text"><span class="email-label">Email me</span><span class="email-address">{email}</span><span class="email-copied">Copied</span></span>
+    <button class="dock-email" type="button" aria-label="Email me" aria-haspopup="dialog" aria-controls="home-email" aria-expanded="false" data-home-email-trigger data-email-address={email} disabled>
+      <span class="email-label">Email me</span>
       <span class="email-icons" aria-hidden="true">
-        <span class="plane" set:html={icons.plane} />
-        <span class="copy" set:html={icons.copy} />
-        <span class="copied-icon"><Icon name="ph:check-circle-fill" /></span>
+        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="0.7" y="0.7" width="16.6" height="12.6" rx="2.6" />
+          <path d="M1.6 2.2L9 7.6L16.4 2.2" />
+          <path d="M1.6 2.2L9 7.6L16.4 2.2" class="home-email-mail-flap" />
+          <g transform="translate(9 7.7)"><path d="M0 1.9C-1.9 0.5-2.4-0.3-2.4-0.9C-2.4-1.6-1.9-2-1.3-2C-0.8-2-0.3-1.7 0-1.2C0.3-1.7 0.8-2 1.3-2C1.9-2 2.4-1.6 2.4-0.9C2.4-0.3 1.9 0.5 0 1.9Z" fill="currentColor" stroke="var(--email-icon-paper, #000)" stroke-width="1.2" paint-order="stroke" class="home-email-mail-heart" /></g>
+        </svg>
       </span>
     </button>
     <span class="dock-divider" aria-hidden="true"></span>
     <ThemeDial />
     </div>
   </div>
-  <span class="sr-only" role="status" data-dock-status></span>
 </div>
 
 <DockBubbles client:load />
@@ -96,35 +92,20 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
     .dock-chat:is(:hover, :focus-visible, [aria-expanded="true"]) { color: #fff; }
     .dock-chat img { object-fit: contain; flex: none; }
   .dock-email { display: flex; align-items: center; gap: 16px; color: rgb(255 255 255 / .5); border-radius: 7px; }
-  .email-text { position: relative; width: 70px; height: 29px; transition: width 260ms cubic-bezier(.22,1,.36,1); }
-  .email-text > span { position: absolute; left: 0; top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: 16px; line-height: 1.6; letter-spacing: .01em; transition: opacity 180ms, filter 180ms; }
-  .email-address, .email-copied { opacity: 0; filter: blur(3px); }
-  .email-icons { position: relative; width: 20px; height: 20px; color: white; }
-  .email-icons > span { position: absolute; inset: 0; transition: opacity 180ms, filter 180ms; }
-  .plane { opacity: .39; }
-  .copy, .copied-icon { opacity: 0; filter: blur(3px); }
-  .email-icons :global(svg) { width: 19px; height: 19px; }
-  .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-text { width: 124px; }
-  .dock-email:is(:hover, :focus-visible, [data-copied]) .email-label,
-  .dock-email:is(:hover, :focus-visible, [data-copied]) .plane { opacity: 0; filter: blur(3px); }
-  .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-address,
-  .dock-email:is(:hover, :focus-visible):not([data-copied]) .copy { opacity: 1; filter: none; }
-  .dock-email[data-copied] .email-text { width: 56px; }
-  .dock-email[data-copied] .email-copied,
-  .dock-email[data-copied] .copied-icon { opacity: 1; filter: none; }
-  .copied-icon :global(svg) { width: 22px; height: 22px; margin: -1px; }
+  .dock-email:disabled { cursor: wait; }
+  .email-label { width: 70px; white-space: nowrap; font-size: 16px; line-height: 1.8; letter-spacing: .01em; }
+  .email-icons { display: grid; place-items: center; width: 20px; height: 20px; }
+  .email-icons :global(svg) { width: 20px; height: 16px; overflow: visible; }
   .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(rgb(255 255 255 / .39),rgb(255 255 255 / .39)) center / 1px 24px no-repeat; }
   @media (max-width: 400px) {
     .home-dock-wrap { --dock-gap: max(20px, env(safe-area-inset-bottom)); }
     .home-dock { gap: 10px; padding-inline: 16px; }
     .dock-email { gap: 10px; }
-    .dock-email:is(:hover, :focus-visible):not([data-copied]) .email-text { width: 112px; }
-    .email-address { font-size: 14px !important; }
   }
   @media (max-width: 1023px) {
     .home-dock { gap: 10px; padding-inline: 14px; }
     .dock-chat { gap: 5px; font-size: 14px; min-height: 44px; }
-    .dock-email .email-text { display: none; }
+    .dock-email .email-label { display: none; }
     .dock-email { min-height: 44px; width: 32px; justify-content: center; }
     .dock-moments { width: 32px; min-height: 44px; justify-content: center; }
     .moments-entry-label { display: none; }
@@ -143,9 +124,6 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
       }
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .email-text, .email-text > span, .email-icons > span { transition: none; }
-  }
 </style>
 
 <style is:global>
@@ -163,7 +141,7 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
   html[data-home-theme="dark"] .home-surface > main .folder .flap { background-image: linear-gradient(rgb(30 30 30 / .65),rgb(20 20 20 / .7)); --tw-inset-ring-color: rgb(255 255 255 / .12); }
   html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-800 { color: var(--home-ink); }
   html[data-home-theme="dark"] .home-surface > main .folder .flap .text-neutral-500 { color: var(--home-muted); }
-  .home-surface:has(.uses-stage.is-open, .projects-page.is-open, .music-page.is-open, .memory-page.is-open, .writing-page.is-open, .x-bookmarks-page.is-open, .fstage.is-open) :is(.home-dock-wrap, .home-chat, .home-moments-scene, .home-moments-traveler) { visibility: hidden; pointer-events: none; }
+  .home-surface:has(.uses-stage.is-open, .projects-page.is-open, .music-page.is-open, .memory-page.is-open, .writing-page.is-open, .x-bookmarks-page.is-open, .fstage.is-open) :is(.home-dock-wrap, .home-chat, .home-moments-scene, .home-moments-traveler, .home-email-layer) { visibility: hidden; pointer-events: none; }
 </style>
 
 <script>
@@ -172,24 +150,4 @@ icons.copy = icons.copy.replace("data-test", 'viewBox="0 0 16 16"');
   const dock = document.querySelector<HTMLElement>(".home-dock");
   if (dock) mountDockScroll(dock);
 
-  const emailButton = document.querySelector<HTMLButtonElement>("[data-copy-email]");
-  const address = emailButton?.querySelector<HTMLElement>(".email-address");
-  const status = document.querySelector<HTMLElement>("[data-dock-status]");
-  let reset = 0;
-  emailButton?.addEventListener("click", async () => {
-    const email = emailButton.dataset.copyEmail!;
-    try {
-      await navigator.clipboard.writeText(email);
-      clearTimeout(reset);
-      emailButton.dataset.copied = "true";
-      if (status) status.textContent = "Email address copied.";
-      reset = window.setTimeout(() => {
-        delete emailButton.dataset.copied;
-        if (status) status.textContent = "";
-      }, 1800);
-    } catch {
-      if (status) status.textContent = `Copy unavailable. Email ${email}.`;
-      if (address) address.textContent = email;
-    }
-  });
 </script>

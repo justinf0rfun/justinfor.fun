@@ -49,6 +49,7 @@ export default function HomeChat() {
     if (trigger) trigger.disabled = false;
     trigger?.addEventListener("click", toggle);
     window.addEventListener("home-moments-opening", closeForMoments);
+    window.addEventListener("home-email-opening", closeForMoments);
     window.addEventListener("inspired-opening", closeForMoments);
     const cleanupGuide = trigger ? mountSayHiGuide(trigger, () => {
       dispatch({ type: "open" });
@@ -59,6 +60,7 @@ export default function HomeChat() {
       cleanupGuide?.();
       trigger?.removeEventListener("click", toggle);
       window.removeEventListener("home-moments-opening", closeForMoments);
+      window.removeEventListener("home-email-opening", closeForMoments);
       window.removeEventListener("inspired-opening", closeForMoments);
       media.removeEventListener("change", resize);
       dragAnimation.current?.stop();

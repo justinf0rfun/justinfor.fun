@@ -106,6 +106,7 @@ export default function HomeMoments() {
     button.addEventListener("pointerenter", respond);
     window.addEventListener("inspired-preview", creditResponse);
     window.addEventListener("inspired-opening", closeForCredits);
+    window.addEventListener("home-email-opening", closeForCredits);
     window.addEventListener("resize", resize);
     window.visualViewport?.addEventListener("resize", resize);
     return () => {
@@ -114,6 +115,7 @@ export default function HomeMoments() {
       button.removeEventListener("pointerenter", respond);
       window.removeEventListener("inspired-preview", creditResponse);
       window.removeEventListener("inspired-opening", closeForCredits);
+      window.removeEventListener("home-email-opening", closeForCredits);
       button.setAttribute("aria-expanded", "false");
       window.removeEventListener("resize", resize);
       window.visualViewport?.removeEventListener("resize", resize);

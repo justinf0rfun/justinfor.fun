@@ -24,6 +24,7 @@ export function mountDockScroll(dock: HTMLElement) {
   let chatting = false;
   let guiding = false;
   let moments = false;
+  let emailing = false;
 
   const setCompact = (next: boolean) => {
     if (next === compact) return;
@@ -43,7 +44,7 @@ export function mountDockScroll(dock: HTMLElement) {
     if (window.innerWidth !== viewportWidth) {
       if (guiding) return;
       viewportWidth = window.innerWidth;
-      if (!chatting && !guiding && !moments) pinAnchor();
+      if (!chatting && !guiding && !moments && !emailing) pinAnchor();
       resetTracking();
     } else {
       // Keep real scroll intent while browser chrome changes only the viewport height.
@@ -57,7 +58,7 @@ export function mountDockScroll(dock: HTMLElement) {
     const y = position();
     const delta = y - previous;
     previous = y;
-    if (chatting || guiding || moments || reduced.matches || document.documentElement.style.overflow === "hidden") {
+    if (chatting || guiding || moments || emailing || reduced.matches || document.documentElement.style.overflow === "hidden") {
       travel = 0;
       return;
     }
@@ -102,10 +103,17 @@ export function mountDockScroll(dock: HTMLElement) {
     if (!moments) pinAnchor();
     restore();
   };
+  const onEmail = (event: Event) => {
+    emailing = (event as CustomEvent<boolean>).detail;
+    animation?.stop();
+    if (!emailing) pinAnchor();
+    restore();
+  };
 
   window.addEventListener("home-chat-guide-state", onGuide);
   window.addEventListener("home-chat-change", onChat);
   window.addEventListener("home-moments-change", onMoments);
+  window.addEventListener("home-email-change", onEmail);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize);
   window.visualViewport?.addEventListener("resize", onResize);
@@ -119,6 +127,7 @@ export function mountDockScroll(dock: HTMLElement) {
     window.removeEventListener("home-chat-guide-state", onGuide);
     window.removeEventListener("home-chat-change", onChat);
     window.removeEventListener("home-moments-change", onMoments);
+    window.removeEventListener("home-email-change", onEmail);
     cancelAnimationFrame(frame);
     window.removeEventListener("scroll", onScroll);
     window.removeEventListener("resize", onResize);

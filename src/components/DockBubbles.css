@@ -4,6 +4,7 @@
 .home-dock .dock-controls button[data-dock-selected=true]{color:#000}
 .home-dock .dock-controls button[data-dock-selected=true]:focus-visible{outline-offset:8px}
 .home-dock .dock-email:is(:hover,:focus-visible){color:rgb(255 255 255/.85)}
+.home-dock .dock-email[data-dock-selected=true]{color:#000;--email-icon-paper:#fff}
 .home-dock .dock-bubbles{position:absolute;inset:0;z-index:0;pointer-events:none}
 .home-dock .dock-bubble{position:absolute;left:0;top:0;border-radius:999px;pointer-events:none;transform-origin:center}
 .home-dock .dock-bubble-hover{background:rgb(255 255 255/.1);box-shadow:inset 0 1px 2px rgb(255 255 255/.2)}

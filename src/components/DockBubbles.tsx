@@ -7,7 +7,7 @@ import "./DockBubbles.css";
 
 type Id = "chat" | "moments" | "email" | "theme";
 type Item = { id: Id; button: HTMLButtonElement };
-const selectors: [Id, string][] = [["chat", "[data-home-chat-trigger]"], ["moments", "[data-home-moments-trigger]"], ["email", "[data-copy-email]"], ["theme", "[data-theme-dial]"]];
+const selectors: [Id, string][] = [["chat", "[data-home-chat-trigger]"], ["moments", "[data-home-moments-trigger]"], ["email", "[data-home-email-trigger]"], ["theme", "[data-theme-dial]"]];
 
 export default function DockBubbles() {
   const [track, setTrack] = useState<HTMLElement | null>(null);
@@ -29,7 +29,7 @@ export default function DockBubbles() {
     });
     setTrack(controls); setItems(targets);
     const state = () => {
-      const selected = targets.find(({ id, button }) => (id === "chat" || id === "moments") && button.getAttribute("aria-expanded") === "true");
+      const selected = targets.find(({ id, button }) => id !== "theme" && button.getAttribute("aria-expanded") === "true");
       setActive(selected?.id ?? null);
       for (const { id, button } of targets) button.dataset.dockSelected = String(id === selected?.id);
     };

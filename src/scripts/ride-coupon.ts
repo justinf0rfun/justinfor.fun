@@ -10,7 +10,7 @@ export function mountRideCoupon() {
   let started = false;
   let entranceDelayElapsed = false;
   const send = (command: string, details = {}) => frame.contentWindow?.postMessage({ type: "ride-pack-command", command, ...details }, location.origin);
-  const covered = () => !!document.querySelector('.home-content[inert], #home-chat[data-open="true"], .home-dock[data-moments-open="true"], [data-uses-stage="overlay"][aria-hidden="false"], [data-projects-stage="overlay"][aria-hidden="false"], [data-music-stage="overlay"][aria-hidden="false"], [data-memory-stage="overlay"][aria-hidden="false"], [data-writing-stage="overlay"][aria-hidden="false"], [data-x-bookmarks-stage="overlay"][aria-hidden="false"]');
+  const covered = () => !!document.querySelector('.home-content[inert], #home-chat[data-open="true"], .home-dock[data-moments-open="true"], .home-dock[data-email-open="true"], [data-uses-stage="overlay"][aria-hidden="false"], [data-projects-stage="overlay"][aria-hidden="false"], [data-music-stage="overlay"][aria-hidden="false"], [data-memory-stage="overlay"][aria-hidden="false"], [data-writing-stage="overlay"][aria-hidden="false"], [data-x-bookmarks-stage="overlay"][aria-hidden="false"]');
 
   function present(next: boolean, keyboard = false) {
     if (expanded === next || (next && covered())) return;
@@ -53,7 +53,7 @@ export function mountRideCoupon() {
   const observer = new MutationObserver(sync);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-inspired-open"] });
   for (const element of document.querySelectorAll('.home-content, #home-chat, .home-dock, [data-uses-stage], [data-projects-stage], [data-music-stage], [data-memory-stage], [data-writing-stage], [data-x-bookmarks-stage]')) {
-    observer.observe(element, { attributes: true, attributeFilter: ["inert", "data-open", "data-moments-open", "aria-hidden"] });
+    observer.observe(element, { attributes: true, attributeFilter: ["inert", "data-open", "data-moments-open", "data-email-open", "aria-hidden"] });
   }
   window.setTimeout(() => { entranceDelayElapsed = true; sync(); }, 1000);
   sync();

@@ -35,6 +35,6 @@ assert.equal([...html.matchAll(/data-chat-guide-hand\b/g)].length, 1);
 assert.doesNotMatch(html, /INTRO DEMO|原站素材已收齐/, "do not migrate the demo controls or reference gallery");
 
 for (const route of ["thoughts", "what-i-use", "music", "memory"]) {
-  assert.doesNotMatch(read(`../dist/${route}/index.html`), /data-home-chat-trigger|id="home-chat"/);
+  assert.doesNotMatch(read(`../dist/${route}/index.html`), /<button\b[^>]*\bdata-home-chat-trigger(?:\s|=|>)|id="home-chat"/);
 }
 console.log("Chat SSR check passed: shared Say hi and voice entry, initially inert island; other pages unchanged.");

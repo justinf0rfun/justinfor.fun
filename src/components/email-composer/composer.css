@@ -1,0 +1,606 @@
+/* Source: LauraBeatris/laurabeatris.com, pinned in SOURCE.md. Original motion follows the Dock adapters. */
+.home-email-layer { position:fixed; inset:0; z-index:40; pointer-events:none; }
+.home-email-composer {
+  --background:0 0% 100%; --foreground:0 0% 10%; --muted:0 0% 44%; --border:0 0% 89%;
+  --ask-glass-fill:linear-gradient(#f5f5f5,#ebebeb);
+  --ask-glass-shadow:inset 0 0 0 1px #00000024,inset 0 1.5px 0 #ffffffe6,0 1px 2px #0000000f;
+  position:fixed; z-index:50; left:var(--composer-left,16px); bottom:var(--composer-bottom,110px);
+  display:flex; flex-direction:column; width:384px; max-width:calc(100vw - 32px);
+  max-height:var(--composer-max-height,calc(100dvh - 7rem)); border:1px solid hsl(var(--border));
+  border-radius:16px; outline:none; background:hsl(var(--background)); color:hsl(var(--foreground));
+  font-family:var(--font-sans); font-size:14px; line-height:1.5; pointer-events:auto;
+}
+html[data-home-theme="dark"] .home-email-composer {
+  --background:0 0% 7%; --foreground:0 0% 95%; --muted:0 0% 65%; --border:0 0% 17%;
+  --ask-glass-fill:linear-gradient(#4d4d4d,#424242);
+  --ask-glass-shadow:inset 0 0 0 .5px #ffffff38,inset 0 1px 0 #ffffff24,0 1px 2px #0006;
+}
+.home-email-composer .text-muted { color:hsl(var(--muted)); }
+.home-email-composer .text-foreground { color:hsl(var(--foreground)); }
+.home-email-composer .border-border { border-color:hsl(var(--border)); }
+.home-email-composer :is(input,textarea)::placeholder { color:hsl(var(--muted)); }
+.home-email-composer button { cursor:pointer; }
+.home-email-composer button:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+.home-email-close::after { content:""; position:absolute; inset:-10px; }
+.home-email-close:hover { color:hsl(var(--foreground)); background:hsl(var(--foreground) / .06); }
+.home-email-composer-key { display:inline-flex; height:18px; min-width:18px; align-items:center; justify-content:center; border:1px solid hsl(var(--border)); border-radius:5px; padding:0 3px; font:500 10px/1 var(--font-sans); }
+.home-email-composer-hint { display:none; }
+.home-email-composer-backdrop { pointer-events:auto; }
+@media (hover:hover) and (pointer:fine) { .home-email-composer-hint { display:flex; } }
+@media (max-width:639.98px), (pointer:coarse) and (max-height:520px) { .home-email-composer { max-width:none; } }
+
+  /* Signature: "Email me" in the footer. Hovering lifts the envelope's flap and */
+  /* the heart rises out of the pocket. It stays that way while the home-email-composer is open */
+  .home-email-mail-flap,
+  .home-email-mail-heart {
+    transition: transform 0.22s var(--ease-out);
+  }
+
+  /* The flap hinges on the envelope's top edge */
+  .home-email-mail-flap {
+    transform-origin: 9px 2.2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dock-email[data-open="true"] .home-email-mail-flap {
+      transform: scaleY(-1);
+    }
+
+    .dock-email[data-open="true"] .home-email-mail-heart {
+      transform: translateY(-6.5px) scale(1.15);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .dock-email:hover .home-email-mail-flap {
+        transform: scaleY(-1);
+      }
+
+      .dock-email:hover .home-email-mail-heart {
+        transform: translateY(-6.5px) scale(1.15);
+      }
+    }
+  }
+
+  /* The home-email-composer: a small window that floats up out of "Email me", like a draft */
+  /* in a mail app. It leaves faster than it arrives, and stays in the page so */
+  /* a draft survives. Its origin is set to the link when it opens */
+  .home-email-composer {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(0.97);
+    transform-origin: bottom right;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.04),
+      0 12px 32px -8px rgb(0 0 0 / 0.14),
+      0 32px 64px -24px rgb(0 0 0 / 0.16);
+    transition:
+      opacity 0.16s var(--ease-out),
+      transform 0.16s var(--ease-out),
+      visibility 0s linear 0.16s;
+  }
+
+  html[data-home-theme="dark"] .home-email-composer {
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.3),
+      0 16px 40px -8px rgb(0 0 0 / 0.6),
+      0 32px 64px -24px rgb(0 0 0 / 0.7);
+  }
+
+  .home-email-composer[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity 0.24s var(--ease-out),
+      transform 0.24s var(--ease-out),
+      visibility 0s;
+  }
+
+  /* The field being written in is the one that's lit */
+  .home-email-composer-row,
+  .home-email-composer-message {
+    transition: background-color 0.15s ease;
+  }
+
+  .home-email-composer-row:focus-within,
+  .home-email-composer-message:focus {
+    background-color: hsl(var(--foreground) / 0.035);
+  }
+
+  /* What went wrong arrives where the hint was, instead of blinking in */
+  .home-email-composer-alert {
+    transition:
+      opacity 0.2s var(--ease-out),
+      transform 0.2s var(--ease-out),
+      filter 0.2s var(--ease-out);
+  }
+
+  /* The shortcut's hint. It waits a beat before leaving, so keys pressed to */
+  /* send are seen going down first */
+  .home-email-composer-hint {
+    transition: opacity 0.2s ease;
+  }
+
+  .home-email-composer-hint[data-spent="true"] {
+    opacity: 0;
+    transition: opacity 0.15s ease 0.06s;
+  }
+
+  .home-email-composer-key {
+    transition:
+      transform 0.12s var(--ease-out),
+      background-color 0.12s var(--ease-out);
+  }
+
+  .home-email-composer-key[data-pressed="true"] {
+    transform: translateY(1px) scale(0.94);
+    background-color: hsl(var(--foreground) / 0.08);
+  }
+
+  /* Signature: Send folds into an envelope, tucks the letter in and seals it. */
+  /* The envelope waits for the inbox to answer, then leaves as a paper plane */
+  .email-send-paper {
+    fill: hsl(var(--background));
+  }
+
+  /* The button's shape: the same glass as the one that sends a question. */
+  /* Pressing Send lets the glass go and draws its edge in as a line, which */
+  /* folds into the envelope's outline */
+  .email-send-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--ask-glass-fill);
+    box-shadow: var(--ask-glass-shadow);
+    transition:
+      opacity 0.2s ease,
+      filter 0.15s var(--ease-out);
+  }
+
+  .email-send-button:not([data-stage="idle"])::before {
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .email-send-button[data-stage="idle"]:hover::before {
+      filter: brightness(0.98);
+    }
+  }
+
+  .email-send-button[data-stage="idle"]:active::before {
+    filter: brightness(0.95);
+  }
+
+  .email-send-outline {
+    fill: transparent;
+    opacity: 0;
+    stroke-opacity: 0;
+  }
+
+  [data-stage="idle"] .email-send-outline,
+  [data-stage="morph"] .email-send-outline {
+    opacity: 1;
+  }
+
+  [data-stage="idle"] .email-send-outline {
+    transition:
+      opacity 0.2s ease,
+      stroke-opacity 0.15s ease;
+  }
+
+  [data-stage="morph"] .email-send-outline {
+    stroke-opacity: 1;
+    transition: stroke-opacity 0.12s ease;
+  }
+
+  .email-send-label {
+    transition:
+      opacity 0.12s ease,
+      filter 0.12s ease;
+  }
+
+  .email-send-button:not([data-stage="idle"]) .email-send-label {
+    opacity: 0;
+    filter: blur(2px);
+  }
+
+  [data-stage="idle"] .email-send-label {
+    transition-duration: 0.2s;
+  }
+
+  /* Appears already drawn, exactly where the outline finished */
+  .email-send-envelope {
+    opacity: 0;
+  }
+
+  [data-stage="idle"] .email-send-envelope {
+    transition: opacity 0.15s ease;
+  }
+
+  .email-send-button:is([data-stage="open"], [data-stage="sealing"], [data-stage="waiting"])
+    .email-send-envelope {
+    opacity: 1;
+  }
+
+  /* Leans into the plane it's about to be */
+  .email-send-button:is([data-stage="plane"], [data-stage="flown"]) .email-send-envelope {
+    opacity: 0;
+    transform: rotate(-14deg) scale(0.88);
+    transition:
+      opacity 0.16s ease,
+      transform 0.16s ease;
+  }
+
+  /* Everything inside goes back to open only once the envelope has faded */
+  .email-send-letter,
+  .email-send-folds,
+  .email-send-flap-back,
+  .email-send-flap-front {
+    transition:
+      opacity 0s linear 0.2s,
+      transform 0s linear 0.2s;
+  }
+
+  .email-send-letter {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  .email-send-folds {
+    opacity: 0;
+  }
+
+  [data-stage="open"] .email-send-letter {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.14s ease,
+      transform 0.24s var(--ease-out);
+  }
+
+  [data-stage="open"] .email-send-folds {
+    opacity: 1;
+    transition: opacity 0.14s ease;
+  }
+
+  .email-send-button:is(
+      [data-stage="sealing"],
+      [data-stage="waiting"],
+      [data-stage="plane"],
+      [data-stage="flown"]
+    )
+    .email-send-folds {
+    opacity: 1;
+  }
+
+  .email-send-button:is(
+      [data-stage="sealing"],
+      [data-stage="waiting"],
+      [data-stage="plane"],
+      [data-stage="flown"]
+    )
+    .email-send-letter {
+    opacity: 1;
+    transform: translateY(7px);
+    transition: transform 0.16s var(--ease-in-out);
+  }
+
+  /* One flap, drawn twice: behind the letter until it's edge-on, then in front. */
+  /* Each half takes a sine, so together they read as one fold at a steady turn */
+  .email-send-flap-back,
+  .email-send-flap-front {
+    transform-origin: 0 -5px;
+  }
+
+  .email-send-flap-front {
+    transform: scaleY(0);
+  }
+
+  .email-send-button:is(
+      [data-stage="sealing"],
+      [data-stage="waiting"],
+      [data-stage="plane"],
+      [data-stage="flown"]
+    )
+    .email-send-flap-back {
+    transform: scaleY(0);
+    transition: transform 0.12s cubic-bezier(0.12, 0, 0.39, 0) 0.11s;
+  }
+
+  .email-send-button:is(
+      [data-stage="sealing"],
+      [data-stage="waiting"],
+      [data-stage="plane"],
+      [data-stage="flown"]
+    )
+    .email-send-flap-front {
+    transform: scaleY(-1);
+    transition: transform 0.15s cubic-bezier(0.61, 1, 0.88, 1) 0.23s;
+  }
+
+  /* A slow inbox: the sealed envelope idles instead of sitting dead still */
+  @keyframes email-send-bob {
+    50% {
+      transform: translateY(-1.5px);
+    }
+  }
+
+  [data-stage="waiting"] .email-send-envelope-bob {
+    animation: email-send-bob 1.4s cubic-bezier(0.37, 0, 0.63, 1) 0.3s infinite;
+  }
+
+  .email-send-plane {
+    opacity: 0;
+    transform: rotate(16deg) scale(0.85);
+  }
+
+  [data-stage="plane"] .email-send-plane {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.16s ease,
+      transform 0.2s var(--ease-out);
+  }
+
+  /* Gathers itself, then goes: up and to the right, shrinking into the distance */
+  [data-stage="flown"] .email-send-plane {
+    opacity: 0;
+    transform: translate(58px, -50px) scale(0.4);
+    transition:
+      transform 0.72s var(--ease-in-out),
+      opacity 0.26s ease 0.4s;
+  }
+
+  .email-send-dash {
+    opacity: 0;
+  }
+
+  @keyframes email-send-dash {
+    0% {
+      opacity: 0;
+      transform: translate(3px, -3px);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-4px, 4px);
+    }
+  }
+
+  .email-send-button:is([data-stage="plane"], [data-stage="flown"]) .email-send-dash {
+    animation: email-send-dash 0.36s linear 2 both;
+  }
+
+  .email-send-dash + .email-send-dash {
+    animation-delay: 0.09s;
+  }
+
+  .email-send-dash + .email-send-dash + .email-send-dash {
+    animation-delay: 0.18s;
+  }
+
+  .email-send-done {
+    opacity: 0;
+    transform: translateY(3px);
+    filter: blur(2px);
+  }
+
+  /* Comes in while the plane is still on its way out */
+  [data-stage="flown"] .email-send-done {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition:
+      opacity 0.4s var(--ease-out) 0.3s,
+      transform 0.4s var(--ease-out) 0.3s,
+      filter 0.4s var(--ease-out) 0.3s;
+  }
+
+  /* With reduced motion nothing travels: each step fades into the next */
+  @media (prefers-reduced-motion: reduce) {
+    .home-email-composer,
+    .home-email-composer[data-open="true"] {
+      transform: none;
+    }
+
+    .home-email-composer-key[data-pressed="true"],
+    .email-send-button .email-send-letter,
+    .email-send-button .email-send-plane,
+    .email-send-button .email-send-envelope,
+    .email-send-button .email-send-done {
+      transform: none;
+    }
+
+    .email-send-button:is(
+        [data-stage="sealing"],
+        [data-stage="waiting"],
+        [data-stage="plane"],
+        [data-stage="flown"]
+      )
+      .email-send-letter {
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .email-send-button .email-send-flap-back,
+    .email-send-button .email-send-flap-front {
+      transition-duration: 0s;
+    }
+
+    [data-stage="flown"] .email-send-plane {
+      transition: opacity 0.3s ease;
+    }
+
+    .email-send-button .email-send-envelope-bob,
+    .email-send-button .email-send-dash {
+      animation: none;
+    }
+  }
+/* The home-email-composer's first appearance: it mounts already open, so this is where it */
+/* arrives from. Outside the layer above so Tailwind leaves the at-rule alone */
+@starting-style {
+  .home-email-composer[data-open="true"] {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+
+  .home-email-composer-alert {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @starting-style {
+    .home-email-composer[data-open="true"] {
+      transform: none;
+    }
+
+    .home-email-composer-alert {
+      transform: none;
+      filter: none;
+    }
+  }
+}
+
+
+/* iOS zooms into any field under 16px and never zooms back out */
+@media (pointer: coarse) {
+  .home-email-composer :is(input, textarea) {
+    font-size: 16px;
+  }
+}
+
+/* On a phone the home-email-composer is a sheet instead: it rises from the bottom edge, */
+/* rides on the keyboard while there is one, and dims the page behind it. */
+/* Pulled down by its header it goes away. Matches SHEET in email-me.tsx */
+.home-email-composer-backdrop,
+.home-email-composer-grabber {
+  display: none;
+}
+
+@media (max-width: 639.98px), (pointer: coarse) and (max-height: 520px) {
+  .home-email-composer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background-color: rgb(0 0 0 / 0.32);
+    opacity: 0;
+    visibility: hidden;
+    /* The page behind doesn't scroll from under a finger on the dim */
+    touch-action: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s linear 0.2s;
+  }
+
+  .home-email-composer-backdrop[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.3s ease,
+      visibility 0s;
+  }
+
+  /* No easing on bottom: it follows the keyboard, and a transition would trail it */
+  .home-email-composer {
+    --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+    position: fixed;
+    inset: auto 0 var(--keyboard-inset, 0px);
+    width: auto;
+    max-height: calc(
+      var(--visible-height, 100dvh) - env(safe-area-inset-top, 0px) - 1rem
+    );
+    /* Clear of the notch when the phone is sideways, and of the home indicator */
+    /* until the keyboard covers it anyway */
+    padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+    padding-bottom: max(
+      0px,
+      env(safe-area-inset-bottom, 0px) - var(--keyboard-inset, 0px)
+    );
+    border-width: 1px 0 0;
+    border-radius: 1rem 1rem 0 0;
+    opacity: 1;
+    transform: translateY(100%);
+    transition:
+      transform 0.24s var(--ease-sheet),
+      visibility 0s linear 0.24s;
+  }
+
+  /* Its shadow falls upward, onto the page. Dark mode's is matched too, since */
+  /* the popover's sets it with a more specific selector */
+  .home-email-composer,
+  html[data-home-theme="dark"] .home-email-composer {
+    box-shadow: 0 -8px 32px -12px rgb(0 0 0 / 0.16);
+  }
+
+  .home-email-composer[data-open="true"] {
+    transform: none;
+    transition:
+      transform 0.4s var(--ease-sheet),
+      visibility 0s;
+  }
+
+  /* The header is the handle: it takes the drag instead of scrolling the page */
+  .home-email-composer-header {
+    touch-action: none;
+  }
+
+  .home-email-composer-grabber {
+    display: block;
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 9999px;
+    background-color: hsl(var(--border));
+  }
+
+  @starting-style {
+    .home-email-composer[data-open="true"] {
+      opacity: 1;
+      transform: translateY(100%);
+    }
+
+    .home-email-composer-backdrop[data-open="true"] {
+      opacity: 0;
+    }
+  }
+
+  /* With reduced motion it fades in where it rests instead of rising */
+  @media (prefers-reduced-motion: reduce) {
+    .home-email-composer,
+    .home-email-composer[data-open="true"] {
+      transform: none;
+    }
+
+    .home-email-composer {
+      opacity: 0;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s linear 0.2s;
+    }
+
+    .home-email-composer[data-open="true"] {
+      opacity: 1;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s;
+    }
+
+    @starting-style {
+      .home-email-composer[data-open="true"] {
+        opacity: 0;
+        transform: none;
+      }
+    }
+  }
+}

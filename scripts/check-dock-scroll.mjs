@@ -75,6 +75,16 @@ test("top remains expanded and Safari overscroll does not create a false reversa
   assert.equal(f.value.current, 1);
 });
 
+test("email opens at full size and pauses scroll compaction until dismissed", () => {
+  const f = fixture({ start: 100 });
+  f.scroll(140); assert.equal(f.value.current, .84);
+  f.window.fire("home-email-change", { detail: true });
+  assert.equal(f.value.current, 1);
+  f.scroll(300); f.scroll(340); assert.equal(f.value.current, 1);
+  f.window.fire("home-email-change", { detail: false });
+  f.scroll(372); assert.equal(f.value.current, .84);
+});
+
 test("viewport width changes reset direction without changing the current size", () => {
   const f = fixture({ start: 100 });
   f.scroll(140);
