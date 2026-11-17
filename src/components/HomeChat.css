@@ -105,18 +105,24 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
     /* The dock itself unfolds on mobile; don't add a second panel-scale animation. */
     transition: width 500ms var(--chat-pop-ease), height 500ms var(--chat-pop-ease), border-radius 500ms var(--chat-pop-ease);
   }
+  .home-surface .home-dock[data-chat-open="true"] .dock-glass-surface {
+    background-color: #000;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: 0 .602px .602px -1.25px rgb(0 0 0 / .281),
+      0 2.289px 2.289px -2.5px rgb(0 0 0 / .248),
+      0 10px 10px -3.75px rgb(0 0 0 / .098);
+  }
   .home-surface .home-dock[data-chat-open="true"][data-chat-mode="voice"] { height: var(--chat-max-height); }
   .home-surface .home-dock[data-chat-open="true"][data-chat-mode="text"]:has(.home-chat-voice) { transition-duration: 500ms, 300ms, 500ms; }
   .home-surface .dock-controls { flex: none; width: max-content; transition: opacity 140ms ease; }
   .home-surface .home-dock[data-chat-open="true"] .dock-controls { opacity: 0; visibility: hidden; }
   .home-surface .home-chat {
+    --home-ink: #f3f3f5; --home-muted: #9b9ba5; --home-background: #232326;
+    --chat-surface: #000; --chat-line: #29292e; --chat-bubble: #27272b;
     position: absolute; inset: 0; width: 100%; height: 100%; max-height: none;
     z-index: 1; border: 0; border-radius: inherit; background: transparent; box-shadow: none;
     transform: none; transition: opacity 160ms ease, visibility 0s 160ms;
-  }
-  html[data-home-theme="dark"] .home-surface .home-chat {
-    --home-ink: #f3f3f5; --home-muted: #9b9ba5; --home-background: #232326;
-    --chat-surface: #000; --chat-line: #29292e; --chat-bubble: #27272b;
   }
   .home-surface .home-chat[data-open="true"] { transform: none; transition: opacity 320ms var(--chat-pop-ease) 60ms, visibility 0s; }
   .home-surface .home-chat-handle { display: grid; place-items: center; flex: none; width: 100%; height: 44px; touch-action: none; cursor: grab; }
@@ -127,7 +133,7 @@ html[data-home-theme="dark"] .home-chat { --chat-surface: #171719; --chat-line: 
   .home-chat-composer { padding: 12px 14px 16px; gap: 8px; min-height: 73px; }
   .home-chat-composer p { font-size: 12px; }
   .home-chat-voice { padding-top: 20px; }
-  html[data-home-theme="dark"] .home-chat-voice-play { color: #151515; background: #f3f3f5; }
+  .home-chat-voice-play { color: #151515; background: #f3f3f5; }
 }
 
 @media (hover: hover) and (pointer: fine) {

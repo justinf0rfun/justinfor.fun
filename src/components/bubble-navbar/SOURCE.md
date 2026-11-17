@@ -41,7 +41,7 @@ Live public assets inspected:
 - https://xiangyidesign.com/assets/index-BGSxTweO.js (`g3` outer material)
 - https://xiangyidesign.com/assets/index-CaymMHEg.css (`.dock-switch:after` selected material and theme tokens)
 
-Both Dock themes use the original #bbbbbc glass at 12%, blur(8px), saturation
+Both collapsed Dock themes use the original #bbbbbc glass at 12%, blur(8px), saturation
 150% and all ten outer shadow/reflection layers. The selected bubble uses the
 original 36% glass and seven shadow/reflection layers. Light/dark reflection
 factors remain 1/1 and .3/2. Source layout, content and navigation actions are
@@ -50,3 +50,7 @@ springs remain. The old Dots surface and full-width footer fog are removed.
 
 The native theme icon cuts its system half through the SVG mask so real glass
 shows through, instead of painting an opaque background-colored patch.
+
+Mobile Say hi's expanded text and voice panels retain their original opaque
+black surface, palette and shadow. Closing restores the glass Dock; desktop
+Chat and the other Dock actions keep their existing materials.
