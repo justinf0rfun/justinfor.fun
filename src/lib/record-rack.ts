@@ -58,6 +58,18 @@ export function sleevePolygons(pose: SleevePose, geometry: RackGeometry) {
   return [cover,spine];
 }
 
+export function sleeveSurfaceTransforms(pose: SleevePose, geometry: RackGeometry, scale: number) {
+  const x=pose.x/scale,y=pose.y/scale,z=pose.z/scale,size=geometry.cover/scale;
+  const view=`translate(${-x}px,${-y}px) perspective(${geometry.perspective/scale}px) translate3d(${x}px,${y}px,${z}px) rotateX(${pose.angle}deg)`;
+  return {
+    parent:`translate3d(${x}px,${y}px,0)`,
+    cover:`${view} rotateX(${pose.flip}deg) translateZ(${size/56+.2}px)`,
+    spine:`${view} translateY(${size/2}px) rotateX(-90deg)`,
+    edge:`${view} translateX(${size/2}px) rotateY(90deg)`,
+    edgeVisible:pose.x+geometry.cover/2<0,
+  };
+}
+
 // Keep the projected cover under the grab point while its depth and angle change.
 export function placeSleeve(pose: SleevePose, geometry: RackGeometry, center: {x:number;y:number}): SleevePose {
   const cover=sleevePolygons(pose,geometry)[0];

@@ -1,5 +1,5 @@
 import { animate, motionValue } from "motion";
-import { INITIAL_RECORD, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, type RackGeometry, type SleevePose } from "../lib/record-rack";
+import { INITIAL_RECORD, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms, type RackGeometry, type SleevePose } from "../lib/record-rack";
 
 export interface RecordRack {
   root: HTMLElement;
@@ -23,11 +23,13 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   scene.style.left="0px";scene.style.top="0px";
   const scroll = root.querySelector<HTMLElement>("[data-record-scroll]")!;
   const records = [...root.querySelectorAll<HTMLElement>("[data-record-option]")];
+  const surfaces=records.map(record=>({cover:record.querySelector<HTMLElement>("[data-record-cover]")!,spine:record.querySelector<HTMLElement>(".record-spine")!,edge:record.querySelector<HTMLElement>(".record-edge")!}));
   const grab=root.querySelector<HTMLButtonElement>("[data-record-grab]");
   const page=root.closest<HTMLElement>("[data-record-page]");
   const browseLabel=root.getAttribute("aria-label")??"Record collection";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const fine = matchMedia("(hover:hover) and (pointer:fine)");
+  const surfaceProjection=matchMedia("(pointer:coarse)");
   const compactPosition = motionValue(INITIAL_RECORD), morphPosition = motionValue(1), pull = motionValue(0);
   const handX=motionValue(0),handY=motionValue(0),lift=motionValue(0);
   let layout = rackGeometry(root.getBoundingClientRect(), compact), active = compact, visible = true, frame = 0;
@@ -55,7 +57,9 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     const g = morphSource ? mixRack(morphSource.geometry(), own, progress) : own;
     const origin = morphSource ? {left:0,top:0} : own;
     const scale = g.cover / layout.cover;
-    camera.style.perspective = `${g.perspective}px`;
+    const projectSurfaces=surfaceProjection.matches;
+    root.dataset.recordRenderer=projectSurfaces?"surfaces":"nested";
+    camera.style.perspective = projectSurfaces?"none":`${g.perspective}px`;
     camera.style.perspectiveOrigin = `${g.cx-origin.left}px ${g.cy-origin.top}px`;
     scene.style.transform = `translate3d(${g.cx-origin.left}px,${g.cy-origin.top}px,0) scale(${scale})`;
     if (morphSource) {
@@ -97,7 +101,17 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
           grab.style.width=`${Math.max(...xs)-Math.min(...xs)}px`;grab.style.height=`${Math.max(...ys)-Math.min(...ys)}px`;
         }
       }else if(selected!==null&&!reduced.matches)pose.y+=Math.sign(index-selected)*Math.sin(Math.PI*extraction)*18;
-      record.style.transform=`translate3d(${pose.x/scale}px,${pose.y/scale}px,${pose.z/scale}px) rotateX(${pose.angle}deg)`;
+      const surface=surfaces[index];
+      if(projectSurfaces){
+        // Keep the parent nondegenerate at 90°; each face carries the same complete projection.
+        const transforms=sleeveSurfaceTransforms(pose,g,scale);
+        record.style.transform=transforms.parent;
+        surface.cover.style.transform=transforms.cover;surface.spine.style.transform=transforms.spine;surface.edge.style.transform=transforms.edge;
+        surface.edge.style.visibility=transforms.edgeVisible?"visible":"hidden";
+      }else{
+        record.style.transform=`translate3d(${pose.x/scale}px,${pose.y/scale}px,${pose.z/scale}px) rotateX(${pose.angle}deg)`;
+        if(surface.cover.style.transform){surface.cover.style.transform="";surface.spine.style.transform="";surface.edge.style.transform="";surface.edge.style.visibility="";}
+      }
       record.style.setProperty("--record-flip",`${pose.flip}deg`);
       record.style.setProperty("--record-opacity",String(index===selected?1:Math.max(0,Math.min(1,1-extraction))));
       record.style.zIndex=String(index===selected?2000:1000-Math.round(Math.abs(index-position)*10));
@@ -284,6 +298,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     }else if(event.key==="Enter"||event.key===" "){event.preventDefault();choose(keyboard?keyboardIndex:Math.round(clampRecord(getPosition(),records.length)),true);}
   });
   const observer=new ResizeObserver(measure);observer.observe(root);
+  surfaceProjection.addEventListener("change",schedule);
   const intersection=new IntersectionObserver(([entry])=>{visible=!!entry?.isIntersecting;schedule();});intersection.observe(root);
   document.addEventListener("visibilitychange",()=>{if(document.hidden){if(returnGesture)api.select(requested);records.forEach(record=>record.querySelector("video")?.pause());}else{records.forEach(record=>record.querySelector("video")?.removeAttribute("data-running"));schedule();}});
   reduced.addEventListener("change",()=>{

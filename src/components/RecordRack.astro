@@ -41,6 +41,10 @@ const { compact = false, id } = Astro.props;
   .record-spine strong{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:600}
   .record-spine>span{max-width:42%;overflow:hidden;text-overflow:ellipsis;font-size:.86em;opacity:.8}
   .record-edge{position:absolute;right:0;top:0;width:var(--record-thickness);height:100%;transform-origin:100% 50%;transform:translateZ(calc(var(--record-thickness) / -2)) rotateY(90deg);background:linear-gradient(90deg,#555,#141414);opacity:var(--record-opacity)}
+  .record-rack[data-record-renderer=surfaces] :is(.record-scene,.record-option){transform-style:flat}
+  .record-rack[data-record-renderer=surfaces] .record-scene{width:100%;height:100%;transform-origin:0 0}
+  .record-rack[data-record-renderer=surfaces] .record-spine{top:calc(var(--record-size)/2 - var(--record-thickness)/2);bottom:auto;transform-origin:center}
+  .record-rack[data-record-renderer=surfaces] .record-edge{left:calc(var(--record-size)/2 - var(--record-thickness)/2);right:auto;transform-origin:center;backface-visibility:hidden}
   .record-scroll{position:absolute;inset:0;z-index:2;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain;touch-action:pan-y;cursor:grab;scroll-snap-type:y proximity}
   .record-scroll::-webkit-scrollbar{display:none}
   .record-scroll[data-dragging]{cursor:grabbing;scroll-snap-type:none}

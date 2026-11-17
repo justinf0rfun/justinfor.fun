@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose } from "../src/lib/record-rack.ts";
+import { clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms } from "../src/lib/record-rack.ts";
 
 const rect={left:0,top:88,width:390,height:756};
 test("rack geometry reads DOMRect getters rather than spreading away its dimensions",()=>{
@@ -68,4 +68,40 @@ test("short tablet windows keep the cover beside its controls with a clear gap",
     assert.ok(focus.x+focus.size/2<width*.62-8);
     assert.ok(focus.y-focus.size/2>88);
   }
+});
+
+function transformPoint(css,point){
+  let [x,y,z,w]=[...point,1];
+  for(const [,name,args]of [...css.matchAll(/(\w+)\(([^)]+)\)/g)].reverse()){
+    const [a,b=0,c=0]=args.split(',').map(parseFloat);
+    if(name==="perspective")w-=z/a;
+    else if(name==="translate"||name==="translate3d"){x+=a*w;y+=b*w;z+=c*w;}
+    else if(name==="translateY")y+=a*w;
+    else if(name==="translateZ")z+=a*w;
+    else if(name==="rotateX"){const cos=Math.cos(a*Math.PI/180),sin=Math.sin(a*Math.PI/180);[y,z]=[y*cos-z*sin,y*sin+z*cos];}
+    else assert.fail(`Unexpected transform ${name}`);
+  }
+  return [x,y,z,w];
+}
+test("independent mobile faces retain the original projected geometry through flips and handoff",()=>{
+  const g=rackGeometry(rect,false);
+  for(const position of[3.9,3.99,4,4.01,4.1,4.49,4.99,5])for(const index of[3,4,5])for(const scale of[.4,1,1.8]){
+    const pose=sleevePose(index,position,g),transforms=sleeveSurfaceTransforms(pose,g,scale),half=g.cover/scale/2,t=g.cover/scale/28;
+    const surfaces={cover:[[-half,-half,0],[half,-half,0],[half,half,0],[-half,half,0]],spine:[[-half,-t/2,0],[half,-t/2,0],[half,t/2,0],[-half,t/2,0]]};
+    for(const [name,vertices]of Object.entries(surfaces)){
+      const expected=sleevePolygons(pose,g)[name==="cover"?0:1];
+      for(const point of vertices){
+        // Parent translation acts after the child's homogeneous perspective divide.
+        const child=transformPoint(transforms[name],point),parent=transformPoint(transforms.parent,[child[0]/child[3],child[1]/child[3],child[2]/child[3]]);
+        const x=g.cx+parent[0]*scale,y=g.cy+parent[1]*scale;
+        assert.ok(expected.some(q=>Math.hypot(q.x-x,q.y-y)<.5),`${name}: ${position}, ${index}, ${scale}`);
+      }
+    }
+    assert.equal(transforms.parent.includes("rotate"),false);
+  }
+});
+test("the hidden back edge cannot survive alone at the eye-line",()=>{
+  const g=rackGeometry(rect,false),pose=sleevePose(4,4,g);
+  assert.equal(sleeveSurfaceTransforms(pose,g,1).edgeVisible,false);
+  assert.equal(sleeveSurfaceTransforms({...pose,x:-g.cover},g,1).edgeVisible,true);
 });
