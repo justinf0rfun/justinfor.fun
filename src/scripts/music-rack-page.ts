@@ -12,9 +12,11 @@ export function mountMusicPage(page: HTMLElement) {
   const parent=page.querySelector<HTMLElement>("[data-parent-navigation]")!;
   const parentLabel=parent.querySelector<HTMLElement>(".parent-link-label")!;
   const panels=[...page.querySelectorAll<HTMLElement>("[data-record-panel]")];
+  const returnButton=page.querySelector<HTMLButtonElement>("[data-record-return]")!;
+  const returnSpines=[...returnButton.querySelectorAll<HTMLElement>("[data-return-spine]")];
   const title=page.querySelector<HTMLElement>("[data-record-current]")!,artist=page.querySelector<HTMLElement>("[data-record-artist-label]")!,count=page.querySelector<HTMLElement>("[data-record-count]")!;
   let open=!overlay,run=0,restore: (()=>void)|null=null,keyboard=false,mediaInRack=false;
-  let returning=0;
+  let returning=0,detailReturning=false;
   const swapMotionArtwork = () => {
     mini?.records.forEach((record,index)=>{
       const small=record.querySelector("video"),large=rack.records[index].querySelector("video");
@@ -31,8 +33,13 @@ export function mountMusicPage(page: HTMLElement) {
     count.textContent=`${String(index+1).padStart(2,"0")} / ${rack.records.length}`;
   };
   const setDetail = (index: number|null) => {
+    detailReturning=false;
     pauseMusicPreviews();rack.select(index);
     const slug=index===null?null:rack.records[index].dataset.recordSlug;
+    if(index!==null){
+      returnButton.setAttribute("aria-label",`Put back ${rack.records[index].dataset.recordTitle}`);
+      returnSpines.forEach((spine,i)=>{const record=rack.records[clampRecord(index+(i?1:-1),rack.records.length)];spine.style.setProperty("--spine-art",record.style.getPropertyValue("--record-art"));});
+    }
     panels.forEach(panel=>panel.hidden=panel.dataset.recordPanel!==slug);
     page.dataset.musicView=index===null?"browse":"detail";
     parentLabel.textContent=index===null?"Home":"Music";
@@ -79,6 +86,8 @@ export function mountMusicPage(page: HTMLElement) {
   };
   const back = () => {
     if(rack.getSelected()!==null) {
+      if(detailReturning)return;
+      detailReturning=true;
       if(history.state?.record)history.back();else setDetail(null);
     }else if(overlay) {
       if(history.state?.folder==="music")history.back();else void hide();
@@ -94,6 +103,8 @@ export function mountMusicPage(page: HTMLElement) {
   });
   rack.root.addEventListener("record-index",event=>update((event as CustomEvent<{index:number}>).detail.index));
   rack.root.addEventListener("record-select",event=>{const detail=(event as CustomEvent<{index:number;keyboard:boolean}>).detail;keyboard=detail.keyboard;take(detail.index);});
+  rack.root.addEventListener("record-return",event=>{keyboard=(event as CustomEvent<{keyboard:boolean}>).detail.keyboard;back();});
+  returnButton.addEventListener("click",event=>{if(rack.getSelected()!==null){keyboard=event.detail===0;back();}});
   page.querySelector("[data-record-open]")?.addEventListener("click",event=>{keyboard=(event as MouseEvent).detail===0;take(rack.getCurrentIndex());});
   addEventListener("popstate",()=>{
     if(overlay) {

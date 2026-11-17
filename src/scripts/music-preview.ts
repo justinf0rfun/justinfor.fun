@@ -119,7 +119,6 @@ const preloadUpcomingTracks = (targets: MusicTarget[]) => {
 };
 
 export const mountMusicPreviews = (root: ParentNode = document) => {
-  const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
   const targets = [
     ...root.querySelectorAll<MusicTarget>("[data-music-track][data-preview-url]"),
   ];
@@ -128,14 +127,6 @@ export const mountMusicPreviews = (root: ParentNode = document) => {
     if (mountedTargets.has(target)) return;
     mountedTargets.add(target);
     target.dataset.musicState = "idle";
-
-    target.addEventListener("pointerenter", () => {
-      if (finePointer.matches) void play(target);
-    });
-
-    target.addEventListener("pointerleave", () => {
-      if (finePointer.matches) pause(target);
-    });
 
     target.querySelector<HTMLElement>("[data-music-action]")?.addEventListener("click", (event) => {
       event.preventDefault();

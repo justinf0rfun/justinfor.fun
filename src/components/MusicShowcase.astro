@@ -35,6 +35,10 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
       </div>
       <p class="music-blocked">Tap Preview to enable sound.</p>
     </section>)}
+    <button type="button" class="music-return" data-record-return aria-label="Put this record back in the rack">
+      <span class="music-return-stack" aria-hidden="true"><span data-return-spine></span><span class="music-return-slot"></span><span data-return-spine></span></span>
+      <span class="music-return-label"><span>Slide back</span><span>Let go</span></span>
+    </button>
   </div>
   <noscript><style>.music-record-area,.music-browse{display:none}.music-page{overflow:auto}.music-no-script{padding:120px 24px 40px;max-width:600px;margin:auto}.music-no-script li{margin-bottom:20px}</style><ol class="music-no-script">{musicTracks.map(track=><li><a href={track.externalUrl} target="_blank" rel="noreferrer">{track.title} — {track.artist}</a></li>)}</ol></noscript>
 </main>
@@ -64,6 +68,7 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   .music-page[data-music-view=detail] .music-detail-deck{opacity:1;visibility:visible;pointer-events:auto;transition:opacity 200ms 120ms,visibility 0s}
   .music-page[data-music-view=detail] .music-browse{opacity:0;visibility:hidden;pointer-events:none}
   .music-detail-panel[hidden]{display:none!important}.music-detail-panel h2{font-size:22px;font-weight:600;letter-spacing:-.025em;line-height:1.2;text-wrap:balance}
+  .music-detail-panel{opacity:var(--record-detail-opacity,1)}
   .music-detail-artist{font-size:14px;margin-top:7px;color:var(--music-muted)}.music-detail-album{font-size:11px;line-height:1.5;margin-top:5px;color:var(--music-muted);text-wrap:balance}
   .music-actions{display:flex;justify-content:center;align-items:center;gap:20px;margin-top:20px}
   .music-preview-button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:999px;background:var(--music-ink);color:var(--music-paper);font-size:13px;cursor:pointer}
@@ -75,10 +80,25 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   .music-page.is-closing :is(.music-header,.music-browse,.music-detail-deck){opacity:0;pointer-events:none}
   .music-page[data-detail-layout=side] .music-detail-deck{top:52%;left:62%;width:min(340px,34%);transform:translateY(-50%);text-align:left}
   .music-page[data-detail-layout=side] .music-actions{justify-content:flex-start}
+  .music-return{display:flex;align-items:center;justify-content:center;gap:14px;min-height:44px;margin:22px auto 0;padding:0 8px;border:0;background:transparent;color:color-mix(in srgb,var(--music-muted) 85%,var(--music-ink));font-size:11px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:color 160ms}
+  .music-return-stack{position:relative;display:block;width:56px;height:34px;perspective:160px}
+  .music-return-stack [data-return-spine]{position:absolute;left:0;right:0;height:6px;border-radius:1px;background:linear-gradient(#0004,#0008),var(--spine-art) center/cover;box-shadow:inset 0 .5px #ffffff90,inset 0 -.5px #0008,0 2px 3px #0002;transform:rotateX(25deg);transition:translate 180ms}
+  .music-return-stack [data-return-spine]:first-child{top:5px;translate:0 calc(var(--record-return-gap,0) * -1px)}
+  .music-return-stack [data-return-spine]:last-child{bottom:5px;translate:0 calc(var(--record-return-gap,0) * 1px)}
+  .music-return-slot{position:absolute;left:4px;right:4px;top:16px;height:2px;background:linear-gradient(90deg,transparent,currentColor 12%,currentColor 88%,transparent);opacity:.45;transition:opacity 160ms,transform 160ms}
+  .music-return-label{display:grid;min-width:44px;text-align:left}.music-return-label>span{grid-area:1/1;transition:opacity 120ms}.music-return-label>span:last-child{opacity:0}
+  .music-page[data-return-ready=true] .music-return{color:var(--music-ink)}
+  .music-page[data-return-ready=true] .music-return-label>span:first-child{opacity:0}.music-page[data-return-ready=true] .music-return-label>span:last-child{opacity:1}
+  .music-page[data-return-ready=true] .music-return-slot{opacity:1;transform:scaleX(1.12)}
+  .music-page[data-detail-layout=side] .music-return{margin-left:0}
+  @media(hover:hover) and (pointer:fine){.music-return:hover{color:var(--music-ink)}.music-return:hover [data-return-spine]:first-child{translate:0 -3px}.music-return:hover [data-return-spine]:last-child{translate:0 3px}.music-return:hover .music-return-slot{opacity:1}}
+  .music-return:active{transform:translateY(2px)}
+  .music-page[data-return-ready] .music-return-stack [data-return-spine]{transition:none}
+  .music-page[data-return-ready] .music-return-stack{opacity:0}
   .music-page :is(button,a):focus-visible{outline:2px solid var(--music-accent);outline-offset:4px}
   @media(max-width:560px){.music-header{padding:20px 14px}.music-browse{bottom:max(23px,env(safe-area-inset-bottom))}.music-detail-panel h2{font-size:20px}.music-quote{font-size:12px}}
-  @media(max-height:560px){.music-quote{display:none}.music-browse{bottom:15px}.music-hint{margin-top:5px}.music-header{padding-top:15px}.music-detail-panel h2{font-size:18px}.music-actions{margin-top:12px}}
-  @media(prefers-reduced-motion:reduce){.music-page::before,.music-header,.music-browse,.music-detail-deck{transition:none}.music-eq i{animation:none}}
+  @media(max-height:560px){.music-quote{display:none}.music-browse{bottom:15px}.music-hint{margin-top:5px}.music-header{padding-top:15px}.music-detail-panel h2{font-size:18px}.music-actions{margin-top:12px}.music-return{margin-top:12px}}
+  @media(prefers-reduced-motion:reduce){.music-page::before,.music-header,.music-browse,.music-detail-deck,.music-return,.music-return-stack [data-return-spine],.music-return-slot,.music-return-label>span{transition:none}.music-return-stack [data-return-spine]{translate:0!important}.music-return-slot{transform:none!important}.music-return:active{transform:none}.music-eq i{animation:none}}
 </style>
 <script>
   import { mountMusicPage } from "../scripts/music-rack-page";

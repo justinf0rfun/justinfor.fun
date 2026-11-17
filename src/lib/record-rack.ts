@@ -5,8 +5,11 @@ export const INITIAL_RECORD = 4;
 export const clampRecord = (value: number, count: number) => Math.max(0, Math.min(count - 1, value));
 
 export function rackGeometry(rect: RackRect, compact: boolean): RackGeometry {
+  const shortPortrait=rect.width<600&&rect.height<552;
+  const widthRatio=rect.width>=600&&rect.width<1000&&rect.height<632?.4:.68;
+  const heightRatio=shortPortrait?(rect.height<472?.36:.42):.6;
   return { left:rect.left,top:rect.top,width:rect.width,height:rect.height,cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2,
-    cover: compact ? Math.min(rect.width * .66, rect.height * 1.25) : Math.min(rect.width * .68, 340, rect.height * .6),
+    cover: compact ? Math.min(rect.width * .66, rect.height * 1.25) : Math.min(rect.width*widthRatio,340,rect.height*heightRatio),
     step: compact ? rect.height / 5.2 : Math.max(44, Math.min(76, rect.height / 9.5)),
     perspective: compact ? Math.max(420, rect.width * 1.8) : Math.max(950, rect.width * .75),
   };
@@ -24,11 +27,11 @@ export function sleevePose(index: number, position: number, geometry: RackGeomet
 }
 
 export function recordFocus(geometry: RackGeometry, viewport: { width: number; height: number }) {
-  const side = viewport.width >= 1000 || (viewport.width >= 600 && viewport.height < 560);
+  const side = viewport.width >= 1000 || (viewport.width >= 600 && viewport.height < 720);
   const z = Math.min(96, geometry.cover * .28);
   const surfaceZ = z + geometry.cover / 56 + .2;
   const size = geometry.cover * geometry.perspective / (geometry.perspective - surfaceZ);
-  const x = viewport.width * (side ? .38 : .5), y = viewport.height * (side ? .52 : .4);
+  const x = viewport.width * (side ? .38 : .5), y = viewport.height * (side ? .52 : viewport.height<640 ? .35 : .4);
   return { side, z, x, y, size, detailTop: y + size / 2 + 24 };
 }
 
@@ -53,6 +56,20 @@ export function sleevePolygons(pose: SleevePose, geometry: RackGeometry) {
   const cover = [[-half,-half],[half,-half],[half,half],[-half,half]].map(([x,y]) => project(pose.x+x,pose.y+y*cos-faceZ*sin,pose.z+y*sin+faceZ*cos,geometry));
   const spine = [[-half,-thickness],[half,-thickness],[half,thickness],[-half,thickness]].map(([x,z]) => project(pose.x+x,pose.y+half*cos-z*sin,pose.z+half*sin+z*cos,geometry));
   return [cover,spine];
+}
+
+// Keep the projected cover under the grab point while its depth and angle change.
+export function placeSleeve(pose: SleevePose, geometry: RackGeometry, center: {x:number;y:number}): SleevePose {
+  const cover=sleevePolygons(pose,geometry)[0];
+  const angle=radians(pose.angle),faceZ=(pose.flip?-1:1)*(geometry.cover/56+.2);
+  const depth=pose.z+faceZ*Math.cos(angle),halfDepth=geometry.cover/2*Math.sin(angle);
+  const scale=(geometry.perspective/(geometry.perspective-depth-halfDepth)+geometry.perspective/(geometry.perspective-depth+halfDepth))/2;
+  return {...pose,x:pose.x+(center.x-cover.reduce((sum,p)=>sum+p.x,0)/4)/scale,y:pose.y+(center.y-cover.reduce((sum,p)=>sum+p.y,0)/4)/scale};
+}
+
+export function shouldReturnRecord(distance: number, velocity: number, size: number) {
+  const threshold=Math.max(52,Math.min(84,size*.23));
+  return velocity>-.35 && (distance>=threshold || (distance>=14&&velocity>=.45&&distance+velocity*100>=threshold));
 }
 
 function inside(point: { x: number; y: number }, polygon: { x: number; y: number }[]) {

@@ -1,5 +1,5 @@
 import { animate, motionValue } from "motion";
-import { INITIAL_RECORD, clampRecord, mixRack, pickSleeve, pullSleeve, rackGeometry, recordFocus, sleevePose, type RackGeometry } from "../lib/record-rack";
+import { INITIAL_RECORD, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, type RackGeometry, type SleevePose } from "../lib/record-rack";
 
 export interface RecordRack {
   root: HTMLElement;
@@ -23,9 +23,13 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   scene.style.left="0px";scene.style.top="0px";
   const scroll = root.querySelector<HTMLElement>("[data-record-scroll]")!;
   const records = [...root.querySelectorAll<HTMLElement>("[data-record-option]")];
+  const grab=root.querySelector<HTMLButtonElement>("[data-record-grab]");
+  const page=root.closest<HTMLElement>("[data-record-page]");
+  const browseLabel=root.getAttribute("aria-label")??"Record collection";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const fine = matchMedia("(hover:hover) and (pointer:fine)");
   const compactPosition = motionValue(INITIAL_RECORD), morphPosition = motionValue(1), pull = motionValue(0);
+  const handX=motionValue(0),handY=motionValue(0),lift=motionValue(0);
   let layout = rackGeometry(root.getBoundingClientRect(), compact), active = compact, visible = true, frame = 0;
   let paintedPosition=INITIAL_RECORD;
   let resting = INITIAL_RECORD, announced = -1, requested: number | null = null, selected: number | null = null, selectedFlip = 0;
@@ -35,8 +39,11 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   let stopMorph: (() => void) | undefined, coast = 0, velocity = 0;
   let keyboard = false, keyboardIndex = INITIAL_RECORD, suppressClick = false;
   let gesture: { id:number;x:number;y:number;top:number;index:number;time:number;last:number;v:number;moved:boolean;type:string } | null = null;
+  let returnGesture: {id:number;x:number;y:number;cx:number;cy:number;pull:number;distance:number;moved:boolean;width:number;height:number;samples:{y:number;t:number}[]} | null=null;
+  let coverPose: SleevePose|null=null,suppressReturnClick=false,returnPending=false;
 
   const geometry = () => rackGeometry(root.getBoundingClientRect(), compact);
+  const currentGeometry=()=>morphSource?mixRack(morphSource.geometry(),geometry(),morphPosition.get()):geometry();
   const getPosition = () => compact ? compactPosition.get() : scroll.scrollTop / layout.step;
   const schedule = () => { if (!frame && active && !document.hidden) frame = requestAnimationFrame(paint); };
   const stopCoast = () => { cancelAnimationFrame(coast); coast=0; if(!morphSource)delete scroll.dataset.coasting; };
@@ -58,10 +65,12 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
       camera.style.maskImage=selected!==null?"none":`linear-gradient(transparent ${g.top}px,#000 ${g.top+g.height*.1}px,#000 ${g.top+g.height*endSolid}px,transparent ${g.top+g.height*endClear}px)`;
     } else { delete camera.dataset.morph; camera.style.clipPath = ""; camera.style.maskImage=""; }
     const position = getPosition(), extraction = pull.get();paintedPosition=position;
+    page?.style.setProperty("--record-detail-opacity",String(Math.max(0,Math.min(1,(extraction-.72)/.28))));
+    page?.style.setProperty("--record-return-gap",String(Math.max(0,1-extraction)*12));
     const current = keyboard ? keyboardIndex : Math.round(clampRecord(position,records.length));
     if (current!==announced) {
       announced=current;
-      if(!compact) root.setAttribute("aria-activedescendant",records[current].id);
+      if(!compact&&requested===null) root.setAttribute("aria-activedescendant",records[current].id);
       root.dispatchEvent(new CustomEvent("record-index",{bubbles:true,detail:{index:current}}));
     }
     const range = Math.ceil(g.height/g.step/2)+3;
@@ -78,7 +87,16 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
       }
       if(!shown)return;
       let pose=sleevePose(index,position,g);
-      if(index===selected)pose=pullSleeve(pose,g,extraction,{width:innerWidth,height:innerHeight},selectedFlip);
+      if(index===selected){
+        pose=pullSleeve(pose,g,extraction,{width:innerWidth,height:innerHeight},selectedFlip);
+        pose.x+=handX.get();pose.y+=handY.get();pose.z+=lift.get()*6;
+        coverPose=pose;
+        if(grab&&requested!==null){
+          const polygon=sleevePolygons(pose,g)[0],xs=polygon.map(p=>p.x),ys=polygon.map(p=>p.y);
+          grab.style.left=`${Math.min(...xs)-own.left}px`;grab.style.top=`${Math.min(...ys)-own.top}px`;
+          grab.style.width=`${Math.max(...xs)-Math.min(...xs)}px`;grab.style.height=`${Math.max(...ys)-Math.min(...ys)}px`;
+        }
+      }else if(selected!==null&&!reduced.matches)pose.y+=Math.sign(index-selected)*Math.sin(Math.PI*extraction)*18;
       record.style.transform=`translate3d(${pose.x/scale}px,${pose.y/scale}px,${pose.z/scale}px) rotateX(${pose.angle}deg)`;
       record.style.setProperty("--record-flip",`${pose.flip}deg`);
       record.style.setProperty("--record-opacity",String(index===selected?1:Math.max(0,Math.min(1,1-extraction))));
@@ -87,17 +105,23 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   }
 
   function measure() {
+    if(returnGesture)api.select(requested);
     // Viewport changes can clamp native scrollTop before ResizeObserver runs.
     const position=compact?getPosition():keyboard?keyboardIndex:paintedPosition;layout=geometry();
     root.style.setProperty("--record-size",`${layout.cover}px`);
     root.style.setProperty("--record-step",`${layout.step}px`);
     root.style.setProperty("--record-height",`${layout.height}px`);
     if(!compact)scroll.scrollTop=clampRecord(position,records.length)*layout.step;
-    const page=root.closest<HTMLElement>("[data-record-page]");
     if(page){const focus=recordFocus(layout,{width:innerWidth,height:innerHeight});page.style.setProperty("--record-detail-top",`${focus.detailTop}px`);page.dataset.detailLayout=focus.side?"side":"stack";}
     schedule();
   }
   const choose = (index: number, fromKeyboard=false) => root.dispatchEvent(new CustomEvent("record-select",{bubbles:true,detail:{index,keyboard:fromKeyboard}}));
+  const putBack=(fromKeyboard=false)=>{if(requested!==null&&!returnPending){returnPending=true;root.dispatchEvent(new CustomEvent("record-return",{bubbles:true,detail:{keyboard:fromKeyboard}}));}};
+  const clearReturnGesture=()=>{
+    if(returnGesture?.moved)suppressReturnClick=true;
+    const pointer=returnGesture?.id;returnGesture=null;delete root.dataset.returnDrag;delete page?.dataset.returnReady;
+    if(pointer!==undefined&&grab?.hasPointerCapture(pointer))grab.releasePointerCapture(pointer);
+  };
 
   const api: RecordRack = {root,records,getPosition,getSelected:()=>requested,getCurrentIndex:()=>keyboard?keyboardIndex:Math.round(clampRecord(getPosition(),records.length)),geometry,
     setPosition(value) {
@@ -109,19 +133,31 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     },
     setActive(value) {
       active=value;
-      if(!value){stopCoast();compactPosition.stop();records.forEach(record=>record.querySelector("video")?.pause());records.forEach(record=>record.querySelector("video")?.removeAttribute("data-running"));}
+      if(!value){clearReturnGesture();stopCoast();compactPosition.stop();records.forEach(record=>record.querySelector("video")?.pause());records.forEach(record=>record.querySelector("video")?.removeAttribute("data-running"));}
       else {measure();paint();}
     },
     select(index) {
-      const run=++selectionRun;requested=index;
-      if(!compact)root.tabIndex=index===null?0:-1;
+      clearReturnGesture();
+      const run=++selectionRun;requested=index;returnPending=false;
+      if(grab){grab.hidden=index===null;if(index!==null)grab.setAttribute("aria-label",`Put back ${records[index].dataset.recordTitle}. You can also drag the cover down.`);}
+      if(!compact){
+        root.tabIndex=index===null?0:-1;root.setAttribute("role",index===null?"listbox":"group");
+        root.setAttribute("aria-label",index===null?browseLabel:`Selected record: ${records[index].dataset.recordTitle}`);
+        camera.setAttribute("aria-hidden",String(index!==null));
+        if(index===null)root.setAttribute("aria-activedescendant",records[api.getCurrentIndex()].id);else root.removeAttribute("aria-activedescendant");
+      }
       if(index!==null) {
-        if(selected!==index){pull.jump(0);selected=index;selectedFlip=sleevePose(index,getPosition(),geometry()).flip;}
+        if(selected!==index){handX.jump(0);handY.jump(0);lift.jump(0);pull.jump(0);selected=index;selectedFlip=sleevePose(index,getPosition(),geometry()).flip;}
         root.dataset.detail="true";stopCoast();
       }
-      const done=()=>{if(run!==selectionRun)return;if(index===null){selected=null;delete root.dataset.detail;}schedule();};
-      if(reduced.matches){pull.jump(index===null?0:1);done();}
-      else animate(pull,index===null?0:1,{type:"spring",stiffness:240,damping:30,onComplete:done});
+      if(index===null&&selected!==null)root.dataset.recordReturning="true";else delete root.dataset.recordReturning;
+      const done=()=>{if(run!==selectionRun)return;if(index===null){selected=null;delete root.dataset.detail;delete root.dataset.recordReturning;}schedule();};
+      if(reduced.matches){handX.jump(0);handY.jump(0);lift.jump(0);pull.jump(index===null?0:1);done();}
+      else {
+        const spring={type:"spring" as const,stiffness:240,damping:28};
+        animate(handX,0,spring);animate(handY,0,spring);animate(lift,0,spring);
+        animate(pull,index===null?0:1,{...spring,onComplete:done});
+      }
     },
     morph(source,open) {
       const run=++morphRun;stopMorph?.();finishMorph?.(false);
@@ -144,7 +180,42 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     },
   };
 
-  compactPosition.on("change",schedule);morphPosition.on("change",schedule);pull.on("change",schedule);
+  compactPosition.on("change",schedule);morphPosition.on("change",schedule);pull.on("change",schedule);handX.on("change",schedule);handY.on("change",schedule);lift.on("change",schedule);
+  grab?.addEventListener("pointerenter",()=>{if(fine.matches&&!returnGesture&&!reduced.matches)animate(lift,1,{type:"spring",stiffness:280,damping:26});});
+  grab?.addEventListener("pointerleave",()=>{if(!returnGesture)animate(lift,0,{type:"spring",stiffness:280,damping:26});});
+  grab?.addEventListener("pointerdown",event=>{
+    if(event.button!==0||requested===null||!coverPose)return;
+    if(returnGesture){api.select(requested);return;}
+    ++selectionRun;pull.stop();handX.stop();handY.stop();lift.stop();
+    const polygon=sleevePolygons(coverPose,currentGeometry())[0];
+    returnGesture={id:event.pointerId,x:event.clientX,y:event.clientY,cx:polygon.reduce((sum,p)=>sum+p.x,0)/4,cy:polygon.reduce((sum,p)=>sum+p.y,0)/4,pull:pull.get(),distance:0,moved:false,width:innerWidth,height:innerHeight,samples:[{y:event.clientY,t:event.timeStamp}]};
+    suppressReturnClick=false;root.dataset.returnDrag="true";grab.setPointerCapture(event.pointerId);
+    if(!reduced.matches)animate(lift,1,{type:"spring",stiffness:280,damping:26});
+  });
+  grab?.addEventListener("pointermove",event=>{
+    const drag=returnGesture;if(!drag||drag.id!==event.pointerId||selected===null)return;
+    const dx=event.clientX-drag.x,dy=event.clientY-drag.y,g=currentGeometry();
+    if(Math.hypot(dx,dy)>6)drag.moved=true;
+    if(!drag.moved)return;
+    event.preventDefault();drag.distance=Math.abs(dy)>Math.abs(dx)*.7?Math.max(0,dy):0;
+    drag.samples.push({y:event.clientY,t:event.timeStamp});while(drag.samples.length>2&&event.timeStamp-drag.samples[0].t>90)drag.samples.shift();
+    if(page)page.dataset.returnReady=String(shouldReturnRecord(drag.distance,0,g.cover));
+    if(reduced.matches)return;
+    pull.set(drag.pull*(1-Math.min(.72,drag.distance/(g.cover*.7))));
+    const pose=pullSleeve(sleevePose(selected,getPosition(),g),g,pull.get(),{width:innerWidth,height:innerHeight},selectedFlip);pose.z+=lift.get()*6;
+    const moved=placeSleeve(pose,g,{x:drag.cx+dx*.4,y:drag.cy+(dy>=0?dy:dy*.2)});
+    handX.set(moved.x-pose.x);handY.set(moved.y-pose.y);
+  });
+  const endReturn=(event:PointerEvent)=>{
+    const drag=returnGesture;if(!drag||drag.id!==event.pointerId)return;
+    const first=drag.samples[0],last=drag.samples.at(-1)!,elapsed=last.t-first.t;
+    const speed=event.timeStamp-last.t<100&&elapsed>0?(last.y-first.y)/elapsed:0;
+    suppressReturnClick=drag.moved;clearReturnGesture();
+    if(event.type==="pointerup"&&drag.moved&&drag.width===innerWidth&&drag.height===innerHeight&&shouldReturnRecord(drag.distance,speed,geometry().cover))putBack();
+    else api.select(requested);
+  };
+  grab?.addEventListener("pointerup",endReturn);grab?.addEventListener("pointercancel",endReturn);grab?.addEventListener("lostpointercapture",endReturn);
+  grab?.addEventListener("click",event=>{if(suppressReturnClick&&event.detail!==0){suppressReturnClick=false;event.preventDefault();return;}suppressReturnClick=false;putBack(event.detail===0);});
   scroll.addEventListener("scroll",()=>{if(!compact)schedule();},{passive:true});
   scroll.addEventListener("wheel",()=>{stopCoast();keyboard=false;},{passive:true});
   scroll.addEventListener("pointerdown",event=>{
@@ -198,6 +269,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   scroll.addEventListener("pointerleave",()=>{if(compact&&!gesture&&active)animate(compactPosition,resting,{type:"spring",stiffness:200,damping:28});});
   scroll.addEventListener("click",event=>{
     if(suppressClick){event.preventDefault();event.stopPropagation();suppressClick=false;return;}
+    if(root.hasAttribute("data-record-returning")&&event.detail>1){event.preventDefault();return;}
     if(compact||requested!==null)return;
     const g=morphSource?mixRack(morphSource.geometry(),geometry(),morphPosition.get()):geometry();
     const index=pickSleeve({x:event.clientX,y:event.clientY},getPosition(),records.length,g);if(index!==null)choose(index);
@@ -213,10 +285,10 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   });
   const observer=new ResizeObserver(measure);observer.observe(root);
   const intersection=new IntersectionObserver(([entry])=>{visible=!!entry?.isIntersecting;schedule();});intersection.observe(root);
-  document.addEventListener("visibilitychange",()=>{if(document.hidden)records.forEach(record=>record.querySelector("video")?.pause());else{records.forEach(record=>record.querySelector("video")?.removeAttribute("data-running"));schedule();}});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){if(returnGesture)api.select(requested);records.forEach(record=>record.querySelector("video")?.pause());}else{records.forEach(record=>record.querySelector("video")?.removeAttribute("data-running"));schedule();}});
   reduced.addEventListener("change",()=>{
     stopCoast();
-    if(reduced.matches){compactPosition.stop();pull.jump(requested===null?0:1);if(requested===null){selected=null;delete root.dataset.detail;}stopMorph?.();completeMorph?.();}
+    if(reduced.matches){clearReturnGesture();handX.jump(0);handY.jump(0);lift.jump(0);compactPosition.stop();pull.jump(requested===null?0:1);if(requested===null){selected=null;delete root.dataset.detail;delete root.dataset.recordReturning;}stopMorph?.();completeMorph?.();}
     schedule();
   });
   racks.set(root,api);measure();api.setPosition(INITIAL_RECORD);paint();return api;

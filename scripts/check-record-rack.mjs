@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { clampRecord, mixRack, pickSleeve, pullSleeve, rackGeometry, recordFocus, sleevePolygons, sleevePose } from "../src/lib/record-rack.ts";
+import { clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose } from "../src/lib/record-rack.ts";
 
 const rect={left:0,top:88,width:390,height:756};
 test("rack geometry reads DOMRect getters rather than spreading away its dimensions",()=>{
@@ -33,4 +33,39 @@ test("compact and large racks share geometry at exact handoff endpoints",()=>{
   assert.deepEqual(mixRack(small,large,0),small);assert.deepEqual(mixRack(small,large,1),large);
   assert.ok(small.cover<large.cover&&small.step<large.step);
   assert.equal(clampRecord(-3,21),0);assert.equal(clampRecord(29,21),20);
+});
+test("a grabbed cover tracks the same screen point while flipping either face",()=>{
+  const geometry=rackGeometry(rect,false),center={x:207,y:400};
+  for(const index of [0,4])for(const progress of [.3,.7,1]){
+    const pose=pullSleeve(sleevePose(index,2,geometry),geometry,progress,{width:390,height:844});
+    const cover=sleevePolygons(placeSleeve(pose,geometry,center),geometry)[0];
+    assert.ok(Math.abs(cover.reduce((sum,p)=>sum+p.x,0)/4-center.x)<.01);
+    assert.ok(Math.abs(cover.reduce((sum,p)=>sum+p.y,0)/4-center.y)<.01);
+  }
+});
+test("return intent accepts a short flick or a deliberate drag, with room to change your mind",()=>{
+  for(const size of [218,265,340]){
+    assert.equal(shouldReturnRecord(12,0,size),false);
+    assert.equal(shouldReturnRecord(8,1.5,size),false);
+    assert.equal(shouldReturnRecord(25,.7,size),true);
+    assert.equal(shouldReturnRecord(90,0,size),true);
+    assert.equal(shouldReturnRecord(90,-.6,size),false);
+    assert.equal(shouldReturnRecord(-20,1,size),false);
+  }
+});
+test("short portrait layouts leave space for the return control below record details",()=>{
+  for(const height of [480,568,640,844]){
+    const geometry=rackGeometry({left:0,top:88,width:320,height:height-88},false);
+    const focus=recordFocus(geometry,{width:320,height});
+    assert.ok(focus.y-focus.size/2>88);
+    assert.ok(focus.detailTop+197<height-12,`${height}: ${focus.detailTop+197}`);
+  }
+});
+test("short tablet windows keep the cover beside its controls with a clear gap",()=>{
+  for(const [width,height] of [[600,568],[768,600],[844,390],[1024,768]]){
+    const geometry=rackGeometry({left:0,top:88,width,height:height-88},false),focus=recordFocus(geometry,{width,height});
+    assert.equal(focus.side,true);
+    assert.ok(focus.x+focus.size/2<width*.62-8);
+    assert.ok(focus.y-focus.size/2>88);
+  }
 });
