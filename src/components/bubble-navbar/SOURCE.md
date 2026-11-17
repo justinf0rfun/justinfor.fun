@@ -32,3 +32,21 @@ Dock-to-chat morph. No additional navigation item or dependency is introduced.
 
 The served page did not include a license notice; no MIT license is asserted.
 Attribution is included in the homepage Inspired list.
+
+## Glass material
+
+Reference: https://xiangyidesign.com/project
+Live public assets inspected:
+
+- https://xiangyidesign.com/assets/index-BGSxTweO.js (`g3` outer material)
+- https://xiangyidesign.com/assets/index-CaymMHEg.css (`.dock-switch:after` selected material and theme tokens)
+
+Both Dock themes use the original #bbbbbc glass at 12%, blur(8px), saturation
+150% and all ten outer shadow/reflection layers. The selected bubble uses the
+original 36% glass and seven shadow/reflection layers. Light/dark reflection
+factors remain 1/1 and .3/2. Source layout, content and navigation actions are
+not imported; existing Dock dimensions, responsive behavior and Bubble Navbar
+springs remain. The old Dots surface and full-width footer fog are removed.
+
+The native theme icon cuts its system half through the SVG mask so real glass
+shows through, instead of painting an opaque background-colored patch.

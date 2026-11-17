@@ -5,6 +5,7 @@
         <mask id="theme-eclipse" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
           <rect width="32" height="32" fill="white" />
           <circle class="theme-shadow" cx="26" cy="6" r="9.5" fill="black" />
+          <path class="theme-half" d="M16 6.5a9.5 9.5 0 0 0 0 19Z" fill="black" />
         </mask>
       </defs>
       <g class="theme-rays" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -12,9 +13,8 @@
       </g>
       <g mask="url(#theme-eclipse)">
         <circle cx="16" cy="16" r="9.5" fill="currentColor" />
-        <path class="theme-half" d="M16 6.5a9.5 9.5 0 0 0 0 19Z" fill="#000" />
-        <circle class="theme-system-ring" cx="16" cy="16" r="9.5" fill="none" stroke="currentColor" stroke-width="1.2" />
       </g>
+      <circle class="theme-system-ring" cx="16" cy="16" r="9.5" fill="none" stroke="currentColor" stroke-width="1.2" />
       <text class="theme-auto" x="26" y="28" text-anchor="middle" fill="currentColor">A</text>
     </svg>
     <span class="theme-label" data-theme-label aria-hidden="true">System</span>
@@ -31,7 +31,6 @@
   .theme-rays { opacity: 0; transform: scale(.65) rotate(40deg); transform-origin: 16px 16px; transition: opacity 160ms ease, transform 350ms var(--ease-out); }
   .theme-shadow { transform: translate(16px, -16px); transition: transform 350ms cubic-bezier(.65,0,.35,1); }
   .theme-half, .theme-system-ring, .theme-auto { opacity: 1; transition: opacity 180ms ease; }
-  .theme-half { fill: var(--dock-cutout); }
   .theme-auto { font-family: inherit; font-size: 7px; font-weight: 600; }
   :global(html[data-home-mode="light"]) .theme-rays { opacity: 1; transform: scale(1) rotate(0deg); }
   :global(html[data-home-mode="dark"]) .theme-shadow { transform: translate(-4.5px, 4.5px); }

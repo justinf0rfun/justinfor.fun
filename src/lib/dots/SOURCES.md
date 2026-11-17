@@ -23,14 +23,8 @@ The popup uses the source navigation material: `color-mix(in srgb,
 var(--bg-elevated-secondary) 80%, transparent)` and `blur(140px)` for both
 backdrop-filter declarations. The source light token is `#f3f3f3`; Dots overrides
 the dark token to `#212121`. The popup keeps its own connected Dock geometry.
-The Dock ports the navigation's separate absolute surface and isolated relative
-parent, keeping the source background expression and both backdrop filters.
-The surface inherits the existing Dock radius instead of the source's 29px radius.
-Light/dark map to the original #f3f3f3/#212121 tokens. These declarations were
-re-fetched from the live CSS and theme stylesheet; no screenshot tint is applied.
-The translucent result depends on the content behind it, including the source
-navigation's video backdrop. Dock text, dividers and interaction states follow
-the same effective theme as the page.
+The Dock now uses Xiangyi's glass material in both themes, documented in
+`src/components/bubble-navbar/SOURCE.md`. The Dots material remains on Moments.
 
 The URLs contain build hashes and may change. Model, poster and font provenance is
 recorded in `public/moments-reference/sources.json`. Character names in the GLB

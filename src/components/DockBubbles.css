@@ -1,14 +1,14 @@
 .home-dock .dock-controls{--dock-bubble-pad:6px;position:relative;isolation:isolate}
 .home-dock .dock-controls>button[data-dock-bubble-item]{position:relative;z-index:1;min-height:44px;padding-inline:var(--dock-bubble-pad);margin-inline:calc(0px - var(--dock-bubble-pad));border-radius:999px}
 .home-dock .dock-controls>.dock-divider,.home-dock .dock-controls>.theme-control{position:relative;z-index:1}
-.home-dock .dock-controls button[data-dock-selected=true]{color:#000}
+.home-dock .dock-controls button[data-dock-selected=true]{color:var(--dock-ink)}
 .home-dock .dock-controls button[data-dock-selected=true]:focus-visible{outline-offset:8px}
 .home-dock .dock-email:is(:hover,:focus-visible){color:var(--dock-ink)}
-.home-dock .dock-email[data-dock-selected=true]{color:#000;--mail-edge:#aaa293;--mail-fold:#b9b1a4}
+.home-dock .dock-email[data-dock-selected=true]{color:var(--dock-ink);--mail-edge:#aaa293;--mail-fold:#b9b1a4}
 .home-dock .dock-bubbles{position:absolute;inset:0;z-index:0;pointer-events:none}
 .home-dock .dock-bubble{position:absolute;left:0;top:0;border-radius:999px;pointer-events:none;transform-origin:center}
 .home-dock .dock-bubble-hover{background:var(--dock-hover);box-shadow:inset 0 1px 2px rgb(255 255 255/.2)}
-.home-dock .dock-bubble-active{background:#fff;box-shadow:var(--dock-active-shadow)}
+.home-dock .dock-bubble-active{background-color:color-mix(in srgb,var(--dock-glass) 36%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dock-light) calc(var(--dock-reflex-light) * 10%),transparent),inset 2px 1px 0 -1px color-mix(in srgb,var(--dock-light) calc(var(--dock-reflex-light) * 90%),transparent),inset -1.5px -1px 0 -1px color-mix(in srgb,var(--dock-light) calc(var(--dock-reflex-light) * 80%),transparent),inset -2px -6px 1px -5px color-mix(in srgb,var(--dock-light) calc(var(--dock-reflex-light) * 60%),transparent),inset -1px 2px 3px -1px color-mix(in srgb,var(--dock-dark) calc(var(--dock-reflex-dark) * 20%),transparent),inset 0 -4px 1px -2px color-mix(in srgb,var(--dock-dark) calc(var(--dock-reflex-dark) * 10%),transparent),0 3px 6px color-mix(in srgb,var(--dock-dark) calc(var(--dock-reflex-dark) * 8%),transparent)}
 @media(max-width:1023px){
  .home-dock .dock-controls{--dock-bubble-pad:3px}
  .home-dock .dock-controls>.dock-moments[data-dock-bubble-item],.home-dock .dock-controls>.dock-email[data-dock-bubble-item]{width:calc(32px + var(--dock-bubble-pad)*2)}
