@@ -607,6 +607,7 @@ html[data-home-theme="dark"] .home-email-layer {
 .dock-email[data-draft=true][data-open=false] .home-email-mail-heart { opacity:0; }
 .dock-email::after { content:"Preview complete"; position:absolute; left:50%; bottom:calc(100% + 20px); padding:7px 11px; border-radius:8px; background:#202221; color:#fff; white-space:nowrap; font:12px/1.5 var(--font-sans); opacity:0; visibility:hidden; transform:translate(-50%,4px); transition:opacity 140ms,transform 180ms var(--ease-out),visibility 0s 180ms; pointer-events:none; }
 .dock-email[data-preview-complete=true]::after { opacity:1; visibility:visible; transform:translate(-50%,0); transition-delay:0s; }
+.home-dock .dock-controls>button[data-home-email-trigger][data-email-focus-restored]:focus-visible { outline:none; }
 
 @media (min-width:640px) and (pointer:fine), (min-width:640px) and (min-height:521px) {
   .home-email-composer { border-radius:20px; transform:translateY(var(--paper-travel,40px)); clip-path:inset(var(--paper-top,100%) var(--paper-right,0px) 0 var(--paper-left,0px) round 24px); transition:opacity 180ms var(--ease-out),transform 240ms var(--ease-out),clip-path 240ms var(--ease-out),visibility 0s 240ms; }

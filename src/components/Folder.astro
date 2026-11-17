@@ -320,7 +320,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 </style>
 
 <script>
-  import { animate, hover } from "motion";
+  import { animate } from "motion";
+  import { folderHover } from "../lib/folder-hover";
   import { createProjectsTransition } from "../scripts/projects-transition";
   import {
     createWritingTransition,
@@ -488,7 +489,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     /* Every hover handler stands down while the stage owns the cards - the
        cleanup half too, or leaving the folder mid-stage would fold everything
        back into it. */
-    hover(folder, () => {
+    folderHover(folder, () => {
       if (stage) return;
       setOpen(true);
       return () => {
@@ -501,7 +502,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
        another takes it. Dropping it back on pointer-out would flick it behind
        its neighbours halfway through settling. */
     items.forEach((item, i) =>
-      hover(item, () => {
+      folderHover(item, () => {
         if (stage) return;
         focused = i;
         restack();

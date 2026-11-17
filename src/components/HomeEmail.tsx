@@ -19,6 +19,7 @@ export default function HomeEmail() {
   const closing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), releasing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const preview = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const noteTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hoverReset = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const plane = useRef<SVGSVGElement>(null), returnAnimation = useRef<Animation | null>(null), dockResponse = useRef<Animation | null>(null);
   const generation = useRef(0);
   const drag = useRef<{ startY: number; lastY: number; lastAt: number; velocity: number; height: number } | null>(null);
@@ -27,6 +28,8 @@ export default function HomeEmail() {
     ++generation.current; returnAnimation.current?.cancel(); returnAnimation.current = null;
     dockResponse.current?.cancel(); dockResponse.current = null;
     clearTimeout(noteTimer.current); setFlight(null); setComplete(false);
+    clearTimeout(hoverReset.current);
+    document.querySelector<HTMLElement>(".home-dock")?.removeAttribute("data-email-returning");
   }
 
   function measurePaper() {
@@ -48,18 +51,25 @@ export default function HomeEmail() {
     if (resting) { node.getBoundingClientRect(); node.style.transition = ""; }
   }
 
-  function change(next: boolean, restoreFocus = true) {
+  function change(next: boolean, restoreFocus: "visible" | "quiet" | false = "visible") {
     cancelReturn();
     wanted.current = next;
     clearTimeout(closing.current); clearTimeout(preview.current);
     if (next) { setStatus("idle"); window.dispatchEvent(new CustomEvent("home-email-opening")); }
     else {
+      const dock = document.querySelector<HTMLElement>(".home-dock");
+      if (dock) dock.dataset.emailReturning = "true";
+      hoverReset.current = setTimeout(() => dock?.removeAttribute("data-email-returning"), 360);
       setShortcutDown(false); drag.current = null;
       if (panel.current) { panel.current.style.transition = ""; panel.current.style.transform = ""; }
       if (backdrop.current) { backdrop.current.style.transition = ""; backdrop.current.style.opacity = ""; }
       closing.current = setTimeout(() => setStatus("idle"), 240);
       if (restoreFocus && panel.current?.contains(document.activeElement)) requestAnimationFrame(() => {
-        if (!wanted.current) trigger.current?.focus({ preventScroll: true });
+        if (!wanted.current && trigger.current) {
+          if (restoreFocus === "quiet") trigger.current.dataset.emailFocusRestored = "true";
+          else delete trigger.current.dataset.emailFocusRestored;
+          trigger.current.focus({ preventScroll: true });
+        }
       });
     }
     window.dispatchEvent(new CustomEvent("home-email-change", { detail: next }));
@@ -86,7 +96,7 @@ export default function HomeEmail() {
     if (!wanted.current || !trigger.current) return;
     const source = button.getBoundingClientRect(), destination = trigger.current.querySelector(".email-icons")!.getBoundingClientRect();
     const compact = matchMedia(SHEET).matches, focused = document.activeElement as HTMLElement | null;
-    change(false);
+    change(false, "quiet");
     if (compact) focused?.blur();
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) { receive(); return; }
     setFlight({ from: { x: source.left + source.width / 2, y: source.top + source.height / 2 }, to: { x: destination.left + destination.width / 2, y: destination.top + destination.height / 2 }, compact });
@@ -94,11 +104,13 @@ export default function HomeEmail() {
 
   useLayoutEffect(() => {
     if (!flight || !plane.current) return;
+    clearTimeout(hoverReset.current);
     const token = ++generation.current;
     const animation = plane.current.animate(emailReturnFrames(flight.from, flight.to, flight.compact), { duration: flight.compact ? 520 : 720, easing: "cubic-bezier(.32,0,.2,1)", fill: "both" });
     returnAnimation.current = animation;
     animation.finished.then(() => {
       if (token !== generation.current) return;
+      document.querySelector<HTMLElement>(".home-dock")?.removeAttribute("data-email-returning");
       returnAnimation.current = null; setFlight(null); receive();
     }, () => {});
     return () => { animation.cancel(); if (returnAnimation.current === animation) returnAnimation.current = null; };
@@ -116,13 +128,16 @@ export default function HomeEmail() {
     if (!button) return;
     trigger.current = button; setRecipient(button.dataset.emailAddress ?? ""); setHost(document.body); button.disabled = false;
     const media = matchMedia(SHEET), resize = () => setSheet(media.matches);
-    const toggle = () => change(!wanted.current);
+    const toggle = (event: MouseEvent) => change(!wanted.current, event.detail === 0 ? "visible" : "quiet");
     const close = () => { if (wanted.current) change(false, false); else cancelReturn(); };
     const guide = (event: Event) => { if ((event as CustomEvent<boolean>).detail) close(); };
     const chat = document.querySelector("[data-home-chat-trigger]");
     let width = window.innerWidth;
     const interrupt = () => { if (returnAnimation.current) cancelReturn(); };
-    const cancelKey = (event: globalThis.KeyboardEvent) => { if (event.key === "Escape") interrupt(); };
+    const cancelKey = (event: globalThis.KeyboardEvent) => {
+      trigger.current?.removeAttribute("data-email-focus-restored");
+      if (event.key === "Escape") interrupt();
+    };
     const resized = () => { if (width !== window.innerWidth) interrupt(); width = window.innerWidth; };
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const reduce = () => { if (reduced.matches) returnAnimation.current?.finish(); };
@@ -135,14 +150,16 @@ export default function HomeEmail() {
     reduced.addEventListener("change", reduce);
     return () => {
       ++generation.current; returnAnimation.current?.cancel(); dockResponse.current?.cancel(); clearTimeout(noteTimer.current);
+      clearTimeout(hoverReset.current);
       clearTimeout(closing.current); clearTimeout(releasing.current); clearTimeout(preview.current);
       button.removeEventListener("click", toggle); chat?.removeEventListener("click", close); media.removeEventListener("change", resize);
       for (const event of ["home-moments-opening", "inspired-opening", "ride-coupon-opening"]) window.removeEventListener(event, close);
       window.removeEventListener("home-chat-guide-state", guide);
       window.removeEventListener("pointerdown", interrupt); window.removeEventListener("scroll", interrupt); window.removeEventListener("resize", resized); reduced.removeEventListener("change", reduce);
       window.removeEventListener("keydown", cancelKey);
-      button.disabled = true; button.setAttribute("aria-expanded", "false"); delete button.dataset.open; delete button.dataset.draft; delete button.dataset.previewComplete;
-      document.querySelector<HTMLElement>(".home-dock")?.removeAttribute("data-email-open");
+      button.disabled = true; button.setAttribute("aria-expanded", "false"); delete button.dataset.open; delete button.dataset.draft; delete button.dataset.previewComplete; delete button.dataset.emailFocusRestored;
+      const dock = document.querySelector<HTMLElement>(".home-dock");
+      dock?.removeAttribute("data-email-open"); dock?.removeAttribute("data-email-returning");
       window.dispatchEvent(new CustomEvent("home-email-change", { detail: false }));
     };
   }, []);
@@ -245,7 +262,7 @@ export default function HomeEmail() {
     panel.current.style.transition = ""; panel.current.style.transform = "";
     if (backdrop.current) { backdrop.current.style.transition = ""; backdrop.current.style.opacity = ""; }
     const pulled = event.clientY - current.startY;
-    if (event.type === "pointerup" && (pulled > 96 || (pulled > 16 && event.timeStamp - current.lastAt < 80 && current.velocity > .5))) change(false);
+    if (event.type === "pointerup" && (pulled > 96 || (pulled > 16 && event.timeStamp - current.lastAt < 80 && current.velocity > .5))) change(false, "quiet");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -261,12 +278,12 @@ export default function HomeEmail() {
 
   const locked = status === "sending" || status === "sent";
   return host && createPortal(<div className="home-email-layer">
-    <div ref={backdrop} aria-hidden="true" data-open={isOpen} onClick={() => change(false)} className="home-email-composer-backdrop" />
+    <div ref={backdrop} aria-hidden="true" data-open={isOpen} onClick={() => change(false, "quiet")} className="home-email-composer-backdrop" />
     <div ref={panel} id="home-email" role="dialog" aria-label="Email Justin" aria-describedby="home-email-preview" aria-modal={sheet && isOpen} tabIndex={-1} data-open={isOpen} inert={!isOpen} onKeyDown={handleKeyDown} className="home-email-composer">
       <div onPointerDown={handleDragStart} onPointerMove={handleDragMove} onPointerUp={handleDragEnd} onPointerCancel={handleDragEnd} className="home-email-composer-header">
         <span aria-hidden="true" className="home-email-composer-grabber" />
         <div className="home-email-recipient"><img src="/justin-avatar.png" width="32" height="32" alt="" /><div><h2>Write to Justin</h2><span>{recipient}</span></div></div>
-        <button type="button" onClick={() => change(false)} aria-label="Close email" className="home-email-close relative inline-flex size-6 items-center justify-center rounded-full text-muted transition-transform active:scale-95"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" /></svg></button>
+        <button type="button" onClick={event => change(false, event.detail === 0 ? "visible" : "quiet")} aria-label="Close email" className="home-email-close relative inline-flex size-6 items-center justify-center rounded-full text-muted transition-transform active:scale-95"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" /></svg></button>
       </div>
       <form ref={form} noValidate aria-busy={status === "sending"} onSubmit={handleSubmit} onInput={() => {
         const fields = form.current!.elements;

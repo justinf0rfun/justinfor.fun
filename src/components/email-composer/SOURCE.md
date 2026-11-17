@@ -45,6 +45,13 @@ geometry and flight frames. The original send button hands off its plane drawing
 at the flown stage: desktop uses a 720ms arc, mobile a shorter 520ms arc. A
 generation guard cancels obsolete returns and their completion feedback.
 
+While returning, the Dock marks `data-email-returning`. Folder hover handlers
+defer layout-generated pointer entry until an actual hover-pointer move, without
+blocking clicks or keyboard focus. This prevents stationary pointers over the
+old Send position from opening a background folder. Automatic and pointer-led
+dismissals restore focus quietly; a real keyboard action clears that temporary
+outline suppression, retaining the normal keyboard-navigation indicator.
+
 The desktop window reveals from the native Dock pill with a clip and translation,
 so text does not stretch. Closing follows the same path and can reverse midway.
 Mobile retains the touch sheet. Draft text adds a paper edge to the Dock icon,
