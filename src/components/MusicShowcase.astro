@@ -23,7 +23,7 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   <div class="music-record-area"><RecordRack id={`music-${mode}`} /></div>
   <footer class="music-browse" data-record-browse>
     <p class="music-quote">也许有天没音乐，我只见见你也好</p>
-    <div class="music-browse-row"><div><p class="music-current"><span data-record-current>{musicTracks[INITIAL_RECORD].title}</span><span class="music-count" data-record-count>{String(INITIAL_RECORD+1).padStart(2,"0")} / {musicTracks.length}</span></p><p class="music-artist" data-record-artist-label>{musicTracks[INITIAL_RECORD].artist}</p></div><button type="button" class="music-take" data-record-open>Take out <span aria-hidden="true">↑</span></button></div>
+    <div class="music-browse-row"><div><p class="music-current"><span data-record-current>{musicTracks[INITIAL_RECORD].title}</span><span class="music-count" data-record-count>{String(INITIAL_RECORD+1).padStart(2,"0")} / {musicTracks.length}</span></p><p class="music-artist" data-record-artist-label>{musicTracks[INITIAL_RECORD].artist}</p></div><button type="button" class="music-take" data-record-open><span>Take out</span><span aria-hidden="true">↑</span></button></div>
     <p class="music-hint">Scroll or drag to flip · Tap a sleeve to take it out</p>
   </footer>
   <div class="music-detail-deck" data-record-details>
@@ -43,8 +43,8 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   <noscript><style>.music-record-area,.music-browse{display:none}.music-page{overflow:auto}.music-no-script{padding:120px 24px 40px;max-width:600px;margin:auto}.music-no-script li{margin-bottom:20px}</style><ol class="music-no-script">{musicTracks.map(track=><li><a href={track.externalUrl} target="_blank" rel="noreferrer">{track.title} — {track.artist}</a></li>)}</ol></noscript>
 </main>
 <style>
-  .music-page{--music-paper:#f7f7f8;--music-ink:#202221;--music-muted:#777;--music-accent:#316ff0;position:relative;width:100%;height:100svh;height:100dvh;overflow:hidden;color:var(--music-ink);isolation:isolate}
-  :global(html[data-home-theme=dark]) .music-page{--music-paper:#111419;--music-ink:#f3f3f5;--music-muted:#a1a5ad;--music-accent:#8ab4ff;color-scheme:dark}
+  .music-page{--music-paper:#f7f7f8;--music-ink:#202221;--music-muted:#777;position:relative;width:100%;height:100svh;height:100dvh;overflow:hidden;color:var(--music-ink);isolation:isolate}
+  :global(html[data-home-theme=dark]) .music-page{--music-paper:#111419;--music-ink:#f3f3f5;--music-muted:#a1a5ad;color-scheme:dark}
   .music-page::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 42%,color-mix(in srgb,var(--music-ink) 3%,var(--music-paper)),var(--music-paper) 72%);transition:opacity 180ms;pointer-events:none}
   .music-page.is-overlay{position:fixed;inset:0;z-index:45;visibility:hidden;pointer-events:none}
   .music-page.is-overlay::before{opacity:0}
@@ -63,7 +63,7 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   .music-count{font:10px ui-monospace,SFMono-Regular,monospace;white-space:nowrap;color:var(--music-muted)}
   .music-artist{font-size:12px;color:var(--music-muted);margin-top:3px}.music-hint{margin-top:12px;text-align:center;font-size:11px;color:var(--music-muted)}
   .music-take{display:flex;align-items:center;gap:10px;flex:none;min-height:44px;padding:0 17px;border:0;border-radius:999px;background:var(--music-ink);color:var(--music-paper);font-size:13px;cursor:pointer}
-  .music-take span{font-size:18px}.music-take:active{transform:scale(.96)}
+  .music-take [aria-hidden]{font-size:18px}.music-take:active{transform:scale(.96)}
   .music-detail-deck{position:absolute;left:50%;top:var(--record-detail-top,60%);z-index:4;width:min(390px,calc(100% - 40px));transform:translateX(-50%);text-align:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 120ms,visibility 0s 120ms}
   .music-page[data-music-view=detail] .music-detail-deck{opacity:1;visibility:visible;pointer-events:auto;transition:opacity 200ms 120ms,visibility 0s}
   .music-page[data-music-view=detail] .music-browse{opacity:0;visibility:hidden;pointer-events:none}
@@ -95,7 +95,13 @@ const services: Record<MusicService,{name:string;icon:string}> = {"apple-music":
   .music-return:active{transform:translateY(2px)}
   .music-page[data-return-ready] .music-return-stack [data-return-spine]{transition:none}
   .music-page[data-return-ready] .music-return-stack{opacity:0}
-  .music-page :is(button,a):focus-visible{outline:2px solid var(--music-accent);outline-offset:4px}
+  .music-page :is(button,a):focus-visible{outline:none}
+  .music-page :is(button,a):focus-visible>span:not([aria-hidden]),
+  .music-return:focus-visible .music-return-label>span,
+  :global(.music-page:has([data-record-rack=full]:focus-visible)) [data-record-current],
+  :global(.music-page:has([data-record-grab]:focus-visible)) .music-return-label>span{text-decoration:underline;text-underline-offset:3px}
+  .music-header :global(.parent-link:focus-visible){outline:none}
+  .music-header :global(.parent-link:focus-visible .parent-link-label){text-decoration:underline;text-underline-offset:3px}
   @media(max-width:560px){.music-header{padding:20px 14px}.music-browse{bottom:max(23px,env(safe-area-inset-bottom))}.music-detail-panel h2{font-size:20px}.music-quote{font-size:12px}}
   @media(max-height:560px){.music-quote{display:none}.music-browse{bottom:15px}.music-hint{margin-top:5px}.music-header{padding-top:15px}.music-detail-panel h2{font-size:18px}.music-actions{margin-top:12px}.music-return{margin-top:12px}}
   @media(prefers-reduced-motion:reduce){.music-page::before,.music-header,.music-browse,.music-detail-deck,.music-return,.music-return-stack [data-return-spine],.music-return-slot,.music-return-label>span{transition:none}.music-return-stack [data-return-spine]{translate:0!important}.music-return-slot{transform:none!important}.music-return:active{transform:none}.music-eq i{animation:none}}

@@ -20,7 +20,8 @@ const { class: className = "" } = Astro.props;
   .music-folder-caption p{font-size:14px;font-weight:500;line-height:1.4}
   .music-folder-caption span{display:block;margin-top:2px;font-size:12px;color:var(--home-muted,#858585);white-space:nowrap}
   .music-folder-caption svg{flex:none;color:var(--home-muted,#858585)}
-  .music-folder:focus-visible{outline:2px solid #316ff0;outline-offset:5px;border-radius:24px}
+  .music-folder:focus-visible{outline:none}
+  .music-folder:focus-visible .music-folder-caption p{text-decoration:underline;text-underline-offset:3px}
   :global(html[data-home-theme=dark]) .music-folder-body{background:linear-gradient(145deg,#242424,#171717);box-shadow:inset 0 1px #ffffff14,0 1px 2px #0004,0 12px 18px -14px #0008}
   @media(hover:hover) and (pointer:fine){.music-folder:hover .music-folder-body{box-shadow:inset 0 1px #fff8,0 2px 4px #0001,0 16px 24px -14px #0003}}
   @media(max-width:400px){.music-folder-body{border-radius:20px}.music-folder-caption{padding:15px}.music-folder-caption span{font-size:11px}}

@@ -56,9 +56,8 @@ const { compact = false, id } = Astro.props;
   .record-rack[data-record-returning] .record-scroll{pointer-events:auto}
   .record-grab{position:absolute;z-index:3;padding:0;border:0;background:transparent;cursor:grab;touch-action:none;-webkit-tap-highlight-color:transparent}
   .record-grab[hidden]{display:none}.record-grab:active{cursor:grabbing}
-  .record-grab:focus-visible{outline:2px solid var(--music-accent,#316ff0);outline-offset:6px}
+  .record-grab:focus-visible{outline:none}
   .record-rack[data-return-drag] .record-cover{box-shadow:0 12px 24px -10px #0004,inset 0 0 0 .6px #ffffff30}
   .record-rack[data-return-drag] .record-camera{mask-image:linear-gradient(#000 65%,transparent 95%)}
-  .record-rack:focus-visible .record-option[aria-selected=true] .record-spine{outline:2px solid var(--music-accent,#316ff0);outline-offset:2px}
   @media(prefers-reduced-motion:reduce){.record-scroll{scroll-behavior:auto}}
 </style>
