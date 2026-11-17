@@ -19,6 +19,8 @@ incumbent system typeface, neutral sheet and source orange take precedence over
 random marketing palettes, stock photographs, decorative scenes, mandatory sales
 actions and fixed-height marketing sections. The two explicitly requested source
 interactions take precedence over the skill's general no-copy/no-scroll-spy rules.
+The introduction follows its content height; do not stretch it to the viewport or
+push its footnote to the bottom, which creates a large empty area on tall windows.
 
 ## Interaction provenance
 
