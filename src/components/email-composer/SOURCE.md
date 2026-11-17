@@ -57,6 +57,14 @@ so text does not stretch. Closing follows the same path and can reverse midway.
 Mobile retains the touch sheet. Draft text adds a paper edge to the Dock icon,
 without storage or changing the Dock's width.
 
+The Dock's envelope artwork is a local redraw on a 28px grid, with warm paper
+planes, a thin folded edge, flap contact shadow and a clipped letter. Its material
+follows the Finds paper cards. It replaces the upstream
+outline/heart icon while retaining its hover, expanded and draft meanings.
+An orange wax seal has an irregular edge, recessed impression and contact shadow.
+It lifts and fades on opening, then settles back after the flap closes. Reduced
+motion switches these states without animation.
+
 The header combines the recipient and avatar under “Write to Justin.” Fields and
 body use 16px type; two aligned field labels and the header/body rules establish
 hierarchy. Preview status stays beside Send. These component refinements apply

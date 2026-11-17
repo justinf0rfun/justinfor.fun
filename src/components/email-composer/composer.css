@@ -31,38 +31,6 @@ html[data-home-theme="dark"] .home-email-layer {
 @media (hover:hover) and (pointer:fine) { .home-email-composer-hint { display:flex; } }
 @media (max-width:639.98px), (pointer:coarse) and (max-height:520px) { .home-email-composer { max-width:none; } }
 
-  /* Signature: "Email me" in the footer. Hovering lifts the envelope's flap and */
-  /* the heart rises out of the pocket. It stays that way while the home-email-composer is open */
-  .home-email-mail-flap,
-  .home-email-mail-heart {
-    transition: transform 0.22s var(--ease-out);
-  }
-
-  /* The flap hinges on the envelope's top edge */
-  .home-email-mail-flap {
-    transform-origin: 9px 2.2px;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .dock-email[data-open="true"] .home-email-mail-flap {
-      transform: scaleY(-1);
-    }
-
-    .dock-email[data-open="true"] .home-email-mail-heart {
-      transform: translateY(-6.5px) scale(1.15);
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .dock-email:hover .home-email-mail-flap {
-        transform: scaleY(-1);
-      }
-
-      .dock-email:hover .home-email-mail-heart {
-        transform: translateY(-6.5px) scale(1.15);
-      }
-    }
-  }
-
   /* The home-email-composer: a small window that floats up out of "Email me", like a draft */
   /* in a mail app. It leaves faster than it arrives, and stays in the page so */
   /* a draft survives. Its origin is set to the link when it opens */
@@ -602,9 +570,18 @@ html[data-home-theme="dark"] .home-email-layer {
 .home-email-actions-note { display:flex; align-items:center; gap:12px; color:hsl(var(--muted)); font-size:13px; }
 .home-email-flight { position:fixed; z-index:60; top:-16px; left:-16px; width:32px; height:32px; overflow:visible; color:hsl(var(--foreground)); pointer-events:none; transform-origin:50% 50%; }
 .email-send-button[data-stage=flown] .email-send-plane { opacity:0; transform:none; transition:none; }
-.home-email-draft-paper { opacity:0; transform:translateY(4px); transition:opacity 160ms,transform 220ms var(--ease-out); }
-.dock-email[data-draft=true][data-open=false] .home-email-draft-paper { opacity:1; transform:translateY(0); transition-delay:160ms; }
-.dock-email[data-draft=true][data-open=false] .home-email-mail-heart { opacity:0; }
+.home-email-mail-flap { transform-origin:14px 8.5px; transition:transform 220ms var(--ease-out); }
+.home-email-wax-seal { transform-origin:14px 16px; transition:opacity 100ms 160ms,transform 160ms var(--ease-out) 140ms; }
+.home-email-draft-paper { opacity:0; transform:translateY(3px); transition:opacity 160ms,transform 220ms var(--ease-out); }
+.dock-email[data-draft=true] .home-email-draft-paper { opacity:1; transform:translateY(-1.5px); transition-delay:160ms; }
+.dock-email[data-open=true] .home-email-mail-flap { transform:scaleY(-1); }
+.dock-email[data-open=true] .home-email-wax-seal { opacity:0; transform:translateY(-1.5px) scale(.85); transition-delay:0s; }
+.dock-email[data-open=true] .home-email-draft-paper { opacity:1; transform:translateY(-6px); transition-delay:0s; }
+@media (hover:hover) and (pointer:fine) {
+  .dock-email:hover .home-email-mail-flap { transform:scaleY(-1); }
+  .dock-email:hover .home-email-wax-seal { opacity:0; transform:translateY(-1.5px) scale(.85); transition-delay:0s; }
+  .dock-email:hover .home-email-draft-paper { opacity:1; transform:translateY(-6px); transition-delay:0s; }
+}
 .dock-email::after { content:"Preview complete"; position:absolute; left:50%; bottom:calc(100% + 20px); padding:7px 11px; border-radius:8px; background:#202221; color:#fff; white-space:nowrap; font:12px/1.5 var(--font-sans); opacity:0; visibility:hidden; transform:translate(-50%,4px); transition:opacity 140ms,transform 180ms var(--ease-out),visibility 0s 180ms; pointer-events:none; }
 .dock-email[data-preview-complete=true]::after { opacity:1; visibility:visible; transform:translate(-50%,0); transition-delay:0s; }
 .home-dock .dock-controls>button[data-home-email-trigger][data-email-focus-restored]:focus-visible { outline:none; }
@@ -617,6 +594,6 @@ html[data-home-theme="dark"] .home-email-layer {
 @media (prefers-reduced-motion:reduce) {
   .home-email-composer,.home-email-composer[data-open=true] { clip-path:none; transform:none; transition-property:opacity,visibility; }
   @starting-style { .home-email-composer[data-open=true] { clip-path:none; transform:none; } }
-  .home-email-draft-paper { transition:none; }
+  .home-email-mail-flap,.home-email-wax-seal,.home-email-draft-paper { transition:none; }
   .dock-email::after,.dock-email[data-preview-complete=true]::after { transform:translate(-50%,0); transition-property:opacity,visibility; }
 }

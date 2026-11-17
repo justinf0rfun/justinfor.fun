@@ -16,16 +16,35 @@ const email = "hello@jiaq.ing";
       <span class="moments-entry-label">Moments</span>
     </button>
     <button class="dock-email" type="button" aria-label="Email me" aria-haspopup="dialog" aria-controls="home-email" aria-expanded="false" data-home-email-trigger data-email-address={email} disabled>
-      <span class="email-label">Email me</span>
       <span class="email-icons" aria-hidden="true">
-        <svg width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-          <g class="home-email-draft-paper"><path d="M4 1V-2.3Q4-3.2 4.9-3.2H13.1Q14-3.2 14-2.3V1" fill="#fff" /><path d="M6-.8H12" stroke="#888" stroke-width=".8" /></g>
-          <rect x="0.7" y="0.7" width="16.6" height="12.6" rx="2.6" />
-          <path d="M1.6 2.2L9 7.6L16.4 2.2" />
-          <path d="M1.6 2.2L9 7.6L16.4 2.2" class="home-email-mail-flap" />
-          <g transform="translate(9 7.7)"><path d="M0 1.9C-1.9 0.5-2.4-0.3-2.4-0.9C-2.4-1.6-1.9-2-1.3-2C-0.8-2-0.3-1.7 0-1.2C0.3-1.7 0.8-2 1.3-2C1.9-2 2.4-1.6 2.4-0.9C2.4-0.3 1.9 0.5 0 1.9Z" fill="currentColor" stroke="var(--email-icon-paper, #000)" stroke-width="1.2" paint-order="stroke" class="home-email-mail-heart" /></g>
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="dock-mail-paper" x1="4" y1="9" x2="23" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa" /><stop offset=".5" stop-color="#e9e5da" /><stop offset="1" stop-color="#d5cfc1" /></linearGradient>
+            <linearGradient id="dock-mail-front" x1="14" y1="15" x2="14" y2="23" gradientUnits="userSpaceOnUse"><stop stop-color="#f6f3eb" /><stop offset=".8" stop-color="#eee9de" /><stop offset="1" stop-color="#d8d2c5" /></linearGradient>
+            <linearGradient id="dock-mail-fold" x1="14" y1="8.5" x2="14" y2="16" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa" /><stop offset=".72" stop-color="#f5f1e7" /><stop offset="1" stop-color="#e2dbce" /></linearGradient>
+            <linearGradient id="dock-mail-letter" x1="14" y1="7" x2="14" y2="19" gradientUnits="userSpaceOnUse"><stop stop-color="#fffefa" /><stop offset="1" stop-color="#eee8db" /></linearGradient>
+            <radialGradient id="dock-mail-wax" cx=".3" cy=".22" r=".85"><stop stop-color="#ffc16b" /><stop offset=".48" stop-color="#ed8628" /><stop offset="1" stop-color="#b84c16" /></radialGradient>
+            <linearGradient id="dock-mail-wax-rim" x1="13" y1="14.5" x2="15" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#9c4319" /><stop offset=".45" stop-color="#c2611d" /><stop offset="1" stop-color="#ffd087" /></linearGradient>
+            <clipPath id="dock-mail-pocket"><path d="M5 0H23V8.5H5Z" /></clipPath>
+          </defs>
+          <rect x="2.75" y="7.75" width="22.5" height="15.5" rx="2.5" fill="url(#dock-mail-paper)" stroke="var(--mail-edge)" stroke-width=".5" />
+          <path d="M3.6 21.2L12 14.9Q14 13.5 16 14.9L24.4 21.2Q24.2 22.5 22.8 22.5H5.2Q3.8 22.5 3.6 21.2Z" fill="url(#dock-mail-front)" stroke="var(--mail-fold)" stroke-width=".4" />
+          <path d="M5.2 22.3H22.8" stroke="#fffefa" stroke-width=".5" opacity=".75" />
+          <g class="home-email-mail-flap">
+            <path d="M3.5 8.85H24.5L15.6 15.75Q14 16.95 12.4 15.75Z" fill="#746553" opacity=".19" />
+            <path d="M3.5 8.35H24.5L15.6 15.15Q14 16.35 12.4 15.15Z" fill="url(#dock-mail-fold)" stroke="var(--mail-fold)" stroke-width=".4" />
+            <path d="M4.2 8.6L12.7 15Q14 16 15.3 15L23.8 8.6" stroke="#fffefa" stroke-width=".4" opacity=".8" />
+          </g>
+          <g class="home-email-wax-seal">
+            <path d="M13.9 13.9C14.8 13.55 15 14.15 15.7 14.4C16.5 14.65 16.35 15.35 16.65 16C17 16.8 16.3 17.15 16.05 17.85C15.75 18.55 14.95 18.35 14.3 18.55C13.5 18.8 13.05 18.25 12.35 18.05C11.65 17.8 11.85 17.05 11.55 16.45C11.2 15.65 11.85 15.25 12.05 14.6C12.3 13.9 13.15 14.15 13.9 13.9Z" fill="#72543a" opacity=".25" />
+            <path d="M13.9 13.45C14.8 13.1 15 13.7 15.7 13.95C16.5 14.2 16.35 14.9 16.65 15.55C17 16.35 16.3 16.7 16.05 17.4C15.75 18.1 14.95 17.9 14.3 18.1C13.5 18.35 13.05 17.8 12.35 17.6C11.65 17.35 11.85 16.6 11.55 16C11.2 15.2 11.85 14.8 12.05 14.15C12.3 13.45 13.15 13.7 13.9 13.45Z" fill="url(#dock-mail-wax)" />
+            <circle cx="14.1" cy="15.8" r="1.6" stroke="url(#dock-mail-wax-rim)" stroke-width=".55" />
+            <path d="M12.2 14.7Q12.65 13.95 13.45 14.05" stroke="#ffe2aa" stroke-width=".4" opacity=".8" />
+          </g>
+          <g clip-path="url(#dock-mail-pocket)"><g class="home-email-draft-paper"><rect x="7" y="7" width="14" height="13" rx="1" fill="url(#dock-mail-letter)" stroke="#c7bfaf" stroke-width=".5" /><path d="M9.5 10H18.5" stroke="#bcb3a2" stroke-width=".65" /></g></g>
         </svg>
       </span>
+      <span class="email-label">Email me</span>
     </button>
     <span class="dock-divider" aria-hidden="true"></span>
     <ThemeDial />
@@ -92,11 +111,11 @@ const email = "hello@jiaq.ing";
     .dock-chat-divider { display: block; }
     .dock-chat:is(:hover, :focus-visible, [aria-expanded="true"]) { color: #fff; }
     .dock-chat img { object-fit: contain; flex: none; }
-  .dock-email { display: flex; align-items: center; gap: 16px; color: rgb(255 255 255 / .5); border-radius: 7px; }
+  .dock-email { --mail-edge: #c3beb3; --mail-fold: #b9b1a4; display: flex; align-items: center; gap: 8px; color: rgb(255 255 255 / .5); border-radius: 7px; }
   .dock-email:disabled { cursor: wait; }
   .email-label { width: 70px; white-space: nowrap; font-size: 16px; line-height: 1.8; letter-spacing: .01em; }
-  .email-icons { display: grid; place-items: center; width: 20px; height: 20px; }
-  .email-icons :global(svg) { width: 20px; height: 16px; overflow: visible; }
+  .email-icons { display: grid; place-items: center; flex: none; width: 28px; height: 28px; }
+  .email-icons :global(svg) { width: 28px; height: 28px; overflow: visible; filter: drop-shadow(0 .75px .75px rgb(0 0 0 / .25)); }
   .dock-divider { flex: none; width: 4px; height: 28px; background: linear-gradient(rgb(255 255 255 / .39),rgb(255 255 255 / .39)) center / 1px 24px no-repeat; }
   @media (max-width: 400px) {
     .home-dock-wrap { --dock-gap: max(20px, env(safe-area-inset-bottom)); }
