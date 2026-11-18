@@ -13,8 +13,8 @@ const { compact = false, id } = Astro.props;
           <span class="record-reflection" aria-hidden="true"></span>
         </div>
         <div class="record-reverse" aria-hidden="true"></div>
-        <span class="record-spine"><strong>{track.title}</strong><span>{track.artist}</span></span>
-        <span class="record-rim" aria-hidden="true"><strong>{track.title}</strong><span>{track.artist}</span></span>
+        <span class="record-spine"><img src={track.artwork} alt="" draggable="false" loading={index<6?"eager":"lazy"} /><strong>{track.title}</strong><span>{track.artist}</span></span>
+        <span class="record-rim" aria-hidden="true"><img src={track.artwork} alt="" draggable="false" loading={index<6?"eager":"lazy"} /><strong>{track.title}</strong><span>{track.artist}</span></span>
         <span class="record-edge" aria-hidden="true"></span>
         <span class="record-left" aria-hidden="true"></span>
       </div>)}
@@ -42,7 +42,11 @@ const { compact = false, id } = Astro.props;
   .record-cover img,.record-cover video{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
   .record-cover img,.record-cover video,.record-reflection{border-radius:inherit}
   .record-reflection{position:absolute;inset:0;background:linear-gradient(125deg,#ffffff16,transparent 38%,#ffffff0a 70%,#00000010);pointer-events:none}
-  .record-spine,.record-rim{position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:4px;width:100%;height:var(--record-thickness);padding:0 7px;transform-origin:50% 100%;transform:translateZ(calc(var(--record-thickness) / -2)) rotateX(-90deg);color:#fff;background:linear-gradient(#0009,#000b),var(--record-art) center/cover;box-shadow:inset 0 .5px #ffffff60,inset 0 -.5px #0008;font-size:calc(var(--record-size) * .027);line-height:1;white-space:nowrap;overflow:hidden;backface-visibility:hidden;opacity:var(--record-opacity)}
+  .record-spine,.record-rim{position:absolute;left:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:4px;width:100%;height:var(--record-thickness);padding:0 7px;transform-origin:50% 100%;transform:translateZ(calc(var(--record-thickness) / -2)) rotateX(-90deg);color:#fff;background:#111;font-size:calc(var(--record-size) * .027);line-height:1;white-space:nowrap;overflow:hidden;backface-visibility:hidden;opacity:var(--record-opacity)}
+  /* Keep printed artwork independent of Safari's transformed gradient-background repaint. */
+  :is(.record-spine,.record-rim)>img{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none;-webkit-user-drag:none}
+  :is(.record-spine,.record-rim)::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(#0009,#000b);box-shadow:inset 0 .5px #ffffff60,inset 0 -.5px #0008;pointer-events:none}
+  :is(.record-spine,.record-rim)>:is(strong,span){position:relative;z-index:2}
   :is(.record-spine,.record-rim) strong{min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:600}
   :is(.record-spine,.record-rim)>span{max-width:42%;overflow:hidden;text-overflow:ellipsis;font-size:.86em;opacity:.8}
   .record-rim{top:0;bottom:auto;transform-origin:50% 0;transform:translateZ(calc(var(--record-thickness) / -2)) rotateX(90deg)}
