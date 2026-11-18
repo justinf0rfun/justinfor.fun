@@ -3,12 +3,13 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import TumbleWall, { type TumbleWallHandle } from "./react-bits/tumble-wall";
 import { useSections } from "../data/uses";
+import { devinBots } from "../data/devin-bots";
 import { createMobileGravity, type Gravity, type MotionState } from "../lib/mobile-gravity";
 
 const MotionPermission = lazy(() => import("./MotionPermission"));
 
 const existingTools = useSections.flatMap((section) => section.groups.flatMap((group) => group.items));
-const tools = [
+const agentTools = [
   { title: "Tern", src: existingTools.find((item) => item.name === "Tern")!.logo, href: "https://stencil.so/tern" },
   { title: "Rex", src: "/uses/ai/rex.png", href: "https://www.superlogical.com/rex/docs/installation" },
   { title: "Herdr", src: existingTools.find((item) => item.name === "Herdr")!.logo, href: "https://herdr.dev/" },
@@ -26,6 +27,8 @@ const tools = [
 ];
 
 export default function AgentTools() {
+  const [bots, setBots] = useState(() => devinBots.slice(0, 6));
+  const tools = [...agentTools, ...bots];
   const [covered, setCovered] = useState(false);
   const [gravity, setGravity] = useState<Gravity>({ x: 0, y: 1 });
   const [motionState, setMotionState] = useState<MotionState>("checking");
@@ -37,6 +40,37 @@ export default function AgentTools() {
   const landedRef = useRef(false);
   const requestedRef = useRef(false);
   const motionRef = useRef<ReturnType<typeof createMobileGravity> | null>(null);
+
+  useEffect(() => {
+    const region = regionRef.current!;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    let next = 6, slot = 0, loading = false, cancelled = false;
+    const canRotate = () => {
+      if (document.hidden || coveredRef.current || reduced.matches || !wallRef.current?.isSettled() || region.querySelector(":active, :focus-visible")) return false;
+      const rect = region.getBoundingClientRect();
+      return rect.top < innerHeight && rect.bottom > 0;
+    };
+    const timer = window.setInterval(async () => {
+      if (loading || !canRotate()) return;
+      loading = true;
+      const bot = devinBots[next];
+      const image = new Image();
+      image.src = bot.src;
+      try {
+        await image.decode();
+        if (cancelled || !canRotate()) return;
+        const currentSlot = slot;
+        setBots(current => current.map((currentBot, index) => index === currentSlot ? bot : currentBot));
+        next = (next + 1) % devinBots.length;
+        slot = (slot + 1) % 6;
+      } catch {
+        // Keep the current bot when the next image cannot be decoded.
+      } finally {
+        loading = false;
+      }
+    }, 4000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, []);
 
   useEffect(() => {
     // Folder overlays lock the document while their full-screen stage is open.
@@ -98,7 +132,7 @@ export default function AgentTools() {
           size={46}
           sizeVariance={0.08}
           radius={12}
-          fill={0.45}
+          fill={0.65}
           gravity={gravity.y}
           gravityX={gravity.x}
           entrance="rain"

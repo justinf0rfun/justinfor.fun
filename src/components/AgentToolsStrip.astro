@@ -30,4 +30,16 @@ import AgentTools from "./AgentTools";
   .agent-tools-slot :global(img[src$="/tern.svg"]) {
     padding: 6px;
   }
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"]),
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"] > span:first-child) {
+    background: none !important;
+    box-shadow: none !important;
+  }
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"] [aria-hidden="true"]) {
+    display: none;
+  }
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"] img) {
+    background: transparent;
+    filter: drop-shadow(0 1px 2px #0002);
+  }
 </style>
