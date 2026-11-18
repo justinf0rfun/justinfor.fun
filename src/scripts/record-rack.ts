@@ -81,7 +81,8 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     const range = Math.ceil(g.height/g.step/2)+3;
     records.forEach((record,index)=>{
       const shown = Math.abs(index-position)<range || index===selected || (keyboard&&index===keyboardIndex);
-      record.style.visibility=shown?"visible":"hidden";
+      // Inherit hiding from the miniature during handoff and from the closed overlay.
+      record.style.visibility=shown?"":"hidden";
       if(!compact) record.setAttribute("aria-selected",String(index===current));
       const video=record.querySelector<HTMLVideoElement>("video");
       const faceVisible=Math.abs(index-position)>.25||(index===selected&&extraction>.02);
