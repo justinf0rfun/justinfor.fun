@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms } from "../src/lib/record-rack.ts";
+import { SLEEVE_FACES, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms, sleeveFaceVisibility } from "../src/lib/record-rack.ts";
 
 const rect={left:0,top:88,width:390,height:756};
 test("rack geometry reads DOMRect getters rather than spreading away its dimensions",()=>{
@@ -77,8 +77,10 @@ function transformPoint(css,point){
     if(name==="perspective")w-=z/a;
     else if(name==="translate"||name==="translate3d"){x+=a*w;y+=b*w;z+=c*w;}
     else if(name==="translateY")y+=a*w;
+    else if(name==="translateX")x+=a*w;
     else if(name==="translateZ")z+=a*w;
     else if(name==="rotateX"){const cos=Math.cos(a*Math.PI/180),sin=Math.sin(a*Math.PI/180);[y,z]=[y*cos-z*sin,y*sin+z*cos];}
+    else if(name==="rotateY"){const cos=Math.cos(a*Math.PI/180),sin=Math.sin(a*Math.PI/180);[x,z]=[x*cos+z*sin,-x*sin+z*cos];}
     else assert.fail(`Unexpected transform ${name}`);
   }
   return [x,y,z,w];
@@ -87,14 +89,15 @@ test("independent mobile faces retain the original projected geometry through fl
   const g=rackGeometry(rect,false);
   for(const position of[3.9,3.99,4,4.01,4.1,4.49,4.99,5])for(const index of[3,4,5])for(const scale of[.4,1,1.8]){
     const pose=sleevePose(index,position,g),transforms=sleeveSurfaceTransforms(pose,g,scale),half=g.cover/scale/2,t=g.cover/scale/28;
-    const surfaces={cover:[[-half,-half,0],[half,-half,0],[half,half,0],[-half,half,0]],spine:[[-half,-t/2,0],[half,-t/2,0],[half,t/2,0],[-half,t/2,0]]};
+    const square=[[-half,-half,0],[half,-half,0],[half,half,0],[-half,half,0]],end=[[-half,-t/2,0],[half,-t/2,0],[half,t/2,0],[-half,t/2,0]],side=[[-t/2,-half,0],[t/2,-half,0],[t/2,half,0],[-t/2,half,0]];
+    const surfaces={cover:square,reverse:square,spine:end,rim:end,edge:side,left:side};
     for(const [name,vertices]of Object.entries(surfaces)){
-      const expected=sleevePolygons(pose,g)[name==="cover"?0:1];
+      const expected=sleevePolygons(pose,g)[SLEEVE_FACES.indexOf(name)];
       for(const point of vertices){
         // Parent translation acts after the child's homogeneous perspective divide.
         const child=transformPoint(transforms[name],point),parent=transformPoint(transforms.parent,[child[0]/child[3],child[1]/child[3],child[2]/child[3]]);
         const x=g.cx+parent[0]*scale,y=g.cy+parent[1]*scale;
-        assert.ok(expected.some(q=>Math.hypot(q.x-x,q.y-y)<.5),`${name}: ${position}, ${index}, ${scale}`);
+        assert.ok(expected.some(q=>Math.hypot(q.x-x,q.y-y)<1e-6),`${name}: ${position}, ${index}, ${scale}`);
       }
     }
     assert.equal(transforms.parent.includes("rotate"),false);
@@ -102,6 +105,32 @@ test("independent mobile faces retain the original projected geometry through fl
 });
 test("the hidden back edge cannot survive alone at the eye-line",()=>{
   const g=rackGeometry(rect,false),pose=sleevePose(4,4,g);
-  assert.equal(sleeveSurfaceTransforms(pose,g,1).edgeVisible,false);
-  assert.equal(sleeveSurfaceTransforms({...pose,x:-g.cover},g,1).edgeVisible,true);
+  assert.equal(sleeveFaceVisibility(pose,g).edge,false);
+  assert.equal(sleeveFaceVisibility({...pose,x:-g.cover},g).edge,true);
+});
+test("each album is a closed six-face solid with eight shared corners",()=>{
+  const g={...rackGeometry(rect,false),perspective:1e15},h=g.cover/2,t=g.cover/56;
+  const quads={cover:[[-h,-h,0],[h,-h,0],[h,h,0],[-h,h,0]],reverse:[[-h,-h,0],[h,-h,0],[h,h,0],[-h,h,0]],spine:[[-h,-t,0],[h,-t,0],[h,t,0],[-h,t,0]],rim:[[-h,-t,0],[h,-t,0],[h,t,0],[-h,t,0]],edge:[[-t,-h,0],[t,-h,0],[t,h,0],[-t,h,0]],left:[[-t,-h,0],[t,-h,0],[t,h,0],[-t,h,0]]};
+  for(const flip of[0,180]){
+    const transforms=sleeveSurfaceTransforms({x:0,y:0,z:0,angle:0,flip},g,1),corners=new Set(),edges=new Map();
+    assert.equal(Object.keys(quads).filter(name=>typeof transforms[name]==="string").length,6);
+    for(const [name,points]of Object.entries(quads)){
+      const ids=points.map(point=>{const [x,y,z,w]=transformPoint(transforms[name],point);return[x/w,y/w,z/w].map(n=>Math.abs(n)<1e-6?"0":n.toFixed(6)).join(',');});
+      ids.forEach(id=>corners.add(id));ids.forEach((id,i)=>{const key=[id,ids[(i+1)%4]].sort().join('|');edges.set(key,(edges.get(key)??0)+1);});
+    }
+    assert.equal(corners.size,8);assert.equal(edges.size,12);assert.ok([...edges.values()].every(count=>count===2));
+  }
+});
+test("upper and lower albums expose a solid front edge independently of the artwork face",()=>{
+  const g=rackGeometry(rect,false);
+  for(const position of[3,4,5,6,7,8]){
+    const pose=sleevePose(4,position,g),visible=sleeveFaceVisibility(pose,g);
+    assert.equal(visible.spine,true);assert.equal(visible.rim,false);
+    assert.equal(visible.edge,false);assert.equal(visible.left,false);
+    if(position!==4)assert.equal(visible.cover,true);
+  }
+  const upright=sleeveFaceVisibility({x:0,y:0,z:0,angle:0,flip:0},g);
+  assert.equal(upright.cover,true);assert.equal(upright.reverse,false);
+  const inverted=sleeveFaceVisibility({x:0,y:0,z:0,angle:180,flip:0},g);
+  assert.equal(inverted.cover,false);assert.equal(inverted.reverse,true);
 });

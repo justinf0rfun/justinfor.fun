@@ -1,5 +1,5 @@
 import { animate, motionValue } from "motion";
-import { INITIAL_RECORD, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms, type RackGeometry, type SleevePose } from "../lib/record-rack";
+import { INITIAL_RECORD, SLEEVE_FACES, clampRecord, mixRack, pickSleeve, placeSleeve, pullSleeve, rackGeometry, recordFocus, shouldReturnRecord, sleevePolygons, sleevePose, sleeveSurfaceTransforms, sleeveFaceVisibility, type RackGeometry, type SleevePose } from "../lib/record-rack";
 
 export interface RecordRack {
   root: HTMLElement;
@@ -23,7 +23,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   scene.style.left="0px";scene.style.top="0px";
   const scroll = root.querySelector<HTMLElement>("[data-record-scroll]")!;
   const records = [...root.querySelectorAll<HTMLElement>("[data-record-option]")];
-  const surfaces=records.map(record=>({cover:record.querySelector<HTMLElement>("[data-record-cover]")!,spine:record.querySelector<HTMLElement>(".record-spine")!,edge:record.querySelector<HTMLElement>(".record-edge")!}));
+  const surfaces=records.map(record=>({cover:record.querySelector<HTMLElement>("[data-record-cover]")!,reverse:record.querySelector<HTMLElement>(".record-reverse")!,spine:record.querySelector<HTMLElement>(".record-spine")!,rim:record.querySelector<HTMLElement>(".record-rim")!,edge:record.querySelector<HTMLElement>(".record-edge")!,left:record.querySelector<HTMLElement>(".record-left")!}));
   const grab=root.querySelector<HTMLButtonElement>("[data-record-grab]");
   const page=root.closest<HTMLElement>("[data-record-page]");
   const browseLabel=root.getAttribute("aria-label")??"Record collection";
@@ -58,6 +58,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     const origin = morphSource ? {left:0,top:0} : own;
     const scale = g.cover / layout.cover;
     const projectSurfaces=surfaceProjection.matches;
+    const faceView=projectSurfaces||scale===1?g:{...g,perspective:g.perspective*scale};
     root.dataset.recordRenderer=projectSurfaces?"surfaces":"nested";
     camera.style.perspective = projectSurfaces?"none":`${g.perspective}px`;
     camera.style.perspectiveOrigin = `${g.cx-origin.left}px ${g.cy-origin.top}px`;
@@ -106,12 +107,13 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
         // Keep the parent nondegenerate at 90°; each face carries the same complete projection.
         const transforms=sleeveSurfaceTransforms(pose,g,scale);
         record.style.transform=transforms.parent;
-        surface.cover.style.transform=transforms.cover;surface.spine.style.transform=transforms.spine;surface.edge.style.transform=transforms.edge;
-        surface.edge.style.visibility=transforms.edgeVisible?"visible":"hidden";
+        for(const face of SLEEVE_FACES)surface[face].style.transform=transforms[face];
       }else{
         record.style.transform=`translate3d(${pose.x/scale}px,${pose.y/scale}px,${pose.z/scale}px) rotateX(${pose.angle}deg)`;
-        if(surface.cover.style.transform){surface.cover.style.transform="";surface.spine.style.transform="";surface.edge.style.transform="";surface.edge.style.visibility="";}
+        if(surface.cover.style.transform)for(const face of SLEEVE_FACES)surface[face].style.transform="";
       }
+      const visibleFaces=sleeveFaceVisibility(pose,faceView);
+      for(const face of SLEEVE_FACES)surface[face].style.visibility=visibleFaces[face]?"":"hidden";
       record.style.setProperty("--record-flip",`${pose.flip}deg`);
       record.style.setProperty("--record-opacity",String(index===selected?1:Math.max(0,Math.min(1,1-extraction))));
       record.style.zIndex=String(index===selected?2000:1000-Math.round(Math.abs(index-position)*10));

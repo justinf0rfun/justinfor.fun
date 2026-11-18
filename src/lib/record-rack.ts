@@ -1,6 +1,7 @@
 export interface RackRect { left: number; top: number; width: number; height: number; }
 export interface RackGeometry extends RackRect { cx: number; cy: number; cover: number; step: number; perspective: number; }
 export interface SleevePose { x: number; y: number; z: number; angle: number; flip: number; }
+export const SLEEVE_FACES=["cover","spine","reverse","rim","edge","left"] as const;
 export const INITIAL_RECORD = 4;
 export const clampRecord = (value: number, count: number) => Math.max(0, Math.min(count - 1, value));
 
@@ -29,7 +30,7 @@ export function sleevePose(index: number, position: number, geometry: RackGeomet
 export function recordFocus(geometry: RackGeometry, viewport: { width: number; height: number }) {
   const side = viewport.width >= 1000 || (viewport.width >= 600 && viewport.height < 720);
   const z = Math.min(96, geometry.cover * .28);
-  const surfaceZ = z + geometry.cover / 56 + .2;
+  const surfaceZ = z + geometry.cover / 56;
   const size = geometry.cover * geometry.perspective / (geometry.perspective - surfaceZ);
   const x = viewport.width * (side ? .38 : .5), y = viewport.height * (side ? .52 : viewport.height<640 ? .35 : .4);
   return { side, z, x, y, size, detailTop: y + size / 2 + 24 };
@@ -37,7 +38,7 @@ export function recordFocus(geometry: RackGeometry, viewport: { width: number; h
 
 export function pullSleeve(pose: SleevePose, geometry: RackGeometry, progress: number, viewport: { width: number; height: number }, flip = pose.flip): SleevePose {
   const focus = recordFocus(geometry, viewport);
-  const projection = 1 - (focus.z + geometry.cover / 56 + .2) / geometry.perspective;
+  const projection = 1 - (focus.z + geometry.cover / 56) / geometry.perspective;
   return { x: (focus.x - geometry.cx) * projection * progress,
     y: pose.y + ((focus.y - geometry.cy) * projection - pose.y) * progress,
     z: focus.z * progress, angle: pose.angle + ((flip ? 180 : 0) - pose.angle) * progress, flip };
@@ -52,10 +53,23 @@ function project(x: number, y: number, z: number, geometry: RackGeometry) {
 export function sleevePolygons(pose: SleevePose, geometry: RackGeometry) {
   const half = geometry.cover / 2, thickness = geometry.cover / 56;
   const sin = Math.sin(radians(pose.angle)), cos = Math.cos(radians(pose.angle));
-  const faceZ = (pose.flip ? -1 : 1) * (thickness + .2);
-  const cover = [[-half,-half],[half,-half],[half,half],[-half,half]].map(([x,y]) => project(pose.x+x,pose.y+y*cos-faceZ*sin,pose.z+y*sin+faceZ*cos,geometry));
-  const spine = [[-half,-thickness],[half,-thickness],[half,thickness],[-half,thickness]].map(([x,z]) => project(pose.x+x,pose.y+half*cos-z*sin,pose.z+half*sin+z*cos,geometry));
-  return [cover,spine];
+  const faceZ = (pose.flip ? -1 : 1) * thickness;
+  const plane=(points:number[][])=>points.map(([x,y,z])=>project(pose.x+x,pose.y+y*cos-z*sin,pose.z+y*sin+z*cos,geometry));
+  return [
+    plane([[-half,-half,faceZ],[half,-half,faceZ],[half,half,faceZ],[-half,half,faceZ]]),
+    plane([[-half,half,-thickness],[half,half,-thickness],[half,half,thickness],[-half,half,thickness]]),
+    plane([[-half,-half,-faceZ],[half,-half,-faceZ],[half,half,-faceZ],[-half,half,-faceZ]]),
+    plane([[-half,-half,-thickness],[half,-half,-thickness],[half,-half,thickness],[-half,-half,thickness]]),
+    plane([[half,-half,-thickness],[half,half,-thickness],[half,half,thickness],[half,-half,thickness]]),
+    plane([[-half,-half,-thickness],[-half,half,-thickness],[-half,half,thickness],[-half,-half,thickness]]),
+  ];
+}
+
+export function sleeveFaceVisibility(pose:SleevePose,geometry:RackGeometry){
+  const angle=radians(pose.angle),sin=Math.sin(angle),cos=Math.cos(angle),half=geometry.cover/2,depth=geometry.cover/56;
+  const front=pose.y*sin+(geometry.perspective-pose.z)*cos;
+  const end=(geometry.perspective-pose.z)*sin-pose.y*cos;
+  return {cover:pose.flip?front < -depth:front > depth,reverse:pose.flip?front > depth:front < -depth,spine:end>half,rim:end < -half,edge:pose.x < -half,left:pose.x>half};
 }
 
 export function sleeveSurfaceTransforms(pose: SleevePose, geometry: RackGeometry, scale: number) {
@@ -63,17 +77,19 @@ export function sleeveSurfaceTransforms(pose: SleevePose, geometry: RackGeometry
   const view=`translate(${-x}px,${-y}px) perspective(${geometry.perspective/scale}px) translate3d(${x}px,${y}px,${z}px) rotateX(${pose.angle}deg)`;
   return {
     parent:`translate3d(${x}px,${y}px,0)`,
-    cover:`${view} rotateX(${pose.flip}deg) translateZ(${size/56+.2}px)`,
+    cover:`${view} rotateX(${pose.flip}deg) translateZ(${size/56}px)`,
+    reverse:`${view} rotateX(${pose.flip+180}deg) translateZ(${size/56}px)`,
     spine:`${view} translateY(${size/2}px) rotateX(-90deg)`,
+    rim:`${view} translateY(${-size/2}px) rotateX(90deg)`,
     edge:`${view} translateX(${size/2}px) rotateY(90deg)`,
-    edgeVisible:pose.x+geometry.cover/2<0,
+    left:`${view} translateX(${-size/2}px) rotateY(-90deg)`,
   };
 }
 
 // Keep the projected cover under the grab point while its depth and angle change.
 export function placeSleeve(pose: SleevePose, geometry: RackGeometry, center: {x:number;y:number}): SleevePose {
   const cover=sleevePolygons(pose,geometry)[0];
-  const angle=radians(pose.angle),faceZ=(pose.flip?-1:1)*(geometry.cover/56+.2);
+  const angle=radians(pose.angle),faceZ=(pose.flip?-1:1)*geometry.cover/56;
   const depth=pose.z+faceZ*Math.cos(angle),halfDepth=geometry.cover/2*Math.sin(angle);
   const scale=(geometry.perspective/(geometry.perspective-depth-halfDepth)+geometry.perspective/(geometry.perspective-depth+halfDepth))/2;
   return {...pose,x:pose.x+(center.x-cover.reduce((sum,p)=>sum+p.x,0)/4)/scale,y:pose.y+(center.y-cover.reduce((sum,p)=>sum+p.y,0)/4)/scale};
