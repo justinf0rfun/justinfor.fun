@@ -54,6 +54,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     frame = 0;
     if (!active || document.hidden) return;
     const own = geometry(), progress = morphPosition.get();
+    const expansion = compact ? 0 : Math.max(0, Math.min(1, progress));
     const g = morphSource ? mixRack(morphSource.geometry(), own, progress) : own;
     const origin = morphSource ? {left:0,top:0} : own;
     const scale = g.cover / layout.cover;
@@ -65,9 +66,9 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     scene.style.transform = `translate3d(${g.cx-origin.left}px,${g.cy-origin.top}px,0) scale(${scale})`;
     if (morphSource) {
       camera.dataset.morph = "true";
-      camera.style.clipPath = `inset(${g.top}px ${innerWidth-g.left-g.width}px ${innerHeight-g.top-g.height}px ${g.left}px round ${Math.max(0,(1-progress)*18)}px)`;
-      const endSolid=.9-.22*progress,endClear=1-.15*progress;
-      camera.style.maskImage=selected!==null?"none":`linear-gradient(transparent ${g.top}px,#000 ${g.top+g.height*.1}px,#000 ${g.top+g.height*endSolid}px,transparent ${g.top+g.height*endClear}px)`;
+      camera.style.clipPath = `inset(${g.top}px ${innerWidth-g.left-g.width}px ${innerHeight-g.top-g.height}px ${g.left}px)`;
+      const endSolid=1-.32*expansion,endClear=1-.15*expansion;
+      camera.style.maskImage=selected!==null||expansion===0?"none":`linear-gradient(transparent ${g.top}px,#000 ${g.top+g.height*.1*expansion}px,#000 ${g.top+g.height*endSolid}px,transparent ${g.top+g.height*endClear}px)`;
     } else { delete camera.dataset.morph; camera.style.clipPath = ""; camera.style.maskImage=""; }
     const position = getPosition(), extraction = pull.get();paintedPosition=position;
     page?.style.setProperty("--record-detail-opacity",String(Math.max(0,Math.min(1,(extraction-.72)/.28))));
@@ -92,7 +93,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
         if(playVideo) void video.play().catch(()=>undefined);else video.pause();
       }
       if(!shown)return;
-      let pose=sleevePose(index,position,g);
+      let pose=sleevePose(index,position,g,expansion);
       if(index===selected){
         pose=pullSleeve(pose,g,extraction,{width:innerWidth,height:innerHeight},selectedFlip);
         pose.x+=handX.get();pose.y+=handY.get();pose.z+=lift.get()*6;
@@ -116,8 +117,12 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
       const visibleFaces=sleeveFaceVisibility(pose,faceView);
       for(const face of SLEEVE_FACES)surface[face].style.visibility=visibleFaces[face]?"":"hidden";
       record.style.setProperty("--record-flip",`${pose.flip}deg`);
-      record.style.setProperty("--record-opacity",String(index===selected?1:Math.max(0,Math.min(1,1-extraction))));
-      record.style.zIndex=String(index===selected?2000:1000-Math.round(Math.abs(index-position)*10));
+      const distance = index - position;
+      const storedOpacity = Math.max(0, Math.min(1, distance + 3, 2 - distance));
+      const opacity = storedOpacity + (1 - storedOpacity) * expansion;
+      record.style.setProperty("--record-opacity",String(index===selected?1:opacity*Math.max(0,Math.min(1,1-extraction))));
+      const order = index * (1 - expansion) - Math.abs(distance) * 10 * expansion;
+      record.style.zIndex=String(index===selected?2000:1000+Math.round(order));
     });
   }
 
@@ -244,7 +249,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
   });
   scroll.addEventListener("pointermove",event=>{
     if(!gesture) {
-      if(compact&&active&&fine.matches&&event.pointerType==="mouse") {
+      if(compact&&active&&!reduced.matches&&fine.matches&&event.pointerType==="mouse") {
         const rect=root.getBoundingClientRect(),target=clampRecord(resting+(.5-(event.clientY-rect.top)/rect.height)*.8,records.length);
         animate(compactPosition,target,{type:"spring",stiffness:220,damping:28});
       }
@@ -283,7 +288,7 @@ export function mountRecordRack(root: HTMLElement): RecordRack {
     }
   };
   scroll.addEventListener("pointerup",end);scroll.addEventListener("pointercancel",end);
-  scroll.addEventListener("pointerleave",()=>{if(compact&&!gesture&&active)animate(compactPosition,resting,{type:"spring",stiffness:200,damping:28});});
+  scroll.addEventListener("pointerleave",()=>{if(compact&&!gesture&&active&&!reduced.matches)animate(compactPosition,resting,{type:"spring",stiffness:200,damping:28});});
   scroll.addEventListener("click",event=>{
     if(suppressClick){event.preventDefault();event.stopPropagation();suppressClick=false;return;}
     if(root.hasAttribute("data-record-returning")&&event.detail>1){event.preventDefault();return;}

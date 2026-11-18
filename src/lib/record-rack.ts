@@ -9,8 +9,8 @@ export function rackGeometry(rect: RackRect, compact: boolean): RackGeometry {
   const shortPortrait=rect.width<600&&rect.height<552;
   const widthRatio=rect.width>=600&&rect.width<1000&&rect.height<632?.4:.68;
   const heightRatio=shortPortrait?(rect.height<472?.36:.42):.6;
-  return { left:rect.left,top:rect.top,width:rect.width,height:rect.height,cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2,
-    cover: compact ? Math.min(rect.width * .66, rect.height * 1.25) : Math.min(rect.width*widthRatio,340,rect.height*heightRatio),
+  return { left:rect.left,top:rect.top,width:rect.width,height:rect.height,cx: rect.left + rect.width / 2, cy: rect.top + rect.height * (compact ? .81 : .5),
+    cover: compact ? Math.min(rect.width * .73, rect.height * 1.22) : Math.min(rect.width*widthRatio,340,rect.height*heightRatio),
     step: compact ? rect.height / 5.2 : Math.max(44, Math.min(76, rect.height / 9.5)),
     perspective: compact ? Math.max(420, rect.width * 1.8) : Math.max(950, rect.width * .75),
   };
@@ -21,10 +21,20 @@ export function mixRack(from: RackGeometry, to: RackGeometry, progress: number):
   return { left:mix("left"),top:mix("top"),width:mix("width"),height:mix("height"),cx:mix("cx"),cy:mix("cy"),cover:mix("cover"),step:mix("step"),perspective:mix("perspective") };
 }
 
-export function sleevePose(index: number, position: number, geometry: RackGeometry): SleevePose {
-  const y = (index - position) * geometry.step;
+export function sleevePose(index: number, position: number, geometry: RackGeometry, expansion = 1): SleevePose {
+  const distance = index - position;
+  const y = distance * geometry.step;
   const splay = Math.max(-1, Math.min(1, y / (geometry.height / 2))) * 6;
-  return { x: 0, y, z: 0, angle: 90 - splay, flip: y < 0 ? 180 : 0 };
+  const flip = distance < 0 ? 180 : 0;
+  // Start the sleeve nearly upright and above the crate lip, then fan it into the rack.
+  const storedY = y * (distance < 0 ? .55 : 2.4);
+  return {
+    x: 0,
+    y: storedY + (y - storedY) * expansion,
+    z: Math.max(-geometry.cover, Math.min(geometry.cover, storedY * .42)) * (1 - expansion),
+    angle: (flip ? 196 : 16) * (1 - expansion) + (90 - splay) * expansion,
+    flip,
+  };
 }
 
 export function recordFocus(geometry: RackGeometry, viewport: { width: number; height: number }) {

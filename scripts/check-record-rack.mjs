@@ -34,6 +34,22 @@ test("compact and large racks share geometry at exact handoff endpoints",()=>{
   assert.ok(small.cover<large.cover&&small.step<large.step);
   assert.equal(clampRecord(-3,21),0);assert.equal(clampRecord(29,21),20);
 });
+test("the crate exposes the front sleeve and the edges of the sleeves behind it", () => {
+  for (const width of [116, 145, 230]) {
+    const geometry = rackGeometry({ left: 0, top: 0, width, height: width * .58 }, true);
+    const front = sleevePose(4, 4, geometry, 0);
+    const rear = sleevePose(3, 4, geometry, 0);
+    const frontCover = sleevePolygons(front, geometry)[0];
+    const rearCover = sleevePolygons(rear, geometry)[0];
+    assert.ok(sleeveFaceVisibility(front, geometry).cover);
+    assert.ok(sleeveFaceVisibility(rear, geometry).cover);
+    const top = (cover) => Math.min(...cover.map(point => point.y));
+    assert.ok(top(rearCover) >= 0 && top(rearCover) < top(frontCover));
+    assert.ok(Math.max(...frontCover.map(point => point.y)) > geometry.height);
+    // A front sleeve must stay in front even where the parallel covers overlap.
+    assert.ok(front.z - rear.z > (front.y - rear.y) * Math.tan(16 * Math.PI / 180));
+  }
+});
 test("a grabbed cover tracks the same screen point while flipping either face",()=>{
   const geometry=rackGeometry(rect,false),center={x:207,y:400};
   for(const index of [0,4])for(const progress of [.3,.7,1]){
