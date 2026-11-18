@@ -35,10 +35,10 @@ import AgentTools from "./AgentTools";
     background: none !important;
     box-shadow: none !important;
   }
-  .agent-tools-slot :global([data-tw-title^="Devin Bot"] [aria-hidden="true"]) {
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"] span[aria-hidden="true"]) {
     display: none;
   }
-  .agent-tools-slot :global([data-tw-title^="Devin Bot"] img) {
+  .agent-tools-slot :global([data-tw-title^="Devin Bot"] :is(img, canvas)) {
     background: transparent;
     filter: drop-shadow(0 1px 2px #0002);
   }

@@ -38,6 +38,7 @@ export interface TumbleWallHandle {
 
 export interface TumbleWallProps {
   items?: TumbleWallItem[];
+  renderItem?: (item: TumbleWallItem, index: number) => ReactNode;
   count?: number;
   shape?: TumbleWallShape;
   size?: number;
@@ -1042,7 +1043,7 @@ function createWall(
       const piece: Piece = {
         index,
         node,
-        img: node.querySelector("img"),
+        img: node.querySelector("[data-tw-custom]") ? null : node.querySelector("img"),
         kind: kindAt(s.shape, index),
         label: node.getAttribute("data-tw-label") ?? "",
         title: node.getAttribute("data-tw-title") ?? "",
@@ -1826,6 +1827,7 @@ export const TumbleWall = forwardRef<TumbleWallHandle, TumbleWallProps>(
   function TumbleWall(
     {
       items = defaultItems,
+      renderItem,
       count = 24,
       shape = "circle",
       size = 116,
@@ -1973,6 +1975,7 @@ export const TumbleWall = forwardRef<TumbleWallHandle, TumbleWallProps>(
     const nodes: ReactNode[] = [];
     for (let index = 0; index < total; index += 1) {
       const item = source[index % source.length];
+      const custom = renderItem?.(item, index);
       const kind = kindAt(safeShape, index);
       const label = item.title ?? item.alt ?? "";
       const name =
@@ -2071,7 +2074,7 @@ export const TumbleWall = forwardRef<TumbleWallHandle, TumbleWallProps>(
               pointerEvents: "none",
             }}
           >
-            {item.src ? (
+            {custom ?? (item.src ? (
               <img
                 src={item.src}
                 alt=""
@@ -2097,7 +2100,7 @@ export const TumbleWall = forwardRef<TumbleWallHandle, TumbleWallProps>(
               >
                 {label}
               </span>
-            )}
+            ))}
             {safeFrame === "none" ? (
               <span
                 aria-hidden="true"

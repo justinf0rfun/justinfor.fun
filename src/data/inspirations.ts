@@ -68,8 +68,8 @@ export const inspirations = [
   },
   {
     id: "devin-bots", name: "Devin Bots", author: "Cognition", url: "https://devin.ai/bots",
-    relation: "Assets from",
-    note: "The homepage’s Devin Bot collection uses the original lineup’s 24 shape posters and six app casings rendered with its original renderer. Repeated colors, expressions and screen symbols share one representative per casing.",
+    relation: "Adapted from · Assets from",
+    note: "The original Bot renderer, animated eyes, expressions and casing geometry, adapted to six rotating objects in the homepage’s physics strip. Repeated colors and screen symbols share one representative per casing.",
     features: [{ label: "Devin Bots", selector: ".agent-tools-slot", page: "/" }],
   },
   {

@@ -1,0 +1,6 @@
+.devin-bot{position:relative;display:block;width:100%;height:100%;pointer-events:auto}
+.devin-bot img,.devin-bot canvas{display:block;width:100%;height:100%;pointer-events:none;user-select:none;transition:opacity 120ms}
+.devin-bot canvas{position:absolute;inset:0;opacity:0}
+.devin-bot[data-live=true] img{opacity:0}
+.devin-bot[data-live=true] canvas{opacity:1}
+@media(prefers-reduced-motion:reduce){.devin-bot img,.devin-bot canvas{transition:none}}

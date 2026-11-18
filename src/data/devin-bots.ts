@@ -31,6 +31,7 @@ export const devinBots = [
   { name: "Disc / Inbox", image: "app-disc.png" },
   { name: "Tab / Pen", image: "app-tab.png" },
 ].map(({ name, image }) => ({
+  shape: image.replace(/\.(webp|png)$/, ""),
   title: `Devin Bot · ${name}`,
   src: `/uses/ai/devin-bots/${image}`,
   href: "https://devin.ai/bots",

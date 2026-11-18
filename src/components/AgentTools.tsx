@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import TumbleWall, { type TumbleWallHandle } from "./react-bits/tumble-wall";
 import { useSections } from "../data/uses";
 import { devinBots } from "../data/devin-bots";
+import DevinBot from "./DevinBot";
 import { createMobileGravity, type Gravity, type MotionState } from "../lib/mobile-gravity";
 
 const MotionPermission = lazy(() => import("./MotionPermission"));
@@ -127,6 +128,7 @@ export default function AgentTools() {
         <TumbleWall
           ref={wallRef}
           items={tools}
+          renderItem={(_, index) => index >= agentTools.length ? <DevinBot bot={bots[index - agentTools.length]} paused={covered} /> : undefined}
           count={tools.length}
           shape="square"
           size={46}
