@@ -6,11 +6,18 @@ const { showInspired = false } = Astro.props;
 ---
 
 <footer class="local-time-footer" aria-label={showInspired ? "Local time and design credits" : "Local time in Beijing"}>
-  <time data-beijing-time title="China Standard Time (UTC+8)">--:-- in Beijing, China</time>
+  <time class="local-time-note" data-beijing-time title="China Standard Time (UTC+8)"><span class="local-time-clock"><span data-beijing-clock>--:--</span><svg aria-hidden="true" viewBox="0 0 80 6" preserveAspectRatio="none"><path d="M1 4.5 C13 2 22 4.6 34 3.8 S57 1.1 79 3.4" /></svg></span> in Beijing, China</time>
   {showInspired && <button class="inspired-entry" type="button" data-inspired-trigger aria-haspopup="dialog" aria-controls="inspired-credits" aria-expanded="false"><span aria-hidden="true">※</span> Inspired</button>}
 </footer>
 
 <style>
+  @font-face {
+    font-family: Caveat;
+    src: url('/fonts/caveat-latin-400.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+  }
+
   .local-time-footer {
     display: flex;
     align-items: center;
@@ -24,8 +31,28 @@ const { showInspired = false } = Astro.props;
     line-height: 1.25;
   }
 
-  .local-time-footer time {
-    font-variant-numeric: tabular-nums;
+  .local-time-note {
+    color: #686662;
+    font: 400 1.3125rem/1.2 Caveat, 'Segoe Print', 'Bradley Hand', cursive;
+    rotate: -1.5deg;
+    transform-origin: left center;
+  }
+  :global(html[data-home-theme=dark]) .local-time-note { color: #aaa7a1; }
+  .local-time-clock {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .local-time-clock svg {
+    position: absolute;
+    inset-inline: 0;
+    bottom: -.16em;
+    width: 100%;
+    height: .28em;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    opacity: .8;
   }
   .inspired-entry { display: inline-flex; align-items: center; gap: 5px; flex: none; min-height: 44px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
   .inspired-entry span { display: inline-block; font-size: 17px; transition: rotate 280ms var(--ease-out), translate 280ms var(--ease-out); }
@@ -50,11 +77,11 @@ const { showInspired = false } = Astro.props;
         .filter(({ type }) => type !== "literal")
         .map(({ type, value }) => [type, value]),
     );
-    const localTime = `${parts.hour}:${parts.minute}${parts.dayPeriod.toLowerCase()}`;
+    const localTime = `${parts.hour}:${parts.minute} ${parts.dayPeriod.toLowerCase()}`;
 
     document.querySelectorAll<HTMLTimeElement>("[data-beijing-time]").forEach((time) => {
       time.dateTime = now.toISOString();
-      time.textContent = `${localTime} in Beijing, China`;
+      time.querySelector("[data-beijing-clock]")!.textContent = localTime;
     });
   };
 
