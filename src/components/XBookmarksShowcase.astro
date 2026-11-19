@@ -8,7 +8,7 @@ const isOverlay = mode === "overlay";
 ---
 <main class:list={["x-bookmarks-stage", isOverlay && "is-overlay", !isOverlay && "is-open"]}
   data-x-bookmarks-stage={mode} data-x-bookmarks-state={isOverlay ? "closed" : "open"}
-  aria-hidden={isOverlay ? "true" : undefined} inert={isOverlay ? true : undefined}>
+  aria-hidden={isOverlay ? "true" : undefined} inert={isOverlay ? true : undefined} tabindex={isOverlay ? -1 : undefined}>
   <div class="x-bookmarks-index">
     <header class="x-bookmarks-header">
       <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? { "data-x-bookmarks-close": "" } : {})} />
@@ -22,6 +22,7 @@ const isOverlay = mode === "overlay";
  .x-bookmarks-stage{min-height:100svh;color:var(--color-neutral-800);background:var(--color-neutral-50)}
  .x-bookmarks-stage.is-overlay{position:fixed;inset:0;z-index:45;overflow-y:auto;overscroll-behavior:contain;visibility:hidden;opacity:0;pointer-events:none}
  .x-bookmarks-stage.is-overlay.is-open{visibility:visible;opacity:1;pointer-events:auto}
+ .x-bookmarks-stage.is-overlay:focus{outline:none}
  .x-bookmarks-index{width:min(100% - 80px,1040px);min-height:100svh;margin-inline:auto;padding-block:40px 64px}
  .x-bookmarks-header{display:flex;align-items:center;justify-content:space-between;text-align:right}
  .x-bookmarks-header h1{font-size:14px;font-weight:500}

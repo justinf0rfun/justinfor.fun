@@ -38,7 +38,7 @@ export function createXBookmarksTransition(overlay: HTMLElement) {
       }
       if (run !== generation) return false;
       clear(); source.classList.add("is-landed"); source.style.visibility = ""; setState("open");
-      overlay.querySelector<HTMLButtonElement>("[data-x-bookmarks-close]")?.focus({ preventScroll: true }); return true;
+      overlay.focus({ preventScroll: true }); return true;
     },
     async close() {
       const run = ++generation; clear(); surface?.stop(); setState("closing");
