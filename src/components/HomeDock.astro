@@ -1,6 +1,7 @@
 ---
 import ThemeDial from "./ThemeDial.astro";
 import DockBubbles from "./DockBubbles";
+import "./x-tap-hand.css";
 const email = "hello@jiaq.ing";
 ---
 <div class="home-dock-wrap">
@@ -55,15 +56,15 @@ const email = "hello@jiaq.ing";
 
 <DockBubbles client:load />
 
-<span class="chat-guide-hand" data-chat-guide-hand aria-hidden="true"><img src="/guide/pointing-hand.png" width="56" height="56" alt="" draggable="false" /></span>
-<span class="chat-guide-ring" data-chat-guide-ring aria-hidden="true"></span>
+<span class="chat-guide-hand" data-chat-guide-hand aria-hidden="true">
+  <span class="tap-hand-fill"></span>
+  <span class="tap-hand-ring"></span>
+  <span class="tap-hand-sprite"><img src="/guide/tap-hand.png" width="256" height="256" alt="" draggable="false" /></span>
+</span>
 <span class="sr-only" data-chat-guide-status role="status"></span>
 
 <style>
-  .chat-guide-hand, .chat-guide-ring { position: fixed; left: 0; top: 0; z-index: 36; pointer-events: none; opacity: 0; visibility: hidden; }
-  .chat-guide-hand { width: 56px; height: 56px; filter: drop-shadow(0 3px 3px rgb(0 0 0 / .22)); }
-  .chat-guide-hand img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  .chat-guide-ring { width: 24px; height: 24px; border: 2px solid white; border-radius: 50%; }
+  .chat-guide-hand { display: none; position: fixed; inset: 0 auto auto 0; z-index: 36; width: 102px; height: 90px; overflow: hidden; pointer-events: none; }
   .home-dock-wrap {
     --dock-gap: max(38px, env(safe-area-inset-bottom));
     position: fixed;

@@ -1,0 +1,140 @@
+
+.tap-hand-fill {
+  position: absolute;
+  left: 24.9724px;
+  top: 25.2155px;
+  width: 30.6px;
+  height: 30.6px;
+  margin: -15.3px 0 0 -15.3px;
+  border-radius: 50%;
+  background: #c9c9c9;
+  opacity: 0;
+  scale: 0.126437;
+  animation:
+    tap-hand-fill-scale 5.3s linear infinite,
+    tap-hand-fill-opacity 5.3s linear infinite;
+}
+.tap-hand-ring {
+  position: absolute;
+  left: 24.9724px;
+  top: 25.2155px;
+  box-sizing: border-box;
+  width: 48.8017px;
+  height: 48.8017px;
+  translate: -50% -50%;
+  border: 11.0912px solid #8f8f8f;
+  border-radius: 50%;
+  opacity: 0;
+  scale: 0.158558;
+  animation:
+    tap-hand-ring-box 5.3s linear infinite,
+    tap-hand-ring-opacity 5.3s linear infinite;
+}
+.tap-hand-sprite {
+  position: absolute;
+  left: 26.4013px;
+  top: 18.1151px;
+  width: 78.7422px;
+  height: 78.7422px;
+  opacity: 0;
+  animation:
+    tap-hand-move 5.3s infinite,
+    tap-hand-opacity 5.3s linear infinite;
+}
+.tap-hand-sprite img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes tap-hand-fill-scale {
+  0%, 5.84%, 17.14%, 28.44%, 39.74%, 51.04%, 62.34%, 100% { scale: 0.126437; }
+  8.29%, 30.89%, 53.48% { scale: 0.885057; }
+  16.57%, 39.17%, 61.77% { scale: 1; }
+}
+@keyframes tap-hand-fill-opacity {
+  0%, 5.84%, 16.57%, 17.14%, 28.44%, 39.17%, 39.74%, 51.04%, 61.77%, 62.34%, 100% { opacity: 0; }
+  7.16%, 29.76%, 52.35% { opacity: 0.6; }
+}
+@keyframes tap-hand-ring-box {
+  0%, 6.78%, 19.96%, 29.38%, 42.56%, 51.98%, 65.16%, 100% {
+    border-width: 11.0912px;
+    scale: 0.158558;
+  }
+  8.66%, 31.26%, 53.86% {
+    border-width: 4.2112px;
+    scale: 0.354955;
+  }
+  19.4%, 42%, 64.6% {
+    border-width: 0.6155px;
+    scale: 1;
+  }
+}
+@keyframes tap-hand-ring-opacity {
+  0%, 6.78%, 19.4%, 19.96%, 29.38%, 42%, 42.56%, 51.98%, 64.6%, 65.16%, 100% { opacity: 0; }
+  7.72%, 30.32%, 52.92% { opacity: 0.65; }
+}
+@keyframes tap-hand-move {
+  0% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 1, 1);
+  }
+  0.94% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  7.72% {
+    translate: -7.2103px -7.0345px;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 1);
+  }
+  13.37% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 1, 1);
+  }
+  23.54% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  30.32% {
+    translate: -7.2103px -7.0345px;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 1);
+  }
+  35.97% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 1, 1);
+  }
+  46.14% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  52.92% {
+    translate: -7.2103px -7.0345px;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 1);
+  }
+  58.57% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0, 0, 1, 1);
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes tap-hand-opacity {
+  0%, 0.94% { opacity: 0; }
+  7.22%, 52.92% { opacity: 1; }
+  59.2%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-hand-fill,
+  .tap-hand-ring,
+  .tap-hand-sprite {
+    animation: none;
+  }
+  .tap-hand-fill,
+  .tap-hand-ring {
+    opacity: 0;
+  }
+  .tap-hand-sprite {
+    opacity: 1;
+    translate: none;
+  }
+}

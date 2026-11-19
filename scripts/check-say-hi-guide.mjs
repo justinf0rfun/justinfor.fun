@@ -32,9 +32,9 @@ function fixture({ ready = true, triggerDisabled = false, reduced = false, open 
   if (ready) sourceButton.setAttribute("data-guide-ready", "true");
   trigger.disabled = triggerDisabled;
   trigger.setAttribute("aria-expanded", String(open));
-  const hand = new Element(), ring = new Element(), status = { textContent: "" };
+  const hand = new Element(), status = { textContent: "" };
   const document = { ...events(), hidden: false, documentElement: { scrollHeight: 3000 },
-    querySelector: selector => ({ "[data-chat-guide-hand]": hand, "[data-chat-guide-ring]": ring, "[data-chat-guide-status]": status })[selector],
+    querySelector: selector => ({ "[data-chat-guide-hand]": hand, "[data-chat-guide-status]": status })[selector],
     querySelectorAll: () => [sourceButton],
   };
   const guideStates = [];
@@ -61,9 +61,7 @@ function fixture({ ready = true, triggerDisabled = false, reduced = false, open 
       if (vars.scrollTo) window.scrollY = vars.scrollTo.y;
       vars.onComplete?.();
     },
-    to(target, values) { steps.push([target, values]); return this; },
-    set(target, values) { steps.push([target, values]); return this; },
-    addLabel() { return this; },
+    to(target, values, position) { steps.push([target, values, position]); return this; },
   });
   let opens = 0, chat = { ...initialChatState, open };
   const mount = runInNewContext(`${source}\nmountSayHiGuide`, {
@@ -87,7 +85,7 @@ function fixture({ ready = true, triggerDisabled = false, reduced = false, open 
     chat = chatReducer(chat, { type: "open" });
     trigger.setAttribute("aria-expanded", String(chat.open));
   });
-  return { sourceButton, child, trigger, hand, ring, status, document, window, media, observers, scrolls, taps, guideStates, destroy,
+  return { sourceButton, child, trigger, hand, status, document, window, media, observers, scrolls, taps, guideStates, destroy,
     get opens() { return opens; }, get chat() { return chat; },
     click(detail = 1) { document.fire("click", { target: child, detail }); },
     dockClick() {
@@ -119,11 +117,14 @@ test("scroll completes before the hand; a duplicate activation cannot open twice
   assert.equal(f.sourceButton.getAttribute("aria-busy"), "true");
   f.scrolls[0].complete();
   assert.equal(f.taps.length, 1); assert.equal(f.opens, 0);
+  assert.equal(f.hand.style.display, "block");
+  const [, fade, at] = f.taps[0].steps.at(-1);
+  assert.ok(at >= 1 && at + fade.duration < 1.24, "let the first ripple finish before the next tap");
   f.taps[0].complete(); f.taps[0].vars.onComplete();
   assert.equal(f.opens, 1); assert.equal(f.chat.open, true);
   assert.equal(f.sourceButton.disabled, false);
   assert.equal(f.sourceButton.hasAttribute("aria-busy"), false);
-  assert.deepEqual(f.hand.style, {}); assert.deepEqual(f.ring.style, {});
+  assert.deepEqual(f.hand.style, {});
   assert.deepEqual(f.trigger.style, {}); assert.equal(f.status.textContent, "");
   assert.deepEqual(f.guideStates, [true, false]);
 });
