@@ -8,9 +8,9 @@ Posters have no decorative tape. The Acu artwork uses `acu-note-portrait.webp`: 
 
 Transparent paper artwork is marked `cutout` in the data. Its thumbnail has no opaque backing, rectangular shadow or clipping radius; an alpha-shaped image shadow follows the paper instead. This prevents a second pale card rim appearing through the irregular top and bottom edges.
 
-Desktop hover fans the stack; pressing a card flips it into view. Phones can tap a card or swipe left/right, with vertical movement left to page scrolling. Arrow keys also switch. Outside press, Escape and the close control return the current card to the top. Rapid requests keep only the latest destination; a return finishes before the next card departs, measured after the reordered DOM commits. Only an inspected, settled poster mounts `BeliefSticker`; its lower-right 44px zone retains the existing peeler.
+The fan opens when 35% of the section is visible. Hover lifts a card in the fan and pressing a card flips it into view. Phones can tap a card or swipe left/right, with vertical movement left to page scrolling. Arrow keys also switch. Outside press, Escape and the close control return the current card to the top. Rapid requests keep only the latest destination and a return finishes before the next card departs. Only an inspected, settled poster mounts `BeliefSticker` with a peeler in its lower-right 44px zone.
 
-Autoplay waits for the original images to load, then gives each inspected poster five seconds. Touch/press, hover and keyboard focus pause it; leaving the viewport, hiding the document or opening chat, Moments or another scroll-locked overlay suspends it. The footer contains only the centred source link. Tapping the inspected poster or pressing P pauses/resumes autoplay; corner peeling remains separate. Reduced motion disables autoplay and makes manual changes immediate. Without JavaScript the same five real SSR images become a reading list with all source links.
+The deck waits for manual selection before enlarging a card. The footer contains the centred source link. Reduced motion makes the scroll reveal and manual changes immediate. Without JavaScript the same five real SSR images become a reading list with all source links.
 
 With Node 22, run:
 
@@ -21,4 +21,4 @@ node scripts/check-vite-cache.mjs
 node scripts/check-poster-loading.mjs
 ```
 
-`scripts/probe-belief-stack.js` is a browser acceptance probe for the actual mounted component. Also check 320–1440px bounds, native touch taps/swipes/scrolling, all five image ratios, pause/resume, keyboard focus, latest-request wins, overlay pause, dark/reduced-motion and no-JavaScript reading. Native iPhone touch remains a separate physical-device check.
+`scripts/probe-belief-stack.js` checks the scroll reveal and manual selection in the mounted component. Also check 320–1440px bounds, touch taps/swipes/scrolling, all five image ratios, keyboard focus, latest-request wins, dark/reduced-motion and no-JavaScript reading. Native iPhone touch remains a separate physical-device check.

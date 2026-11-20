@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { ABOVE, CARD_H, CARD_W, PIVOT, STAGE_H, STAGE_W, canAutoplay, fitPaper, nextSticker, promoteSticker, springStep, stackPose, stickerSwipe } from "../src/lib/belief-deck.ts";
+import { ABOVE, CARD_H, CARD_W, PIVOT, STAGE_H, STAGE_W, fitPaper, nextSticker, promoteSticker, springStep, stackPose, stickerSwipe } from "../src/lib/belief-deck.ts";
 
 let value = 0, velocity = 0;
 for (let i = 0; i < 180; i++) ({ value, velocity } = springStep(value, velocity, 100, 1));
@@ -30,7 +30,4 @@ assert.deepEqual(promoteSticker([0,1,2,3,4],3),[3,0,1,2,4]);
 assert.equal(nextSticker(4,1,5),0);assert.equal(nextSticker(0,-1,5),4);
 assert.equal(stickerSwipe(60,8,500),1);assert.equal(stickerSwipe(-16,2,25),-1);
 assert.equal(stickerSwipe(13,0,1),0);assert.equal(stickerSwipe(50,90,80),0);
-for (const phase of ["idle","open"]) assert.equal(canAutoplay(true,false,false,false,false,phase),true);
-for (const phase of ["opening","closing"]) assert.equal(canAutoplay(true,false,false,false,false,phase),false);
-for (const args of [[false,false,false,false,false],[true,true,false,false,false],[true,false,true,false,false],[true,false,false,true,false],[true,false,false,false,true]]) assert.equal(canAutoplay(...args,"open"),false);
-console.log("Bencho stack passed: original spring/pivot, responsive bounds, uncut artwork, promote/wrap, touch intent and autoplay pause conditions.");
+console.log("Bencho stack passed: spring and pivot, responsive bounds, uncut artwork, promote and wrap, and touch intent.");

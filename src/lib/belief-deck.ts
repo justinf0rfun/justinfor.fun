@@ -1,6 +1,6 @@
 // Bencho Card Stack geometry, MIT © 2026 Lorenzo Cabra. See components/bencho/LICENSE.
 export const CARD_W = 156, CARD_H = 208, PIVOT = 260, BEAT = 55;
-export const VIEW_IN = 920, VIEW_OUT = 660, AUTOPLAY_DELAY = 5000;
+export const VIEW_IN = 920, VIEW_OUT = 660;
 const rad = (degrees: number) => degrees * Math.PI / 180;
 const MOST = 20 * 1.22;
 const DROP = PIVOT * (1 - Math.cos(rad(MOST)));
@@ -32,9 +32,6 @@ export function fitPaper(width: number, height: number, maxWidth: number, maxHei
 
 export const promoteSticker = (deck: number[], id: number) => [id, ...deck.filter(item => item !== id)];
 export const nextSticker = (id: number, step: number, count: number) => ((id + step) % count + count) % count;
-export function canAutoplay(visible: boolean, hidden: boolean, paused: boolean, interacting: boolean, reduced: boolean, phase: string) {
-  return visible && !hidden && !paused && !interacting && !reduced && (phase === "idle" || phase === "open");
-}
 export function stickerSwipe(x: number, y: number, milliseconds: number) {
   if (Math.abs(x) < 14 || Math.abs(x) < Math.abs(y) * 1.2) return 0;
   return Math.abs(x) >= 44 || Math.abs(x) / Math.max(1, milliseconds) >= 0.45 ? Math.sign(x) : 0;

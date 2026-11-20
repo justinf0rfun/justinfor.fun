@@ -15,7 +15,6 @@
   await wait(500);
   const mark = root.querySelector(".inspired-outline");
   assert(!mark.hidden && mark.getBoundingClientRect().width > 0, "The sticker deck should be marked.");
-  assert(document.querySelector("[data-sticker-deck]").dataset.autoRunning === "false", "Credits should pause sticker autoplay.");
   if (innerWidth < 1200) {
     assert(root.dataset.view === "preview", "Mobile should collapse the source list.");
     const bar = root.querySelector(".inspired-bar").getBoundingClientRect(), target = mark.getBoundingClientRect();
@@ -64,6 +63,6 @@
   assert(!root.matches(":popover-open"), "Escape should close credits.");
   assert(Math.abs(scrollY - original) < 2, "Closing should restore the original scroll position.");
   assert(document.activeElement === trigger, "Closing should restore keyboard focus.");
-  assert(!document.documentElement.dataset.inspiredOpen, "Closing should release the autoplay pause.");
+  assert(!document.documentElement.dataset.inspiredOpen, "Closing should clear the credits state on the page.");
   return { passed: true, sources: 11, mark: true, mobileBar: innerWidth < 1200, rowToggle: true, hiddenTarget: innerWidth >= 1200, scrollAndFocusRestored: true };
 })();

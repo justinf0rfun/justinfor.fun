@@ -9,9 +9,11 @@
     }
   };
   assert(root?.dataset.ready === 'true', 'sticker stack is not hydrated');
-  const wasPaused = root.dataset.autoplayPaused === 'true';
-  const togglePause = () => root.dispatchEvent(new KeyboardEvent('keydown', { key: 'p', bubbles: true }));
-  if (!wasPaused) togglePause();
+  root.scrollIntoView({ block: 'center', behavior: 'instant' });
+  await wait(() => root.querySelector('.belief-stage').dataset.open === 'true' && root.dataset.phase === 'idle');
+  const initialCard = root.dataset.active;
+  await new Promise(resolve => setTimeout(resolve, 5500));
+  assert(root.dataset.phase === 'idle' && root.dataset.active === initialCard, 'the scroll reveal must leave the card selection idle');
   assert(!root.querySelector('.belief-deck-footer button'), 'footer controls should be removed');
   for (const face of root.querySelectorAll('.belief-face[data-cutout="true"]')) {
     const style = getComputedStyle(face);
@@ -32,6 +34,5 @@
   await wait(() => root.dataset.phase === 'idle');
   assert(root.querySelector('[data-front="true"]').dataset.stickerCard === destination, 'inspected card did not return to the top');
   assert(document.documentElement.scrollWidth <= innerWidth, 'stack causes horizontal overflow');
-  if (!wasPaused) togglePause();
   return { passed: true, cards: count, latestSelection: destination, promoted: true, height: root.getBoundingClientRect().height };
 })()
