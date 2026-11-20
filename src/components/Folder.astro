@@ -286,6 +286,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   import { createXBookmarksTransition } from "../scripts/finds-transition";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const desktopWriting = matchMedia("(min-width: 48rem) and (pointer: fine)");
   const instant = { duration: 0 } as const;
   const spring = (s: object) => (reduced ? instant : s);
 
@@ -475,6 +476,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     folder.addEventListener("focusout", () => !stage && setOpen(false));
 
     folder.addEventListener("click", (event) => {
+      // Touch devices and narrow windows share the same Thoughts page as the article's parent link.
+      if (folder.dataset.layout === "writing" && !desktopWriting.matches) return;
       event.preventDefault();
       if (stage?.c === controllers.get(slug) && !stage.closing) {
         // On stage, clicking a side card steps to it; anywhere else closes.
