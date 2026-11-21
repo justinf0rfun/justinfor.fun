@@ -533,16 +533,24 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ? createXBookmarksTransition(xBookmarksOverlay)
     : null;
   const memoryOverlay = document.querySelector<HTMLElement>('[data-memory-stage="overlay"]');
+  const memoryHome = memoryOverlay && document.querySelector<HTMLElement>(".home-content");
   const memoryTargets = memoryOverlay
     ? [...memoryOverlay.querySelectorAll<HTMLElement>("[data-memory-visual-target]")]
     : [];
-  const resetMemoryRolls = () =>
-    memoryOverlay?.querySelectorAll<HTMLElement>("[data-memory-marquee]").forEach((roll) => {
-      roll.scrollLeft = 0;
-    });
   const memoryReveal = memoryOverlay
     ? [...memoryOverlay.querySelectorAll<HTMLElement>("[data-memory-reveal]")]
     : [];
+  const memoryMotion = matchMedia("(prefers-reduced-motion: no-preference)");
+  const memoryPose = (target: HTMLElement, item: HTMLElement, base: { x: number; y: number }) => {
+    const rect = target.getBoundingClientRect();
+    const matrix = new DOMMatrix(getComputedStyle(target).transform);
+    return {
+      x: rect.left + rect.width / 2 - base.x,
+      y: rect.top + rect.height / 2 - base.y,
+      scale: Math.hypot(matrix.a, matrix.b) * target.offsetWidth / item.offsetWidth,
+      rotate: Math.atan2(matrix.b, matrix.a) * 180 / Math.PI,
+    };
+  };
 
   const isNote = (c: Controller, i: number) => c.items[i].dataset.kind === "note";
 
@@ -679,48 +687,54 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     const { c, base } = openingStage;
 
     memoryOverlay.scrollTop = 0;
-    resetMemoryRolls();
     memoryOverlay.classList.add("is-carrying", "is-open");
     memoryOverlay.setAttribute("aria-hidden", "false");
     memoryOverlay.inert = false;
+    if (memoryHome) memoryHome.inert = true;
+    memoryOverlay.querySelector<HTMLElement>("[data-memory-close]")?.focus({ preventScroll: true });
+    memoryOverlay.dispatchEvent(new Event("memory-layout"));
+    const land = () => {
+      c.items.forEach((item) => animate(item, { opacity: 0 }, instant));
+      c.folder.classList.add("is-landed");
+      memoryOverlay.classList.remove("is-carrying");
+    };
+    if (!memoryMotion.matches) {
+      land();
+      return;
+    }
     memoryReveal.forEach((item) => animate(item, { opacity: 0, y: 10 }, instant));
     memoryReveal.forEach((item, index) =>
       animate(
         item,
         { opacity: 1, y: 0 },
-        { duration: 0.3, ease: [0.23, 1, 0.32, 1], delay: 0.18 + index * 0.05 },
+        { duration: 0.24, ease: [0.23, 1, 0.32, 1], delay: Math.min(index, 2) * 0.035 },
       ),
     );
 
-    const flights = c.items.map((item, index) => {
+    const flights = c.items.flatMap((item, index) => {
       const target = memoryTargets[index];
-      if (!target) return Promise.resolve();
-      const rect = target.getBoundingClientRect();
-      const scale = Math.min(rect.width / item.offsetWidth, rect.height / item.offsetHeight);
+      if (!target || target.getBoundingClientRect().top >= memoryOverlay.clientHeight) {
+        animate(item, { opacity: 0 }, instant);
+        return [];
+      }
       item.style.zIndex = String(70 + index);
-      return animate(
+      return [animate(
         item,
-        {
-          x: rect.left + rect.width / 2 - base[index].x,
-          y: rect.top + rect.height / 2 - base[index].y,
-          scale,
-          rotate: 0,
-          opacity: 1,
-        },
-        { ...stageSpring, duration: 0.78, delay: index * 0.055 },
-      ).finished.catch(() => undefined);
+        { ...memoryPose(target, item, base[index]), opacity: 1 },
+        { ...stageSpring, bounce: 0, delay: index * 0.033 },
+      )];
     });
 
-    await Promise.all(flights);
-    if (stage !== openingStage || stage.closing) return;
-    memoryOverlay.classList.remove("is-carrying");
-    await Promise.all(
-      c.items.map((item) =>
-        animate(item, { opacity: 0 }, { duration: 0.1 }).finished.catch(() => undefined),
-      ),
-    );
-    if (stage !== openingStage || stage.closing) return;
-    c.folder.classList.add("is-landed");
+    // Give up the folder copies as soon as the user starts browsing.
+    const interrupt = () => {
+      if (stage === openingStage && !stage.closing && memoryOverlay.scrollTop > 1) {
+        flights.forEach((flight) => flight.complete());
+      }
+    };
+    memoryOverlay.addEventListener("scroll", interrupt, { passive: true });
+    await Promise.allSettled(flights.map((flight) => flight.finished));
+    memoryOverlay.removeEventListener("scroll", interrupt);
+    if (stage === openingStage && !stage.closing) land();
   };
 
   const openStage = (slug: string, push: boolean) => {
@@ -776,7 +790,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     });
 
     // The flap flings right out of the way and vanishes; the cards pour out.
-    if (!xBookmarks) animate(c.flap, { rotateX: -80, opacity: 0 }, carried ? flingSpring : spring(flingSpring));
+    if (!xBookmarks) animate(c.flap, { rotateX: -80, opacity: 0 }, memory && !memoryMotion.matches ? instant : carried ? flingSpring : spring(flingSpring));
     if (uses) openUses();
     else if (projects) openProjects();
     else if (memory) void openMemory();
@@ -789,6 +803,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     if (!stage || stage.closing) return;
     stage.closing = true;
     const { c } = stage;
+    const memoryReduced = stage.memory && !memoryMotion.matches;
 
     if (
       !stage.uses &&
@@ -843,43 +858,25 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
 
     if (stage.memory && memoryOverlay) {
-      c.folder.classList.remove("is-landed");
-      memoryOverlay.scrollTop = 0;
-      resetMemoryRolls();
-      memoryOverlay.classList.add("is-positioning");
-      memoryReveal.forEach((item) =>
-        animate(item, { opacity: 0, y: 8 }, { duration: 0.14, ease: [0.23, 1, 0.32, 1] }),
-      );
-      await new Promise(requestAnimationFrame);
-      if (
-        matchMedia("(min-width: 56.001rem) and (prefers-reduced-motion: no-preference)").matches
-      ) {
-        await new Promise((resolve) => setTimeout(resolve, 180));
+      memoryOverlay.inert = true;
+      memoryOverlay.querySelector<HTMLDialogElement>("[data-memory-lightbox][open]")?.close();
+      const wasCarrying = memoryOverlay.classList.contains("is-carrying");
+      if (memoryMotion.matches && !wasCarrying) {
+        const viewport = memoryOverlay.getBoundingClientRect();
+        c.items.forEach((item, index) => {
+          const target = memoryTargets[index];
+          const rect = target?.getBoundingClientRect();
+          if (target && rect && rect.bottom > viewport.top && rect.top < viewport.bottom) {
+            animate(item, { ...memoryPose(target, item, stage!.base[index]), opacity: 1 }, instant);
+          } else {
+            animate(item, c.closedPct(index), instant);
+          }
+        });
       }
-      c.items.forEach((item, index) => {
-        const target = memoryTargets[index];
-        if (!target) return;
-        const rect = target.getBoundingClientRect();
-        const scale = Math.min(rect.width / item.offsetWidth, rect.height / item.offsetHeight);
-        animate(
-          item,
-          {
-            x: rect.left + rect.width / 2 - stage!.base[index].x,
-            y: rect.top + rect.height / 2 - stage!.base[index].y,
-            scale,
-            rotate: 0,
-            opacity: 0,
-          },
-          instant,
-        );
-      });
-      await Promise.all(
-        c.items.map((item) =>
-          animate(item, { opacity: 1 }, { duration: 0.1 }).finished.catch(() => undefined),
-        ),
-      );
       memoryOverlay.classList.add("is-carrying");
-      memoryOverlay.classList.remove("is-positioning");
+      memoryOverlay.classList.remove("is-open");
+      memoryOverlay.setAttribute("aria-hidden", "true");
+      c.folder.classList.remove("is-landed");
     }
 
     const w = c.wrap.offsetWidth;
@@ -923,10 +920,8 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
                 opacity: 1,
               },
               {
-                ...(stage!.uses || stage!.memory
-                  ? homeSpring
-                  : spring(homeSpring)),
-                delay: Math.abs(c.offset(i)) * 0.03,
+                ...(memoryReduced ? instant : stage!.uses || stage!.memory ? homeSpring : spring(homeSpring)),
+                delay: memoryReduced ? 0 : Math.abs(c.offset(i)) * 0.03,
               },
             ).finished,
         ),
@@ -941,16 +936,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
 
 
 
-    if (stage.memory && memoryOverlay) {
-      memoryOverlay.classList.remove("is-open");
-      memoryOverlay.setAttribute("aria-hidden", "true");
-      memoryOverlay.inert = true;
-    }
-
     await animate(
       c.flap,
       { rotateX: 0, opacity: 1 },
-      stage.uses ||
+      memoryReduced ? instant : stage.uses ||
         stage.projects ||
         stage.memory ||
         stage.writing ||
@@ -960,7 +949,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     ).finished;
 
     if (stage.memory && memoryOverlay) {
-      memoryOverlay.classList.remove("is-carrying", "is-positioning");
+      memoryOverlay.classList.remove("is-carrying");
     }
 
     /* Hand the cards back to the hover system in its own units - same pose.
@@ -970,6 +959,10 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
     c.deactivate();
     c.items.forEach((item, i) => animate(item, c.closedPct(i), instant));
     c.folder.classList.remove("is-stage");
+    if (stage.memory && memoryHome) {
+      memoryHome.inert = false;
+      c.folder.focus({ preventScroll: true });
+    }
     stage = null;
   };
 

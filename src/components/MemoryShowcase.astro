@@ -1,6 +1,6 @@
 ---
 import ParentLink from "./ParentLink.astro";
-import { memoryMonths, memoryPhotos as memories } from "../data/memories";
+import { folderMemoryPhotos, memoryMonths, memoryPhotos as memories } from "../data/memories";
 
 interface Props {
   mode?: "overlay" | "standalone";
@@ -17,7 +17,7 @@ const isOverlay = mode === "overlay";
   inert={isOverlay ? true : undefined}
 >
   <header class="memory-header" data-memory-reveal>
-    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? {"data-memory-close": ""} : {})} />
+    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? { "data-memory-close": "" } : {})} />
     <div>
       <h1>Memory</h1>
       <p>{memories.length} photographs</p>
@@ -30,110 +30,71 @@ const isOverlay = mode === "overlay";
   </div>
 
   <div class="memory-archive">
-    {
-      memoryMonths.map((month) => (
-        <section class="memory-month" aria-labelledby={`memory-${month.dateTime}`}>
-          <header class="memory-month-header" data-memory-reveal>
-            <h3 id={`memory-${month.dateTime}`}>
-              <time datetime={month.dateTime}>{month.label}</time>
-            </h3>
-            <p>{month.location} · {month.rolls.flat().length} photographs</p>
-          </header>
-
-          <div class="memory-rolls">
-              <div
-                class="memory-roll"
-                aria-label={`${month.label}, ${month.location}, photographs`}
-                data-memory-marquee
-                role="region"
-                tabindex="-1"
-              >
-                <ol class="memory-track" data-memory-track>
-                  {[false, true, true].map((duplicate) =>
-                    month.rolls.flat().map((memory) => (
-                      <li
-                        class="memory-item"
-                        data-memory-copy={duplicate ? "duplicate" : "original"}
-                        data-memory-visual-target={!duplicate ? memory.index : undefined}
-                        style={`--photo-ratio: ${memory.ratio}`}
-                        aria-hidden={duplicate ? "true" : undefined}
-                      >
-                        {
-                          duplicate ? (
-                            <div
-                              class="memory-photo"
-                              data-memory-photo
-                              data-memory-src={memory.src}
-                              data-memory-alt={memory.alt}
-                            >
-                              <figure class="memory-frame">
-                                <img src={memory.src} alt="" loading="lazy" />
-                              </figure>
-                            </div>
-                          ) : (
-                            <button
-                              class="memory-photo"
-                              data-memory-photo
-                              data-memory-src={memory.src}
-                              data-memory-alt={memory.alt}
-                              type="button"
-                              aria-label={`Enlarge ${memory.alt}`}
-                            >
-                              <figure class="memory-frame">
-                                <img
-                                  src={memory.src}
-                                  alt={memory.alt}
-                                  loading={memory.index < 4 ? "eager" : "lazy"}
-                                />
-                              </figure>
-                            </button>
-                          )
-                        }
-                      </li>
-                    )),
-                  )}
-                </ol>
-              </div>
-          </div>
-        </section>
-      ))
-    }
+    {memoryMonths.map((month, monthIndex) => (
+      <section class="memory-month" aria-label={`${month.location}, ${month.label}`}>
+        <header class="memory-month-header" data-memory-reveal>
+          <h3>{month.location}</h3>
+          <time datetime={month.dateTime}>{month.label}</time>
+        </header>
+        <div class="memory-rolls">
+          {month.rolls.map((roll, rollIndex) => (
+            <ol
+              class="memory-roll"
+              role="list"
+              aria-label={`Roll ${rollIndex + 1}`}
+              data-memory-unfold={monthIndex === 0 && rollIndex < 2 ? "" : undefined}
+            >
+              {roll.map((photo) => (
+                <li>
+                  <a
+                    class="memory-photo"
+                    href={photo.src}
+                    aria-label={`Enlarge ${photo.alt}`}
+                    data-memory-photo
+                    data-memory-visual-target={photo.index < folderMemoryPhotos.length ? photo.index : undefined}
+                  >
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      width={photo.width}
+                      height={photo.height}
+                      loading={photo.index < folderMemoryPhotos.length ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ))}
+        </div>
+      </section>
+    ))}
   </div>
 
   <dialog class="memory-lightbox" data-memory-lightbox aria-label="Photo preview">
-    <button
-      class="memory-lightbox-close"
-      data-memory-lightbox-close
-      type="button"
-      aria-label="Close photo preview"
-    >
+    <button class="memory-lightbox-close" data-memory-lightbox-close type="button" aria-label="Close photo preview" autofocus>
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <path d="M4 4l8 8M12 4l-8 8"></path>
       </svg>
     </button>
-    <img
-      class="memory-lightbox-image"
-      data-memory-lightbox-image
-      src={memories[0].src}
-      alt={memories[0].alt}
-    />
+    <img class="memory-lightbox-image" data-memory-lightbox-image alt="" />
   </dialog>
 </section>
 
 <style>
   .memory-page {
-    --memory-roll-radius: clamp(1.25rem, 3vw, 3.5rem);
-    min-height: 100dvh;
-    overflow-x: hidden;
-    background: var(--color-neutral-50);
-    color: var(--color-neutral-800);
+    min-height: 100svh;
+    overflow-x: clip;
+    background: var(--home-background, var(--color-neutral-50));
+    color: var(--home-ink, var(--color-neutral-800));
   }
 
   .memory-page.is-overlay {
     position: fixed;
     inset: 0;
     z-index: 45;
-    overflow-y: auto;
+    overflow: hidden auto;
+    overscroll-behavior-y: contain;
     opacity: 0;
     pointer-events: none;
     transition: opacity 180ms var(--ease-out);
@@ -144,76 +105,66 @@ const isOverlay = mode === "overlay";
     pointer-events: auto;
   }
 
-  .memory-page.is-overlay.is-carrying [data-memory-visual-target] {
+  .memory-page.is-carrying [data-memory-visual-target] {
     visibility: hidden;
   }
 
-  .memory-page.is-overlay.is-carrying [data-memory-copy="duplicate"] {
-    visibility: hidden;
-  }
-
-  .memory-page.is-carrying .memory-track,
-  .memory-page.is-positioning .memory-track {
-    transform: translate3d(0, 0, 0) !important;
-  }
-
-  @media (min-width: 56.001rem) and (prefers-reduced-motion: no-preference) {
-    .memory-page.is-positioning .memory-track {
-      transition: transform 160ms var(--ease-out);
-    }
+  .memory-header,
+  .memory-intro,
+  .memory-archive {
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
   }
 
   .memory-header {
-    position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 76rem;
-    margin: 0 auto;
-    padding: 1.5rem clamp(1.25rem, 4vw, 3rem);
+    padding-block: 1.5rem;
     text-align: right;
   }
 
-  .memory-header h1 {
+  .memory-header h1,
+  .memory-month-header h3 {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 550;
   }
 
-  .memory-header p {
-    margin-top: 0.125rem;
+  .memory-header p,
+  .memory-month-header time {
     font-size: 0.75rem;
-    color: var(--color-neutral-500);
+    color: var(--home-muted, var(--color-neutral-500));
   }
+
+  .memory-header p { margin-top: 0.125rem; }
 
   .memory-intro {
-    max-width: 76rem;
-    margin: clamp(2.75rem, 7vh, 5.5rem) auto 0;
-    padding: 0 clamp(1.25rem, 4vw, 3rem);
+    margin-block-start: clamp(1.75rem, 6.5svh, 4.5rem);
   }
 
   .memory-intro h2 {
-    max-width: 18ch;
-    font-size: clamp(2rem, 5vw, 4.5rem);
+    max-width: 22ch;
+    font-size: clamp(2.1rem, 5.3vw, 4rem);
     font-weight: 600;
-    letter-spacing: -0.035em;
-    line-height: 0.98;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
+    text-wrap: balance;
   }
 
   .memory-intro p {
-    margin-top: 1rem;
-    font-size: 0.925rem;
-    color: var(--color-neutral-500);
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--home-muted, var(--color-neutral-500));
   }
 
   .memory-archive {
-    max-width: 76rem;
-    margin: clamp(3rem, 8vh, 7rem) auto 0;
-    padding: 0 clamp(1.25rem, 4vw, 3rem) 5rem;
+    margin-block-start: clamp(2rem, 6.5svh, 4.75rem);
+    padding-block-end: max(4rem, 14svh);
   }
 
   .memory-month + .memory-month {
-    margin-top: clamp(4.5rem, 10vw, 8rem);
+    margin-block-start: clamp(3.5rem, 9vw, 7rem);
   }
 
   .memory-month-header {
@@ -221,101 +172,61 @@ const isOverlay = mode === "overlay";
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .memory-month-header h3 {
-    color: var(--color-neutral-800);
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .memory-month-header p {
-    color: var(--color-neutral-500);
-    font-size: 0.75rem;
+    margin-block-end: 1rem;
   }
 
   .memory-rolls {
     display: grid;
-    gap: 0.75rem;
+    gap: clamp(1rem, 2.4vw, 2rem);
   }
 
   .memory-roll {
-    --memory-roll-height: clamp(11rem, 16vw, 13rem);
-    position: relative;
-    overflow: hidden;
-    border-radius: var(--memory-roll-radius);
-    background: var(--color-neutral-100);
-    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04);
-    cursor: grab;
-    outline: none;
-    touch-action: pan-y;
-  }
-
-  .memory-roll[data-dragging="true"] {
-    cursor: grabbing;
-  }
-
-  .memory-roll:focus-visible {
-    outline: 2px solid var(--color-neutral-800);
-    outline-offset: 4px;
-  }
-
-  .memory-track {
-    display: flex;
-    width: max-content;
-    gap: 0.3rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: clamp(0.5rem, 1.4vw, 1.125rem);
     list-style: none;
-    will-change: transform;
-  }
-
-  .memory-item {
-    height: var(--memory-roll-height);
-    flex: none;
-    aspect-ratio: var(--photo-ratio);
   }
 
   .memory-photo {
     display: block;
     width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    background: transparent;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    background: var(--color-neutral-100);
     cursor: zoom-in;
   }
 
-  .memory-photo:focus-visible {
-    position: relative;
-    z-index: 1;
-    outline: 2px solid var(--color-neutral-800);
-    outline-offset: -4px;
+  .memory-photo:focus-visible,
+  .memory-lightbox-close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
   }
 
-  .memory-frame {
-    height: 100%;
-    overflow: hidden;
-    background: var(--color-neutral-100);
-  }
-
-  .memory-frame img {
+  .memory-photo img {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 500ms var(--ease-out);
+    height: auto;
+  }
+
+  :global(html:has(.memory-lightbox[open])),
+  .memory-page.is-overlay:has(.memory-lightbox[open]) {
+    overflow: hidden;
   }
 
   .memory-lightbox {
+    --preview-top: max(3.75rem, calc(env(safe-area-inset-top) + 3rem));
+    --preview-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    box-sizing: border-box;
     width: 100vw;
     max-width: none;
     height: 100dvh;
     max-height: none;
     margin: 0;
-    padding: clamp(3.5rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem);
+    padding: var(--preview-top) clamp(1rem, 4vw, 3rem) var(--preview-bottom);
     border: 0;
-    overflow: hidden;
     background: transparent;
+    overflow: hidden;
   }
 
   .memory-lightbox[open] {
@@ -324,44 +235,38 @@ const isOverlay = mode === "overlay";
   }
 
   .memory-lightbox::backdrop {
-    background: rgb(10 10 10 / 0.9);
-    backdrop-filter: blur(14px);
-    animation: memory-backdrop-in 180ms ease-out both;
+    background: rgb(13 13 14 / 0.93);
+    transition: opacity 220ms var(--ease-out);
+    animation: memory-backdrop-in 220ms var(--ease-out);
+  }
+
+  .memory-lightbox[data-closing]::backdrop {
+    opacity: 0;
   }
 
   .memory-lightbox-image {
     display: block;
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 0.75rem;
+    width: min(100%, var(--preview-width), calc(var(--preview-ratio) * (100dvh - var(--preview-top) - var(--preview-bottom))));
+    height: auto;
+    aspect-ratio: var(--preview-ratio);
+    border-radius: 0.375rem;
     object-fit: contain;
-    animation: memory-photo-in 240ms var(--ease-out) both;
   }
 
   .memory-lightbox-close {
     position: fixed;
-    top: max(1rem, env(safe-area-inset-top));
-    right: max(1rem, env(safe-area-inset-right));
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
     z-index: 1;
     display: grid;
     place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 44px;
+    height: 44px;
     border: 0;
-    border-radius: 999px;
-    color: rgb(255 255 255 / 0.72);
+    border-radius: 50%;
+    color: white;
     background: rgb(255 255 255 / 0.1);
     cursor: pointer;
-    transition: color 160ms var(--ease-out), background 160ms var(--ease-out), transform 160ms var(--ease-out);
-  }
-
-  .memory-lightbox-close:active {
-    transform: scale(0.94);
-  }
-
-  .memory-lightbox-close:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 3px;
   }
 
   .memory-lightbox-close svg {
@@ -373,424 +278,161 @@ const isOverlay = mode === "overlay";
   }
 
   @keyframes memory-backdrop-in {
-    from { background: rgb(10 10 10 / 0); }
+    from { opacity: 0; }
   }
 
-  @keyframes memory-photo-in {
-    from {
-      opacity: 0;
-      filter: blur(4px);
-      transform: scale(0.975);
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-
-    .memory-frame:hover img { transform: scale(1.018); }
-    .memory-lightbox-close:hover {
-      color: white;
-      background: rgb(255 255 255 / 0.16);
-    }
-  }
-
-  @media (max-width: 56rem) {
-    .memory-intro h2 {
-      font-size: clamp(2rem, 8vw, 3rem);
-    }
-
-    .memory-intro p {
-      font-size: 0.875rem;
-    }
-
-    .memory-archive {
-      margin-top: 4rem;
-      padding-inline: 1rem;
-    }
-
-    .memory-month-header {
-      padding-inline: 0.25rem;
-    }
-
-    .memory-rolls {
-      gap: 0.6rem;
-    }
-
-    .memory-roll {
-      overflow: hidden;
-      border-radius: 1.25rem;
-      background: var(--color-neutral-100);
-      box-shadow: 0 0 0 1px rgb(0 0 0 / 0.04);
-      cursor: auto;
-      touch-action: auto;
-    }
-
-    .memory-track {
-      display: grid;
-      width: 100%;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      transform: none !important;
-      will-change: auto;
-    }
-
-    .memory-item {
-      height: auto;
-      width: auto;
-      min-width: 0;
-      flex: none;
-    }
-
-    [data-memory-copy="duplicate"] {
-      display: none;
-    }
-  }
-
-  @media (max-width: 22rem) {
-    .memory-month-header {
-      display: block;
-    }
-
-    .memory-month-header p {
-      margin-top: 0.25rem;
-    }
-
-    .memory-track {
-      grid-template-columns: 1fr;
-    }
+  @media (hover: hover) {
+    .memory-lightbox-close:hover { background: rgb(255 255 255 / 0.2); }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .memory-page.is-overlay { transition-duration: 120ms; }
-    .memory-frame img { transition: none; }
-    .memory-lightbox::backdrop,
-    .memory-lightbox-image { animation: none; }
-  }
-
-  @media (min-width: 56.001rem) and (prefers-reduced-motion: reduce) {
-    .memory-roll {
-      overflow-x: auto;
-      cursor: auto;
-      scrollbar-width: none;
-      touch-action: auto;
-    }
-
-    .memory-roll::-webkit-scrollbar {
-      display: none;
-    }
-
-    .memory-track {
-      transform: none !important;
-      will-change: auto;
-    }
-
-    [data-memory-copy="duplicate"] {
-      display: none;
-    }
+    .memory-lightbox::backdrop { animation: none; transition: none; }
   }
 </style>
 
 <script>
-  import { gsap } from "gsap";
-  import { Draggable } from "gsap/Draggable";
-
-  gsap.registerPlugin(Draggable);
-
-  const AUTO_SPEED = 0.28;
-  const THROW_MULTIPLIER = 2.8;
-  const THROW_FRICTION = 0.975;
-  const MAX_THROW_VELOCITY = 60;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const clamp = (value: number) => Math.max(0, Math.min(1, value));
+  const ease = (value: number) => value * value * (3 - 2 * value);
 
   document.querySelectorAll<HTMLElement>("[data-memory-stage]").forEach((stage) => {
-    const lightbox = stage.querySelector<HTMLDialogElement>("[data-memory-lightbox]");
-    const image = stage.querySelector<HTMLImageElement>("[data-memory-lightbox-image]");
-    const close = stage.querySelector<HTMLButtonElement>("[data-memory-lightbox-close]");
-    if (!lightbox || !image || !close) return;
+    const lightbox = stage.querySelector<HTMLDialogElement>("[data-memory-lightbox]")!;
+    const image = stage.querySelector<HTMLImageElement>("[data-memory-lightbox-image]")!;
+    const close = stage.querySelector<HTMLButtonElement>("[data-memory-lightbox-close]")!;
+    const isOverlay = stage.dataset.memoryStage === "overlay";
+    const scrollRoot = isOverlay ? stage : document.documentElement;
+    const rolls = [...stage.querySelectorAll<HTMLOListElement>("[data-memory-unfold]")];
+    let tiles: { photo: HTMLAnchorElement; x: number; y: number; angle: number; scale: number; delay: number }[] = [];
+    let lastProgress = -1;
+    let travel = 0;
+    let frame = 0;
+    let opener: HTMLAnchorElement | null = null;
+    let previewScroll = 0;
+    let flight: Animation | undefined;
 
-    stage.querySelectorAll<HTMLElement>("[data-memory-photo]").forEach((photo) => {
-      photo.addEventListener("click", () => {
-        image.src = photo.dataset.memorySrc ?? "";
-        image.alt = photo.dataset.memoryAlt ?? "";
+    const paint = () => {
+      frame = 0;
+      if (isOverlay && !stage.classList.contains("is-open")) return;
+      const y = isOverlay ? stage.scrollTop : window.scrollY;
+      const progress = reduced.matches || travel < 32 ? 1 : clamp(y / travel);
+      if (progress === lastProgress) return;
+      lastProgress = progress;
+
+      for (const { photo, x, y, angle, scale, delay } of tiles) {
+        const fold = 1 - ease(clamp((progress - delay) / (1 - delay)));
+        photo.style.transform = fold === 0 ? "" :
+          `translate(${x * fold}%, ${y * fold}px) rotate(${angle * fold}deg) scale(${1 - scale * fold})`;
+      }
+    };
+
+    const measure = () => {
+      const depth = stage.clientWidth > 768 ? 1 : 0.65;
+      tiles = rolls.flatMap((roll, rollIndex) => {
+        return [...roll.querySelectorAll<HTMLAnchorElement>("[data-memory-photo]")].map((photo, i) => {
+          const side = i % 2 === 0 ? -1 : 1;
+          const row = Math.floor(i / 2);
+          return {
+            photo,
+            x: side * -5 * depth,
+            y: (side * 9 + row * 5) * depth,
+            angle: side * 5 * depth,
+            scale: 0.11 * depth,
+            delay: Math.min(0.24, row * 0.075 + rollIndex * 0.13 + (side === 1 ? 0.035 : 0)),
+          };
+        });
+      });
+      travel = Math.min(scrollRoot.clientHeight * 0.44, scrollRoot.scrollHeight - scrollRoot.clientHeight);
+      lastProgress = -1;
+      cancelAnimationFrame(frame);
+      paint();
+    };
+
+    const requestPaint = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+
+    const thumbnailPose = (photo: HTMLAnchorElement, preview: DOMRect) => {
+      const rect = photo.getBoundingClientRect();
+      const matrix = new DOMMatrix(getComputedStyle(photo).transform);
+      const x = rect.left + rect.width / 2 - preview.left - preview.width / 2;
+      const y = rect.top + rect.height / 2 - preview.top - preview.height / 2;
+      const scale = Math.hypot(matrix.a, matrix.b) * photo.offsetWidth / preview.width;
+      const angle = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI;
+      return `translate(${x}px, ${y}px) rotate(${angle}deg) scale(${scale})`;
+    };
+
+    const closePreview = () => {
+      if (!lightbox.open || lightbox.hasAttribute("data-closing")) return;
+      if (reduced.matches || !opener) {
+        lightbox.close();
+        return;
+      }
+
+      const current = getComputedStyle(image).transform;
+      flight?.cancel();
+      const target = thumbnailPose(opener, image.getBoundingClientRect());
+      lightbox.setAttribute("data-closing", "");
+      flight = image.animate([{ transform: current }, { transform: target }], {
+        duration: 240, easing: "cubic-bezier(.4, 0, .25, 1)", fill: "forwards",
+      });
+      flight.onfinish = () => lightbox.close();
+    };
+
+    stage.querySelectorAll<HTMLAnchorElement>("[data-memory-photo]").forEach((photo) => {
+      photo.addEventListener("click", (event) => {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        const thumbnail = photo.querySelector("img")!;
+        opener = photo;
+        previewScroll = isOverlay ? stage.scrollTop : window.scrollY;
+        image.src = photo.href;
+        image.alt = thumbnail.alt;
+        const width = Number(thumbnail.getAttribute("width"));
+        const height = Number(thumbnail.getAttribute("height"));
+        image.style.setProperty("--preview-width", `${width}px`);
+        image.style.setProperty("--preview-ratio", String(width / height));
         lightbox.showModal();
+        if (!reduced.matches) {
+          const from = thumbnailPose(photo, image.getBoundingClientRect());
+          flight = image.animate([{ transform: from }, { transform: "none" }], {
+            duration: 290, easing: "cubic-bezier(.2, .75, .25, 1)",
+          });
+        }
       });
     });
 
-    close.addEventListener("click", () => lightbox.close());
+    close.addEventListener("click", closePreview);
     lightbox.addEventListener("click", (event) => {
-      if (event.target === lightbox) lightbox.close();
+      if (event.target === lightbox) closePreview();
     });
-    addEventListener(
-      "keydown",
-      (event) => {
-        if (!lightbox.open || event.key !== "Escape") return;
-        event.preventDefault();
-        event.stopPropagation();
-        lightbox.close();
-      },
-      { capture: true },
-    );
+    lightbox.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      closePreview();
+    });
+    lightbox.addEventListener("close", () => {
+      flight?.cancel();
+      lightbox.removeAttribute("data-closing");
+      if (!stage.inert && opener) {
+        opener.focus({ preventScroll: true });
+        (isOverlay ? stage : window).scrollTo({ top: previewScroll, behavior: "instant" });
+      }
+      opener = null;
+    });
+    window.addEventListener("keydown", (event) => {
+      if (!lightbox.open || event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closePreview();
+    }, { capture: true });
 
-    const media = gsap.matchMedia();
-    media.add(
-      {
-        desktop: "(min-width: 56.001rem)",
-        reduceMotion: "(prefers-reduced-motion: reduce)",
-      },
-      (context) => {
-        const { desktop, reduceMotion } = context.conditions as {
-          desktop: boolean;
-          reduceMotion: boolean;
-        };
-        if (!desktop) return;
-
-        const cleanups = [...stage.querySelectorAll<HTMLElement>("[data-memory-marquee]")].map(
-          (root) => {
-            const baseLabel = root.getAttribute("aria-label") ?? "Photo roll";
-            const firstPhoto = root.querySelector<HTMLButtonElement>(
-              '[data-memory-copy="original"] [data-memory-photo]',
-            );
-            const restoreMobileFocus = () => {
-              root.scrollLeft = 0;
-              root.tabIndex = -1;
-              root.setAttribute("aria-label", baseLabel);
-              if (document.activeElement === root) firstPhoto?.focus({ preventScroll: true });
-            };
-            root.tabIndex = 0;
-            root.setAttribute(
-              "aria-label",
-              `${baseLabel}. Drag the photographs, or use the left and right arrow keys.`,
-            );
-
-            if (reduceMotion) {
-              root.setAttribute(
-                "aria-label",
-                `${baseLabel}. Scroll the photographs, or use the left and right arrow keys.`,
-              );
-              const handleKeyDown = (event: KeyboardEvent) => {
-                if (event.target !== root) return;
-                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-                event.preventDefault();
-                root.scrollBy({ left: root.clientWidth * (event.key === "ArrowLeft" ? -0.35 : 0.35) });
-              };
-              root.addEventListener("keydown", handleKeyDown);
-              return () => {
-                root.removeEventListener("keydown", handleKeyDown);
-                restoreMobileFocus();
-              };
-            }
-
-            const track = root.querySelector<HTMLElement>("[data-memory-track]");
-            const originals = [
-              ...root.querySelectorAll<HTMLElement>('[data-memory-copy="original"]'),
-            ];
-            const firstDuplicate = root.querySelector<HTMLElement>(
-              '[data-memory-copy="duplicate"]',
-            );
-            if (!track || !originals[0] || !firstDuplicate) return () => undefined;
-
-            const setX = gsap.quickSetter(track, "x", "px");
-            let singleSetWidth = 0;
-            let x = 0;
-            let wrap = (value: number) => value;
-            let throwVelocity = 0;
-            let isDragging = false;
-            let isPointerOver = root.matches(":hover");
-            let hasFocus = root.contains(document.activeElement);
-            let isVisible = true;
-            let lastRawX = 0;
-            let lastDragTime = 0;
-            let dragDistance = 0;
-            let suppressClick = false;
-            let suppressTimer = 0;
-            let resizeFrame = 0;
-            let initialized = false;
-            let draggable: Draggable | null = null;
-
-            const alignFocusedItem = (target: EventTarget | null) => {
-              const item = (target as Element | null)?.closest<HTMLElement>(
-                '[data-memory-copy="original"]',
-              );
-              if (!item || !singleSetWidth) return;
-              const alignLeft = -item.offsetLeft;
-              const alignRight = root.clientWidth - item.offsetLeft - item.offsetWidth;
-              const minVisibleX = Math.min(alignLeft, alignRight);
-              const maxVisibleX = Math.max(alignLeft, alignRight);
-              x = Math.min(
-                0,
-                Math.max(-singleSetWidth, gsap.utils.clamp(minVisibleX, maxVisibleX, x)),
-              );
-              setX(x);
-              if (draggable) draggable.x = x;
-            };
-
-            const measure = () => {
-              const nextWidth = firstDuplicate.offsetLeft - originals[0].offsetLeft;
-              if (nextWidth <= 0) return;
-              const progress = initialized && singleSetWidth
-                ? gsap.utils.wrap(0, 1)(-x / singleSetWidth)
-                : 0;
-              singleSetWidth = nextWidth;
-              const loop = gsap.utils.wrap(-singleSetWidth, 0);
-              wrap = (value) => value === 0 ? 0 : loop(value);
-              x = progress === 0 ? 0 : -progress * singleSetWidth;
-              setX(x);
-              if (draggable) draggable.x = x;
-              initialized = true;
-              if (hasFocus) alignFocusedItem(document.activeElement);
-            };
-
-            const scheduleMeasure = () => {
-              cancelAnimationFrame(resizeFrame);
-              resizeFrame = requestAnimationFrame(measure);
-            };
-
-            draggable = Draggable.create(track, {
-              type: "x",
-              trigger: root,
-              allowContextMenu: true,
-              dragClickables: true,
-              minimumMovement: 6,
-              onPress() {
-                isDragging = true;
-                throwVelocity = 0;
-                this.x = x;
-                lastRawX = this.x;
-                lastDragTime = performance.now();
-                dragDistance = 0;
-                root.dataset.dragging = "true";
-              },
-              onDrag() {
-                const now = performance.now();
-                const rawX = this.x;
-                const deltaX = rawX - lastRawX;
-                const deltaTime = gsap.utils.clamp(8, 50, now - lastDragTime);
-                x = wrap(x + deltaX);
-                setX(x);
-                dragDistance += Math.abs(deltaX);
-                suppressClick ||= dragDistance > 6;
-
-                if (deltaTime > 0) {
-                  const sampledVelocity = (deltaX / deltaTime) * 36.67;
-                  throwVelocity = gsap.utils.clamp(
-                    -MAX_THROW_VELOCITY,
-                    MAX_THROW_VELOCITY,
-                    sampledVelocity * THROW_MULTIPLIER,
-                  );
-                }
-
-                lastRawX = rawX;
-                lastDragTime = now;
-              },
-              onRelease() {
-                isDragging = false;
-                if (performance.now() - lastDragTime > 80) throwVelocity = 0;
-                this.x = x;
-                delete root.dataset.dragging;
-                window.clearTimeout(suppressTimer);
-                suppressTimer = window.setTimeout(() => {
-                  suppressClick = false;
-                }, 80);
-              },
-            })[0];
-
-            const handleClick = (event: MouseEvent) => {
-              if (!suppressClick) return;
-              event.preventDefault();
-              event.stopImmediatePropagation();
-            };
-            const handlePointerEnter = () => { isPointerOver = true; };
-            const handlePointerLeave = () => { isPointerOver = false; };
-            const handleFocusIn = (event: FocusEvent) => {
-              hasFocus = true;
-              throwVelocity = 0;
-              alignFocusedItem(event.target);
-            };
-            const handleFocusOut = (event: FocusEvent) => {
-              hasFocus = root.contains(event.relatedTarget as Node);
-            };
-            const handleKeyDown = (event: KeyboardEvent) => {
-              if (event.target !== root) return;
-              if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-              event.preventDefault();
-              throwVelocity = 0;
-              x = wrap(x + root.clientWidth * (event.key === "ArrowLeft" ? 0.35 : -0.35));
-              setX(x);
-              if (draggable) draggable.x = x;
-            };
-
-            root.addEventListener("click", handleClick, true);
-            root.addEventListener("pointerenter", handlePointerEnter);
-            root.addEventListener("pointerleave", handlePointerLeave);
-            root.addEventListener("focusin", handleFocusIn);
-            root.addEventListener("focusout", handleFocusOut);
-            root.addEventListener("keydown", handleKeyDown);
-
-            const resizeObserver = new ResizeObserver(scheduleMeasure);
-            resizeObserver.observe(root);
-            originals.forEach((item) => resizeObserver.observe(item));
-
-            const visibilityObserver = new IntersectionObserver(([entry]) => {
-              isVisible = entry?.isIntersecting ?? false;
-            });
-            visibilityObserver.observe(root);
-
-            const update = () => {
-              if (!initialized || isDragging) return;
-              const isCarrying = stage.classList.contains("is-carrying");
-              if (isCarrying) {
-                x = 0;
-                throwVelocity = 0;
-                setX(0);
-                if (draggable) draggable.x = 0;
-                return;
-              }
-              if (stage.classList.contains("is-positioning")) {
-                throwVelocity = 0;
-                return;
-              }
-              const stageInactive =
-                document.hidden ||
-                !isVisible ||
-                lightbox.open ||
-                (stage.classList.contains("is-overlay") && !stage.classList.contains("is-open"));
-              if (stageInactive) {
-                throwVelocity = 0;
-                return;
-              }
-
-              const frames = Math.min(3, gsap.ticker.deltaRatio(60));
-              if (!isPointerOver && !hasFocus) x -= AUTO_SPEED * frames;
-              x += throwVelocity * frames;
-              throwVelocity *= Math.pow(THROW_FRICTION, frames);
-              if (Math.abs(throwVelocity) < 0.01) throwVelocity = 0;
-              x = wrap(x);
-              setX(x);
-            };
-
-            scheduleMeasure();
-            gsap.ticker.add(update);
-
-            return () => {
-              gsap.ticker.remove(update);
-              draggable?.kill();
-              resizeObserver.disconnect();
-              visibilityObserver.disconnect();
-              cancelAnimationFrame(resizeFrame);
-              window.clearTimeout(suppressTimer);
-              root.removeEventListener("click", handleClick, true);
-              root.removeEventListener("pointerenter", handlePointerEnter);
-              root.removeEventListener("pointerleave", handlePointerLeave);
-              root.removeEventListener("focusin", handleFocusIn);
-              root.removeEventListener("focusout", handleFocusOut);
-              root.removeEventListener("keydown", handleKeyDown);
-              restoreMobileFocus();
-              delete root.dataset.dragging;
-              gsap.set(track, { clearProps: "transform" });
-            };
-          },
-        );
-
-        return () => cleanups.forEach((cleanup) => cleanup());
-      },
-      stage,
-    );
+    (isOverlay ? stage : window).addEventListener("scroll", requestPaint, { passive: true });
+    const resize = new ResizeObserver(measure);
+    resize.observe(stage);
+    resize.observe(stage.querySelector(".memory-archive")!);
+    stage.addEventListener("memory-layout", measure);
+    reduced.addEventListener("change", measure);
+    window.addEventListener("pageshow", measure);
+    measure();
   });
 </script>
