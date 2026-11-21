@@ -863,10 +863,12 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
       const wasCarrying = memoryOverlay.classList.contains("is-carrying");
       if (memoryMotion.matches && !wasCarrying) {
         const viewport = memoryOverlay.getBoundingClientRect();
+        const fromGrid = !memoryOverlay.querySelector("[data-memory-in-chapter]");
         c.items.forEach((item, index) => {
           const target = memoryTargets[index];
           const rect = target?.getBoundingClientRect();
-          if (target && rect && rect.bottom > viewport.top && rect.top < viewport.bottom) {
+          if (fromGrid && target && rect && rect.bottom > viewport.top && rect.top < viewport.bottom &&
+            rect.right > viewport.left && rect.left < viewport.right) {
             animate(item, { ...memoryPose(target, item, stage!.base[index]), opacity: 1 }, instant);
           } else {
             animate(item, c.closedPct(index), instant);

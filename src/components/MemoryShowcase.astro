@@ -68,6 +68,13 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
             View photographs <span aria-hidden="true">↓</span>
           </a>
         </div>
+        <div class="memory-chapter" data-memory-chapter inert>
+          <h2>{memoryMonths[0].location}</h2>
+          <p>{memoryMonths[0].label} · {memoryMonths[0].rolls.flat().length} photographs</p>
+          <a class="memory-browse" href={`#memory-archive-${mode}`} data-memory-browse>
+            View photographs <span aria-hidden="true">↓</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -145,7 +152,7 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
   }
 
   .memory-entry {
-    height: 175svh;
+    height: 250svh;
   }
 
   .memory-scene {
@@ -218,7 +225,7 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
 
   .memory-intro {
     --lens-size: 420px;
-    --lens-home-y: calc(100% - 85px);
+    --lens-home-y: calc(100% - 65px);
     position: absolute;
     z-index: 3;
     inset: 0;
@@ -233,7 +240,6 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
     aspect-ratio: 1;
     translate: -50% -50%;
     scale: var(--memory-lens-scale, 1);
-    opacity: var(--memory-lens-opacity, 1);
   }
 
   .memory-lens-glass {
@@ -298,6 +304,23 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
     text-align: center;
     opacity: var(--memory-copy-opacity, 1);
   }
+
+  .memory-chapter {
+    position: absolute;
+    left: 50%;
+    top: var(--memory-lens-center, 50%);
+    width: min(270px, calc(100% - 48px));
+    min-height: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    translate: -50% calc(-50% + var(--memory-chapter-lift, 0px));
+    text-align: center;
+    opacity: var(--memory-chapter-opacity, 0);
+  }
+
+  .memory-intro-copy[inert], .memory-chapter[inert] { visibility: hidden; }
+  .memory-chapter .memory-browse { margin-block-start: 1rem; }
 
   .memory-intro h2 {
     max-width: 230px;
@@ -379,7 +402,7 @@ const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
     pointer-events: none;
   }
 
-  .memory-scene[data-memory-spacing-active] .memory-spacing-hud { opacity: var(--memory-sheet-opacity, 1); }
+  .memory-scene[data-memory-spacing-active] .memory-spacing-hud { opacity: var(--memory-hud-opacity, 1); }
 
   .memory-spacing-hud::before, .memory-spacing-hud::after {
     content: "";

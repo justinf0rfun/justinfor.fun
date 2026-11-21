@@ -2,6 +2,14 @@ const clamp = (value: number) => Math.min(1, Math.max(0, value));
 const round = (value: number) => Math.round(value * 100) / 100;
 const easeInOut = (t: number) => t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
+const chapterStart = .75;
+const chapterLength = 1.7;
+const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+const arrivalOffset = (index: number) => {
+  const seed = Math.sin(index * 127.1 + 311.7) * 43758.5453;
+  return (seed - Math.floor(seed)) * .5;
+};
 
 const refractionMap = () => {
   const canvas = document.createElement("canvas");
@@ -28,6 +36,7 @@ const refractionMap = () => {
 };
 
 export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
+  const entry = stage.querySelector<HTMLElement>("[data-memory-entry]")!;
   const scene = stage.querySelector<HTMLElement>("[data-memory-scene]")!;
   const lens = scene.querySelector<HTMLElement>("[data-memory-lens]")!;
   const hud = scene.querySelector<HTMLElement>("[data-memory-spacing-hud]")!;
@@ -36,18 +45,21 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
   const filter = scene.querySelector<SVGFilterElement>("filter")!;
   const map = filter.querySelector<SVGFEImageElement>("feImage")!;
   const displacement = filter.querySelector<SVGFEDisplacementMapElement>("feDisplacementMap")!;
-  const browse = scene.querySelector<HTMLAnchorElement>("[data-memory-browse]")!;
+  const intro = scene.querySelector<HTMLElement>(".memory-intro-copy")!;
+  const chapter = scene.querySelector<HTMLElement>("[data-memory-chapter]")!;
+  const [browse, chapterBrowse] = scene.querySelectorAll<HTMLAnchorElement>("[data-memory-browse]");
   const archive = stage.querySelector<HTMLElement>(".memory-archive")!;
-  const tiles = [...scene.querySelectorAll<HTMLElement>("[data-memory-tile]")].map((element) => {
+  const tiles = [...scene.querySelectorAll<HTMLElement>("[data-memory-tile]")].map((element, index) => {
     const column = Number(element.dataset.x);
     const row = Number(element.dataset.y);
-    return { element, column, row, delay: Math.hypot(column, row) * 35,
-      x: 0, y: 0, size: 1, vx: 0, vy: 0, vs: 0, pose: "" };
+    return { element, column, row, index, arrival: arrivalOffset(index), delay: Math.hypot(column, row) * 35,
+      x: 0, y: 0, size: 1, vx: 0, vy: 0, vs: 0, pose: "", alpha: 1 };
   });
   const overlay = stage.dataset.memoryStage === "overlay";
   const scroller = overlay ? stage : window;
   const desktopGlass = matchMedia("(min-width: 641px) and (pointer: fine)");
-  let width = 0, height = 0, tileWidth = 0, diameter = 0;
+  let width = 0, height = 0, tileWidth = 0, diameter = 0, entryHeight = 0;
+  let progress = 0;
   let h = 1, v = 1, frame = 0, last = 0;
   let touch: number | null = null;
   let autoAt = Infinity;
@@ -56,7 +68,7 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
   let samples = [{ time: 0, h: 1, v: 1 }];
 
   const scrollY = () => overlay ? stage.scrollTop : window.scrollY;
-  const onScreen = () => stage.classList.contains("is-open") && !document.hidden && scrollY() < height * .75;
+  const onScreen = () => stage.classList.contains("is-open") && !document.hidden && scrollY() < entryHeight;
   const request = () => {
     window.clearTimeout(wakeTimer);
     if (!frame && onScreen()) {
@@ -86,6 +98,38 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
   function paint(now: number, snap = false) {
     frame = 0;
     if (!onScreen() && !snap) return;
+    if (progress >= chapterStart) {
+      const chapterProgress = (progress - chapterStart) / chapterLength;
+      const unit = height / 2;
+      const aspect = width / height;
+      for (const tile of tiles) {
+        const elapsed = (chapterProgress - tile.arrival) * 2;
+        const visible = tile.index < 144 && elapsed > 0 && elapsed < 1;
+        let alpha = 0;
+        if (visible) {
+          const radius = 1 - elapsed ** 1.5;
+          const angle = goldenAngle * tile.index - 3.2 * Math.log(1 / Math.max(radius, .08));
+          const sine = Math.sin(angle);
+          const orbit = (aspect + .35) * radius;
+          const x = Math.cos(angle) * orbit;
+          const y = .42 * sine * orbit;
+          const screenX = (.97803 * x + .20846 * y) * unit;
+          const screenY = (.20846 * x - .97803 * y) * unit;
+          const size = .24 * Math.sqrt(radius) * (1 - .26 * sine) * unit / tileWidth;
+          const pose = `translate(-50%, -50%) translate(${screenX}px, ${screenY}px) rotate(.126rad) scale(${size})`;
+          if (pose !== tile.pose) {
+            tile.pose = pose;
+            tile.element.style.transform = pose;
+          }
+          alpha = smoothstep(clamp(elapsed / .14)) * smoothstep(clamp(radius / .1)) * (.72 - .28 * sine);
+        }
+        if (alpha !== tile.alpha) {
+          tile.alpha = alpha;
+          tile.element.style.opacity = String(alpha);
+        }
+      }
+      return;
+    }
     if (!reduced.matches && now >= autoAt && !glide) {
       const end = now + 1050 + Math.random() * 500;
       glide = { start: now, end, fromH: h, fromV: v,
@@ -104,9 +148,15 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
     const dt = Math.min(.04, Math.max(0, (now - last) / 1000));
     const steps = Math.max(1, Math.ceil(dt * 120));
     const step = dt / steps;
+    const expanded = (progress / chapterStart) ** 2;
+    const spread = 1 + 7 * expanded;
     last = now;
     let moving = false;
     for (const tile of tiles) {
+      if (tile.alpha !== 1) {
+        tile.alpha = 1;
+        tile.element.style.removeProperty("opacity");
+      }
       const target = samples.findLast((sample) => sample.time <= now - tile.delay) ?? samples[0];
       const x = tile.column * pitch * target.h;
       const y = tile.row * pitch * target.v;
@@ -125,7 +175,8 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
         }
         moving ||= Math.abs(x - tile.x) + Math.abs(y - tile.y) + Math.abs(size - tile.size) * tileWidth > .05;
       }
-      const pose = `translate(-50%, -50%) translate(${tile.x.toFixed(2)}px, ${tile.y.toFixed(2)}px) scale(${tile.size.toFixed(4)})`;
+      const scale = tile.size * (1 + .5 * expanded);
+      const pose = `translate(-50%, -50%) translate(${(tile.x * spread).toFixed(2)}px, ${(tile.y * spread).toFixed(2)}px) scale(${scale.toFixed(4)})`;
       if (pose !== tile.pose) {
         tile.pose = pose;
         tile.element.style.transform = pose;
@@ -141,26 +192,39 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
 
   const updateScene = () => {
     const y = scrollY();
-    const p = !reduced.matches && height ? y / height : 0;
+    const p = !reduced.matches && height ? Math.max(0, Math.min(y, entryHeight - height)) / height : 0;
+    if (p >= chapterStart && progress < chapterStart) {
+      glide = null;
+      autoAt = Infinity;
+    }
+    progress = p;
     const travel = easeInOut(clamp(p / .6375));
-    const home = width <= 640 ? height - 247 + diameter / 2 : height - 85;
+    const home = width <= 640 ? height - 247 + diameter / 2 : height - 65;
     const centered = home + (height / 2 - home) * travel;
     const scale = 1 + (Math.min(1, .7 * Math.min(width, height) / diameter) - 1) * travel;
     lens.style.setProperty("--memory-lens-center", `${centered}px`);
     lens.style.setProperty("--memory-lens-scale", String(scale));
-    lens.style.setProperty("--memory-lens-angle", `${travel * 90}deg`);
-    lens.style.setProperty("--memory-lens-opacity", String(1 - easeInOut(clamp((p - .6375) / .1125))));
+    lens.style.setProperty("--memory-lens-angle", `${90 * clamp((p - chapterStart) / chapterLength)}deg`);
     scene.style.setProperty("--memory-copy-y", `${centered - home}px`);
-    scene.style.setProperty("--memory-copy-opacity", String(1 - smoothstep(clamp(p / .3))));
-    scene.style.setProperty("--memory-sheet-opacity", String(1 - easeInOut(clamp(p / .55))));
+    const introOpacity = 1 - smoothstep(clamp(p / .3));
+    scene.style.setProperty("--memory-copy-opacity", String(introOpacity));
+    const gridOpacity = 1 - smoothstep(clamp((p / chapterStart - .5) / .5));
+    const chapterOpacity = smoothstep(clamp((p - chapterStart + .035) / .09));
+    scene.style.setProperty("--memory-sheet-opacity", String(p < chapterStart ? gridOpacity : 1));
+    scene.style.setProperty("--memory-hud-opacity", String(introOpacity));
+    scene.style.setProperty("--memory-chapter-opacity", String(chapterOpacity));
+    scene.style.setProperty("--memory-chapter-lift", `${(1 - chapterOpacity) * 12}px`);
     scene.toggleAttribute("data-memory-at-start", p < .01);
+    scene.toggleAttribute("data-memory-in-chapter", p >= chapterStart);
     browse.inert = p > .28;
-    request();
+    intro.inert = introOpacity === 0;
+    chapter.inert = chapterOpacity === 0;
   };
 
   const measure = () => {
     width = scene.clientWidth;
     height = scene.clientHeight;
+    entryHeight = entry.clientHeight;
     tileWidth = tiles[0].element.offsetWidth;
     diameter = lens.offsetWidth;
     if (desktopGlass.matches && diameter && navigator.userAgent.includes("Chrome/")) {
@@ -178,8 +242,8 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
       }
     }
     cancelAnimationFrame(frame);
-    paint(performance.now(), true);
     updateScene();
+    paint(performance.now(), true);
   };
 
   const reset = () => {
@@ -206,7 +270,7 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
 
   const release = () => {
     touch = null;
-    autoAt = reduced.matches ? Infinity : performance.now() + 6000;
+    autoAt = reduced.matches || progress >= chapterStart ? Infinity : performance.now() + 6000;
     request();
   };
 
@@ -225,14 +289,19 @@ export function mountMemoryHero(stage: HTMLElement, reduced: MediaQueryList) {
   scene.addEventListener("pointerleave", () => { if (touch === null) release(); });
   window.addEventListener("blur", release);
 
-  browse.addEventListener("click", (event) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    archive.focus({ preventScroll: true });
-    archive.scrollIntoView({ behavior: reduced.matches ? "instant" : "smooth" });
-  });
+  for (const link of [browse, chapterBrowse]) {
+    link.addEventListener("click", (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      archive.focus({ preventScroll: true });
+      archive.scrollIntoView({ behavior: reduced.matches ? "instant" : "smooth" });
+    });
+  }
 
-  scroller.addEventListener("scroll", updateScene, { passive: true });
+  scroller.addEventListener("scroll", () => {
+    updateScene();
+    request();
+  }, { passive: true });
   stage.addEventListener("memory-layout", reset);
   document.addEventListener("visibilitychange", request);
   reduced.addEventListener("change", reset);
