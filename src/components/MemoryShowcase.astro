@@ -8,6 +8,16 @@ interface Props {
 
 const { mode = "standalone" } = Astro.props;
 const isOverlay = mode === "overlay";
+const sheetColumns = 17;
+const flightSlots = [57, 59, 61, 75, 77];
+const sheet = Array.from({ length: sheetColumns * 11 }, (_, index) => {
+  const column = index % sheetColumns;
+  const row = Math.floor(index / sheetColumns);
+  const target = flightSlots.indexOf(index);
+  const photo = target >= 0 ? folderMemoryPhotos[target] : memories[(column + row * 3) % memories.length];
+  return { photo, x: column - 8, y: row - 5, target };
+});
+
 ---
 
 <section
@@ -16,65 +26,67 @@ const isOverlay = mode === "overlay";
   aria-hidden={isOverlay ? "true" : undefined}
   inert={isOverlay ? true : undefined}
 >
-  <header class="memory-header" data-memory-reveal>
-    <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? { "data-memory-close": "" } : {})} />
-    <div>
-      <h1>Memory</h1>
-      <p>{memories.length} photographs</p>
-    </div>
-  </header>
+  <div class="memory-entry" data-memory-entry>
+    <div class="memory-scene" data-memory-scene>
+      <header class="memory-header" data-memory-reveal>
+        <ParentLink label="Home" href={isOverlay ? undefined : "/"} {...(isOverlay ? { "data-memory-close": "" } : {})} />
+        <div>
+          <h1>Memory</h1>
+          <p>{memories.length} photographs</p>
+        </div>
+      </header>
 
-  <div class="memory-intro" data-memory-reveal>
-    <div class="memory-lens" aria-hidden="true" data-memory-lens style={`--memory-refraction: url(#memory-lens-${mode})`}>
-      <div class="memory-lens-glass"></div>
-    </div>
-    <svg class="memory-lens-filter" width="0" height="0" aria-hidden="true">
-      <filter id={`memory-lens-${mode}`} x="0" y="0" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-        <feImage x="0" y="0" preserveAspectRatio="none" result="map" />
-        <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </svg>
-    <div class="memory-intro-copy">
-      <h2>Photographs I want to remember.</h2>
-      <p>Places, light, and small details I want to keep.</p>
+      <div class="memory-sheet" aria-hidden="true" data-memory-sheet>
+        {sheet.map(({ photo, x, y, target }) => (
+          <div class="memory-sheet-photo" data-memory-tile data-x={x} data-y={y}
+            data-memory-visual-target={target >= 0 ? target : undefined}
+            style={`--tile-x: ${x}; --tile-y: ${y}; --tile-ratio: ${photo.width / photo.height}`}>
+            <img src={photo.src} alt="" width={photo.width} height={photo.height} decoding="async" draggable="false" />
+          </div>
+        ))}
+      </div>
+
+      <div class="memory-spacing-hud" data-memory-spacing-hud aria-hidden="true">
+        <span class="memory-spacing-dot"></span>
+        <span class="memory-spacing-readout">H <span data-memory-h>1.00</span> V <span data-memory-v>1.00</span></span>
+      </div>
+
+      <div class="memory-intro">
+        <div class="memory-lens" aria-hidden="true" data-memory-lens style={`--memory-refraction: url(#memory-lens-${mode})`}>
+          <div class="memory-lens-glass"></div>
+        </div>
+        <svg class="memory-lens-filter" width="0" height="0" aria-hidden="true">
+          <filter id={`memory-lens-${mode}`} x="0" y="0" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+            <feImage x="0" y="0" preserveAspectRatio="none" result="map" />
+            <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </svg>
+        <div class="memory-intro-copy">
+          <h2>Photographs I want to remember.</h2>
+          <p>Places, light, and small details I want to keep.</p>
+          <a class="memory-browse" href={`#memory-archive-${mode}`} data-memory-browse>
+            View photographs <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="memory-archive">
+  <div class="memory-archive" id={`memory-archive-${mode}`} tabindex="-1">
     {memoryMonths.map((month, monthIndex) => (
-      <section class="memory-month" aria-label={`${month.location}, ${month.label}`} data-memory-spacing={monthIndex === 0 ? "" : undefined}>
-        <header class="memory-month-header" data-memory-reveal>
+      <section class="memory-month" aria-label={`${month.location}, ${month.label}`}>
+        <header class="memory-month-header">
           <h3>{month.location}</h3>
-          <div class="memory-month-details">
-            <time datetime={month.dateTime}>{month.label}</time>
-            {monthIndex === 0 && (
-              <button type="button" class="memory-spacing-pad" data-memory-spacing-pad hidden
-                aria-label="Adjust photo spacing" aria-describedby={`memory-spacing-help-${mode}`}
-                title="Drag to adjust photo spacing">
-                <span aria-hidden="true"></span>
-              </button>
-            )}
-            {monthIndex === 0 && <span class="sr-only" id={`memory-spacing-help-${mode}`}>Drag or use the arrow keys to adjust spacing. Release, or press Escape, to reset.</span>}
-          </div>
+          <time datetime={month.dateTime}>{month.label}</time>
         </header>
         <div class="memory-rolls">
           {month.rolls.map((roll, rollIndex) => (
-            <ol
-              class="memory-roll"
-              role="list"
-              aria-label={`Roll ${rollIndex + 1}`}
-              data-memory-unfold={monthIndex === 0 && rollIndex < 2 ? "" : undefined}
-            >
-              {roll.map((photo, i) => (
-                <li style={monthIndex === 0 && rollIndex < 2 ?
-                  `--memory-column: ${i % 2 - 0.5}; --memory-row: ${Math.floor(i / 2) + (rollIndex ? Math.ceil(month.rolls[0].length / 2) - 1 : 0)}` : undefined}>
-                  <a
-                    class="memory-photo"
-                    href={photo.src}
-                    aria-label={`Enlarge ${photo.alt}`}
-                    data-memory-photo
-                    data-memory-visual-target={photo.index < folderMemoryPhotos.length ? photo.index : undefined}
-                  >
+            <ol class="memory-roll" role="list" aria-label={`Roll ${rollIndex + 1}`}
+              data-memory-unfold={monthIndex === 0 && rollIndex < 2 ? "" : undefined}>
+              {roll.map((photo) => (
+                <li>
+                  <a class="memory-photo" href={photo.src}
+                    aria-label={`Enlarge ${photo.alt}`} data-memory-photo>
                     <img
                       src={photo.src}
                       alt={photo.alt}
@@ -89,12 +101,6 @@ const isOverlay = mode === "overlay";
             </ol>
           ))}
         </div>
-        {monthIndex === 0 && (
-          <div class="memory-spacing-hud" data-memory-spacing-hud aria-hidden="true">
-            <span class="memory-spacing-dot"></span>
-            <span class="memory-spacing-readout">H <span data-memory-h>1.00</span> V <span data-memory-v>1.00</span></span>
-          </div>
-        )}
       </section>
     ))}
   </div>
@@ -138,121 +144,202 @@ const isOverlay = mode === "overlay";
     visibility: hidden;
   }
 
-  .memory-header,
-  .memory-intro,
-  .memory-archive {
+  .memory-entry {
+    height: 175svh;
+  }
+
+  .memory-scene {
+    --tile-size: clamp(55px, 5vw, 80px);
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    isolation: isolate;
+  }
+
+  .memory-sheet {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, color-mix(in srgb, currentColor 11%, transparent) .55px, transparent .8px) 0 0 / 14px 14px;
+    opacity: var(--memory-sheet-opacity, 1);
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse closest-side, black 66%, rgb(0 0 0 / .38) 112%);
+  }
+
+  .memory-sheet-photo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--tile-size);
+    aspect-ratio: var(--tile-ratio);
+    transform: translate(-50%, -50%)
+      translate(calc(var(--tile-x) * (var(--tile-size) + 17px)), calc(var(--tile-y) * (var(--tile-size) + 17px)));
+  }
+
+  .memory-sheet-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .memory-header, .memory-archive {
     max-width: 76rem;
     margin-inline: auto;
     padding-inline: clamp(1.25rem, 4vw, 3rem);
   }
 
   .memory-header {
+    position: absolute;
+    z-index: 4;
+    inset: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-block: 1.5rem;
     text-align: right;
+    pointer-events: none;
   }
 
-  .memory-header h1,
-  .memory-month-header h3 {
-    font-size: 0.875rem;
+  .memory-header :global([data-parent-navigation]) { pointer-events: auto; }
+
+  .memory-header h1, .memory-month-header h3 {
+    font-size: .875rem;
     font-weight: 550;
   }
 
-  .memory-header p,
-  .memory-month-header time {
-    font-size: 0.75rem;
+  .memory-header p, .memory-month-header time {
+    font-size: .75rem;
     color: var(--home-muted, var(--color-neutral-500));
   }
 
-  .memory-header p { margin-top: 0.125rem; }
+  .memory-header p { margin-top: .125rem; }
 
   .memory-intro {
-    --lens-size: clamp(20rem, 43vw, 28rem);
-    position: relative;
-    z-index: 1;
-    display: grid;
-    justify-items: center;
-    margin-block-start: clamp(1.35rem, 4.5svh, 3rem);
-    padding-block: clamp(3.5rem, 6vw, 4.75rem) .8rem;
-    text-align: center;
+    --lens-size: 420px;
+    --lens-home-y: calc(100% - 85px);
+    position: absolute;
+    z-index: 3;
+    inset: 0;
     pointer-events: none;
   }
 
   .memory-lens {
-    --lens-mask: linear-gradient(#000 48%, rgb(0 0 0 / 0.88) 58%, transparent 86%);
     position: absolute;
-    inset-block-start: 0;
-    inset-inline-start: 50%;
+    left: 50%;
+    top: var(--memory-lens-center, var(--lens-home-y));
     width: var(--lens-size);
     aspect-ratio: 1;
-    translate: -50% var(--memory-lens-y, 0px);
+    translate: -50% -50%;
+    scale: var(--memory-lens-scale, 1);
+    opacity: var(--memory-lens-opacity, 1);
   }
 
   .memory-lens-glass {
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    mask-image: var(--lens-mask);
-    opacity: var(--memory-lens-opacity, 1);
     background:
-      radial-gradient(closest-side, transparent 96.5%, rgb(127 127 127 / .045) 98.4%,
-        rgb(127 127 127 / .2) calc(100% - 1px), rgb(255 255 255 / .42) calc(100% - .45px), transparent),
-      radial-gradient(closest-side, var(--memory-surface) 70%,
-        color-mix(in srgb, var(--memory-surface) 93%, transparent) 80%,
-        color-mix(in srgb, var(--memory-surface) 62%, transparent) 94%, transparent);
+      radial-gradient(closest-side, var(--memory-surface) 76%,
+        rgb(from var(--memory-surface) r g b / .99) 80%, rgb(from var(--memory-surface) r g b / .96) 84%,
+        rgb(from var(--memory-surface) r g b / .9) 88%, rgb(from var(--memory-surface) r g b / .78) 92%,
+        rgb(from var(--memory-surface) r g b / .6) 95%, rgb(from var(--memory-surface) r g b / .36) 97.5%,
+        rgb(from var(--memory-surface) r g b / 0)),
+      radial-gradient(closest-side, transparent 88%, rgb(255 255 255 / .13));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / .35), 0 16px 48px rgb(0 0 0 / .075);
   }
 
-  .memory-lens::before {
+  .memory-lens::before, .memory-lens::after {
     content: "";
     position: absolute;
-    inset: -0.875rem;
+    inset: -20px;
     border-radius: 50%;
-    background: conic-gradient(from -78deg, currentColor var(--memory-lens-angle, 0deg), rgb(127 127 127 / .3) 0);
-    opacity: calc(.64 * var(--memory-lens-opacity, 1));
-    mask: repeating-conic-gradient(#000 0 .2deg, transparent .2deg 3.75deg),
-      radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px) calc(100% - 1px), transparent),
-      var(--lens-mask);
+    --lens-tick: color-mix(in srgb, currentColor 23%, transparent);
+    background: conic-gradient(color-mix(in srgb, currentColor 85%, transparent) var(--memory-lens-angle, 0deg), var(--lens-tick) 0);
+    mask: repeating-conic-gradient(#000 0 .22deg, transparent .22deg 3deg),
+      radial-gradient(closest-side, transparent calc(100% - 8px), #000 calc(100% - 7px) calc(100% - 1px), transparent);
     mask-composite: intersect;
   }
 
-  .memory-lens-filter {
-    position: absolute;
+  .memory-lens::before {
+    inset: -24px;
+    --lens-tick: color-mix(in srgb, currentColor 42%, transparent);
+    mask: repeating-conic-gradient(#000 0 .24deg, transparent .24deg 90deg),
+      radial-gradient(closest-side, transparent calc(100% - 15px), #000 calc(100% - 14px) calc(100% - 1px), transparent);
+    mask-composite: intersect;
   }
 
-  @media (min-width: 48rem) and (pointer: fine) {
-    .memory-lens-glass { backdrop-filter: blur(5px) saturate(1.13); }
+  .memory-lens-filter { position: absolute; }
+
+  @media (min-width: 641px) and (pointer: fine) {
+    .memory-lens-glass { backdrop-filter: blur(6px) saturate(1.3); }
     .memory-lens[data-refract] .memory-lens-glass {
-      backdrop-filter: var(--memory-refraction) saturate(1.13);
+      backdrop-filter: var(--memory-refraction) saturate(1.3) brightness(1.04);
     }
+    .memory-scene[data-memory-at-start] .memory-lens {
+      pointer-events: auto;
+      transition: scale .85s linear(0, .035 2.4%, .227 7.1%, .481 11.8%, .818 19%, .993 68.2%, 1);
+    }
+    .memory-scene[data-memory-at-start] .memory-lens:hover,
+    .memory-scene[data-memory-at-start] .memory-intro:focus-within .memory-lens { scale: 1.42; }
   }
 
   .memory-intro-copy {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    bottom: max(26px, env(safe-area-inset-bottom));
+    width: min(304px, calc(100% - 48px));
+    min-height: 183px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    translate: -50% var(--memory-copy-y, 0px);
+    text-align: center;
+    opacity: var(--memory-copy-opacity, 1);
   }
 
   .memory-intro h2 {
-    max-width: 14ch;
+    max-width: 230px;
     margin-inline: auto;
-    font-size: clamp(2rem, 4.25vw, 3.4rem);
-    font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 1.02;
+    font-size: 20px;
+    font-weight: 550;
+    letter-spacing: -.025em;
+    line-height: 1.1;
     text-wrap: balance;
   }
 
   .memory-intro p {
-    max-width: 32ch;
-    margin-inline: auto;
-    margin-top: 0.75rem;
-    font-size: 0.875rem;
-    color: var(--home-muted, var(--color-neutral-500));
+    max-width: 240px;
+    margin: 12px auto 0;
+    color: var(--home-muted, var(--color-neutral-600));
+    font-size: 12px;
+    line-height: 1.4;
+    text-wrap: balance;
   }
 
+  .memory-browse {
+    display: inline-flex;
+    min-height: 44px;
+    gap: 10px;
+    align-items: center;
+    margin-block-start: auto;
+    padding-inline: 15px;
+    border-radius: 999px;
+    background: color-mix(in srgb, currentColor 7%, transparent);
+    color: inherit;
+    font-weight: 550;
+    font-size: 12px;
+    text-decoration: none;
+    pointer-events: auto;
+  }
+
+  .memory-browse:hover { background: color-mix(in srgb, currentColor 11%, transparent); }
+  .memory-browse:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
   .memory-archive {
-    margin-block-start: .625rem;
-    padding-block-end: max(4rem, 14svh);
+    padding-block: 3rem max(4rem, 14svh);
+    outline: none;
   }
 
   .memory-month + .memory-month {
@@ -260,24 +347,12 @@ const isOverlay = mode === "overlay";
   }
 
   .memory-month-header {
-    position: relative;
-    z-index: 2;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    min-height: 2.75rem;
-    margin-block-end: 0.35rem;
-    align-items: center;
+    margin-block-end: 1rem;
   }
-
-  .memory-month-details {
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-  }
-
-  .memory-month[data-memory-spacing] { position: relative; }
 
   .memory-rolls {
     --memory-photo-gap: clamp(0.5rem, 1.4vw, 1.125rem);
@@ -294,62 +369,19 @@ const isOverlay = mode === "overlay";
     list-style: none;
   }
 
-  .memory-month[data-memory-spacing-active] > .memory-rolls { cursor: crosshair; }
-
-  .memory-roll[data-memory-unfold] > li {
-    translate:
-      calc((var(--memory-h, 1) - 1) * var(--memory-photo-gap) * var(--memory-column))
-      calc((var(--memory-v, 1) - 1) * var(--memory-photo-gap) * var(--memory-row));
-  }
-
-  .memory-roll[data-memory-unfold]:nth-child(2) {
-    translate: 0 calc((var(--memory-v, 1) - 1) * var(--memory-roll-gap));
-  }
-
-  .memory-spacing-pad {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin-inline-end: -10px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--home-muted, var(--color-neutral-500));
-    cursor: grab;
-    touch-action: none;
-  }
-
-  .memory-spacing-pad[hidden] { display: none; }
-  .memory-spacing-pad:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
-  .memory-spacing-pad:active { cursor: grabbing; }
-
-  .memory-spacing-pad span {
-    display: block;
-    width: 17px;
-    height: 17px;
-    border-radius: 50%;
-    background: radial-gradient(circle, currentColor 0 2px, transparent 2.5px),
-      linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
-      linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
-  }
-
   .memory-spacing-hud {
-    --hairline: color-mix(in srgb, currentColor 22%, transparent);
+    --hairline: color-mix(in srgb, currentColor 18%, transparent);
     position: absolute;
-    z-index: 3;
+    z-index: 2;
     inset: 0;
-    overflow: clip;
     opacity: 0;
-    transition: opacity 160ms var(--ease-out);
+    transition: opacity 250ms var(--ease-out);
     pointer-events: none;
   }
 
-  [data-memory-spacing-active] .memory-spacing-hud { opacity: 1; }
+  .memory-scene[data-memory-spacing-active] .memory-spacing-hud { opacity: var(--memory-sheet-opacity, 1); }
 
-  .memory-spacing-hud::before,
-  .memory-spacing-hud::after {
+  .memory-spacing-hud::before, .memory-spacing-hud::after {
     content: "";
     position: absolute;
     background: var(--hairline);
@@ -362,39 +394,47 @@ const isOverlay = mode === "overlay";
     position: absolute;
     top: var(--hud-y);
     left: var(--hud-x);
-    width: 7px;
-    height: 7px;
-    z-index: 1;
+    width: 8px;
+    height: 8px;
     translate: -50% -50%;
     border-radius: 50%;
     background: currentColor;
-    box-shadow: 0 0 0 4px var(--hairline);
+    box-shadow: 0 1px 4px rgb(0 0 0 / .36);
   }
 
   .memory-spacing-readout {
     position: absolute;
-    z-index: 1;
-    left: clamp(0px, calc(var(--hud-x) + 14px), calc(100% - 7.5rem));
-    top: clamp(0px, calc(var(--hud-y) + 10px), calc(100% - 1.75rem));
-    padding: .2rem .45rem;
-    border-radius: .3rem;
-    background: var(--memory-surface);
-    font: 500 .7rem / 1.4 ui-monospace, monospace;
+    left: min(calc(var(--hud-x) + 16px), calc(100% - 120px));
+    top: min(calc(var(--hud-y) + 10px), calc(100% - 26px));
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--memory-surface) 67%, transparent);
+    backdrop-filter: blur(16px);
+    font: 500 12px / 16px ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     white-space: pre;
   }
 
-  @media (max-width: 48rem) {
+  @media (max-width: 640px) {
     .memory-intro {
-      --lens-size: clamp(18rem, 88vw, 25rem);
-      padding-block-start: 3.8rem;
+      --lens-size: 128vw;
+      --lens-home-y: calc(100% - 247px + var(--lens-size) / 2);
     }
-    .memory-lens { --lens-mask: linear-gradient(#000 55%, rgb(0 0 0 / 0.86) 63%, transparent 84%); }
-    .memory-lens-glass {
-      background-image: radial-gradient(closest-side, var(--memory-surface) 76%,
-        rgb(from var(--memory-surface) r g b / .85) 88%, rgb(from var(--memory-surface) r g b / 0));
-    }
+    .memory-intro-copy { bottom: max(20px, env(safe-area-inset-bottom)); min-height: 173px; }
+    .memory-intro h2 { font-size: 18px; }
+    .memory-lens-glass { box-shadow: none; }
+    .memory-spacing-readout { backdrop-filter: none; }
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .memory-page.is-open .memory-lens-glass { animation: memory-lens-in .9s var(--ease-out) both; }
+    .memory-page.is-open .memory-intro-copy > * { animation: memory-copy-in .6s var(--ease-out) both; }
+    .memory-page.is-open .memory-intro-copy > p { animation-delay: 70ms; }
+    .memory-page.is-open .memory-intro-copy > a { animation-delay: 140ms; }
+  }
+
+  @keyframes memory-lens-in { from { opacity: 0; scale: .9; } }
+  @keyframes memory-copy-in { from { opacity: 0; translate: 0 12px; } }
 
   .memory-photo {
     display: block;
@@ -497,40 +537,17 @@ const isOverlay = mode === "overlay";
     .memory-page.is-overlay { transition-duration: 120ms; }
     .memory-lightbox::backdrop { animation: none; transition: none; }
     .memory-spacing-hud { transition: none; }
+    .memory-entry { height: 100svh; }
+    .memory-scene { position: relative; }
   }
 </style>
 
 <script>
-  import { mountMemorySpacing } from "../scripts/memory-spacing";
+  import { mountMemoryHero } from "../scripts/memory-hero";
 
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-  const desktopGlass = matchMedia("(min-width: 48rem) and (pointer: fine)");
   const clamp = (value: number) => Math.max(0, Math.min(1, value));
   const ease = (value: number) => value * value * (3 - 2 * value);
-
-  const refractionMap = () => {
-    const canvas = document.createElement("canvas");
-    const size = 160;
-    canvas.width = canvas.height = size;
-    const context = canvas.getContext("2d");
-    if (!context) return "";
-    const image = context.createImageData(size, size);
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const dx = 2 * (x + 0.5) / size - 1;
-        const dy = 2 * (y + 0.5) / size - 1;
-        const radius = Math.hypot(dx, dy);
-        const edge = radius < 1 ? clamp((radius - 0.84) / 0.16) ** 2 : 0;
-        const i = (y * size + x) * 4;
-        image.data[i] = Math.round(128 - dx * edge * 127);
-        image.data[i + 1] = Math.round(128 - dy * edge * 127);
-        image.data[i + 2] = 128;
-        image.data[i + 3] = 255;
-      }
-    }
-    context.putImageData(image, 0, 0);
-    return canvas.toDataURL();
-  };
 
   document.querySelectorAll<HTMLElement>("[data-memory-stage]").forEach((stage) => {
     const lightbox = stage.querySelector<HTMLDialogElement>("[data-memory-lightbox]")!;
@@ -539,13 +556,9 @@ const isOverlay = mode === "overlay";
     const isOverlay = stage.dataset.memoryStage === "overlay";
     const scrollRoot = isOverlay ? stage : document.documentElement;
     const rolls = [...stage.querySelectorAll<HTMLOListElement>("[data-memory-unfold]")];
-    const spacing = stage.querySelector<HTMLElement>("[data-memory-spacing]");
-    if (spacing) mountMemorySpacing(spacing, stage, reduced);
-    const lens = stage.querySelector<HTMLElement>("[data-memory-lens]")!;
-    const filter = stage.querySelector<SVGFilterElement>(".memory-lens-filter filter")!;
-    const map = filter.querySelector<SVGFEImageElement>("feImage")!;
-    const displacement = filter.querySelector<SVGFEDisplacementMapElement>("feDisplacementMap")!;
-    let diameter = 0;
+    mountMemoryHero(stage, reduced);
+    const archive = stage.querySelector<HTMLElement>(".memory-archive")!;
+    const entry = stage.querySelector<HTMLElement>("[data-memory-entry]")!;
     let tiles: { photo: HTMLAnchorElement; x: number; y: number; angle: number; scale: number; delay: number }[] = [];
     let lastProgress = -1;
     let travel = 0;
@@ -559,13 +572,9 @@ const isOverlay = mode === "overlay";
       if (isOverlay && !stage.classList.contains("is-open")) return;
       const y = isOverlay ? stage.scrollTop : window.scrollY;
       const animateIntro = !reduced.matches && travel >= 32;
-      const progress = animateIntro ? clamp(y / travel) : 0;
+      const progress = animateIntro ? clamp((y - entry.offsetHeight) / travel) : 0;
       if (progress === lastProgress) return;
       lastProgress = progress;
-
-      lens.style.setProperty("--memory-lens-angle", `${156 * progress}deg`);
-      lens.style.setProperty("--memory-lens-y", `${-12 * progress}px`);
-      lens.style.setProperty("--memory-lens-opacity", String(1 - ease(clamp((progress - 0.18) / 0.82))));
 
       for (const { photo, x, y, angle, scale, delay } of tiles) {
         const fold = animateIntro ? 1 - ease(clamp((progress - delay) / (1 - delay))) : 0;
@@ -575,24 +584,6 @@ const isOverlay = mode === "overlay";
     };
 
     const measure = () => {
-      if (desktopGlass.matches && navigator.userAgent.includes("Chrome/")) {
-        const width = lens.offsetWidth;
-        if (width && width !== diameter) {
-          if (!map.getAttribute("href")) {
-            const data = refractionMap();
-            if (data) map.setAttribute("href", data);
-          }
-          if (map.getAttribute("href")) {
-            diameter = width;
-            for (const node of [filter, map]) {
-              node.setAttribute("width", String(width));
-              node.setAttribute("height", String(width));
-            }
-            displacement.setAttribute("scale", String(width * 0.082));
-            lens.setAttribute("data-refract", "");
-          }
-        }
-      }
       const depth = stage.clientWidth > 768 ? 1 : 0.65;
       tiles = rolls.flatMap((roll, rollIndex) => {
         return [...roll.querySelectorAll<HTMLAnchorElement>("[data-memory-photo]")].map((photo, i) => {
@@ -695,9 +686,8 @@ const isOverlay = mode === "overlay";
     (isOverlay ? stage : window).addEventListener("scroll", requestPaint, { passive: true });
     const resize = new ResizeObserver(measure);
     resize.observe(stage);
-    resize.observe(stage.querySelector(".memory-archive")!);
+    resize.observe(archive);
     stage.addEventListener("memory-layout", measure);
-    desktopGlass.addEventListener("change", measure);
     reduced.addEventListener("change", measure);
     window.addEventListener("pageshow", measure);
     measure();
