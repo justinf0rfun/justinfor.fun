@@ -25,16 +25,37 @@ const isOverlay = mode === "overlay";
   </header>
 
   <div class="memory-intro" data-memory-reveal>
-    <h2>Photographs I want to remember.</h2>
-    <p>Places, light, and small details I want to keep.</p>
+    <div class="memory-lens" aria-hidden="true" data-memory-lens style={`--memory-refraction: url(#memory-lens-${mode})`}>
+      <div class="memory-lens-glass"></div>
+    </div>
+    <svg class="memory-lens-filter" width="0" height="0" aria-hidden="true">
+      <filter id={`memory-lens-${mode}`} x="0" y="0" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feImage x="0" y="0" preserveAspectRatio="none" result="map" />
+        <feDisplacementMap in="SourceGraphic" in2="map" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+    <div class="memory-intro-copy">
+      <h2>Photographs I want to remember.</h2>
+      <p>Places, light, and small details I want to keep.</p>
+    </div>
   </div>
 
   <div class="memory-archive">
     {memoryMonths.map((month, monthIndex) => (
-      <section class="memory-month" aria-label={`${month.location}, ${month.label}`}>
+      <section class="memory-month" aria-label={`${month.location}, ${month.label}`} data-memory-spacing={monthIndex === 0 ? "" : undefined}>
         <header class="memory-month-header" data-memory-reveal>
           <h3>{month.location}</h3>
-          <time datetime={month.dateTime}>{month.label}</time>
+          <div class="memory-month-details">
+            <time datetime={month.dateTime}>{month.label}</time>
+            {monthIndex === 0 && (
+              <button type="button" class="memory-spacing-pad" data-memory-spacing-pad hidden
+                aria-label="Adjust photo spacing" aria-describedby={`memory-spacing-help-${mode}`}
+                title="Drag to adjust photo spacing">
+                <span aria-hidden="true"></span>
+              </button>
+            )}
+            {monthIndex === 0 && <span class="sr-only" id={`memory-spacing-help-${mode}`}>Drag or use the arrow keys to adjust spacing. Release, or press Escape, to reset.</span>}
+          </div>
         </header>
         <div class="memory-rolls">
           {month.rolls.map((roll, rollIndex) => (
@@ -44,8 +65,9 @@ const isOverlay = mode === "overlay";
               aria-label={`Roll ${rollIndex + 1}`}
               data-memory-unfold={monthIndex === 0 && rollIndex < 2 ? "" : undefined}
             >
-              {roll.map((photo) => (
-                <li>
+              {roll.map((photo, i) => (
+                <li style={monthIndex === 0 && rollIndex < 2 ?
+                  `--memory-column: ${i % 2 - 0.5}; --memory-row: ${Math.floor(i / 2) + (rollIndex ? Math.ceil(month.rolls[0].length / 2) - 1 : 0)}` : undefined}>
                   <a
                     class="memory-photo"
                     href={photo.src}
@@ -67,6 +89,12 @@ const isOverlay = mode === "overlay";
             </ol>
           ))}
         </div>
+        {monthIndex === 0 && (
+          <div class="memory-spacing-hud" data-memory-spacing-hud aria-hidden="true">
+            <span class="memory-spacing-dot"></span>
+            <span class="memory-spacing-readout">H <span data-memory-h>1.00</span> V <span data-memory-v>1.00</span></span>
+          </div>
+        )}
       </section>
     ))}
   </div>
@@ -83,9 +111,10 @@ const isOverlay = mode === "overlay";
 
 <style>
   .memory-page {
+    --memory-surface: var(--home-background, var(--color-neutral-50));
     min-height: 100svh;
     overflow-x: clip;
-    background: var(--home-background, var(--color-neutral-50));
+    background: var(--memory-surface);
     color: var(--home-ink, var(--color-neutral-800));
   }
 
@@ -140,12 +169,73 @@ const isOverlay = mode === "overlay";
   .memory-header p { margin-top: 0.125rem; }
 
   .memory-intro {
-    margin-block-start: clamp(1.75rem, 6.5svh, 4.5rem);
+    --lens-size: clamp(20rem, 43vw, 28rem);
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    margin-block-start: clamp(1.35rem, 4.5svh, 3rem);
+    padding-block: clamp(3.5rem, 6vw, 4.75rem) .8rem;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .memory-lens {
+    --lens-mask: linear-gradient(#000 48%, rgb(0 0 0 / 0.88) 58%, transparent 86%);
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 50%;
+    width: var(--lens-size);
+    aspect-ratio: 1;
+    translate: -50% var(--memory-lens-y, 0px);
+  }
+
+  .memory-lens-glass {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    mask-image: var(--lens-mask);
+    opacity: var(--memory-lens-opacity, 1);
+    background:
+      radial-gradient(closest-side, transparent 96.5%, rgb(127 127 127 / .045) 98.4%,
+        rgb(127 127 127 / .2) calc(100% - 1px), rgb(255 255 255 / .42) calc(100% - .45px), transparent),
+      radial-gradient(closest-side, var(--memory-surface) 70%,
+        color-mix(in srgb, var(--memory-surface) 93%, transparent) 80%,
+        color-mix(in srgb, var(--memory-surface) 62%, transparent) 94%, transparent);
+  }
+
+  .memory-lens::before {
+    content: "";
+    position: absolute;
+    inset: -0.875rem;
+    border-radius: 50%;
+    background: conic-gradient(from -78deg, currentColor var(--memory-lens-angle, 0deg), rgb(127 127 127 / .3) 0);
+    opacity: calc(.64 * var(--memory-lens-opacity, 1));
+    mask: repeating-conic-gradient(#000 0 .2deg, transparent .2deg 3.75deg),
+      radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px) calc(100% - 1px), transparent),
+      var(--lens-mask);
+    mask-composite: intersect;
+  }
+
+  .memory-lens-filter {
+    position: absolute;
+  }
+
+  @media (min-width: 48rem) and (pointer: fine) {
+    .memory-lens-glass { backdrop-filter: blur(5px) saturate(1.13); }
+    .memory-lens[data-refract] .memory-lens-glass {
+      backdrop-filter: var(--memory-refraction) saturate(1.13);
+    }
+  }
+
+  .memory-intro-copy {
+    position: relative;
   }
 
   .memory-intro h2 {
-    max-width: 22ch;
-    font-size: clamp(2.1rem, 5.3vw, 4rem);
+    max-width: 14ch;
+    margin-inline: auto;
+    font-size: clamp(2rem, 4.25vw, 3.4rem);
     font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 1.02;
@@ -153,13 +243,15 @@ const isOverlay = mode === "overlay";
   }
 
   .memory-intro p {
+    max-width: 32ch;
+    margin-inline: auto;
     margin-top: 0.75rem;
     font-size: 0.875rem;
     color: var(--home-muted, var(--color-neutral-500));
   }
 
   .memory-archive {
-    margin-block-start: clamp(2rem, 6.5svh, 4.75rem);
+    margin-block-start: .625rem;
     padding-block-end: max(4rem, 14svh);
   }
 
@@ -168,24 +260,140 @@ const isOverlay = mode === "overlay";
   }
 
   .memory-month-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin-block-end: 1rem;
+    min-height: 2.75rem;
+    margin-block-end: 0.35rem;
+    align-items: center;
   }
 
+  .memory-month-details {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .memory-month[data-memory-spacing] { position: relative; }
+
   .memory-rolls {
+    --memory-photo-gap: clamp(0.5rem, 1.4vw, 1.125rem);
+    --memory-roll-gap: clamp(1rem, 2.4vw, 2rem);
     display: grid;
-    gap: clamp(1rem, 2.4vw, 2rem);
+    gap: var(--memory-roll-gap);
   }
 
   .memory-roll {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
-    gap: clamp(0.5rem, 1.4vw, 1.125rem);
+    gap: var(--memory-photo-gap);
     list-style: none;
+  }
+
+  .memory-month[data-memory-spacing-active] > .memory-rolls { cursor: crosshair; }
+
+  .memory-roll[data-memory-unfold] > li {
+    translate:
+      calc((var(--memory-h, 1) - 1) * var(--memory-photo-gap) * var(--memory-column))
+      calc((var(--memory-v, 1) - 1) * var(--memory-photo-gap) * var(--memory-row));
+  }
+
+  .memory-roll[data-memory-unfold]:nth-child(2) {
+    translate: 0 calc((var(--memory-v, 1) - 1) * var(--memory-roll-gap));
+  }
+
+  .memory-spacing-pad {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-inline-end: -10px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--home-muted, var(--color-neutral-500));
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .memory-spacing-pad[hidden] { display: none; }
+  .memory-spacing-pad:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+  .memory-spacing-pad:active { cursor: grabbing; }
+
+  .memory-spacing-pad span {
+    display: block;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: radial-gradient(circle, currentColor 0 2px, transparent 2.5px),
+      linear-gradient(currentColor, currentColor) center / 1px 100% no-repeat,
+      linear-gradient(currentColor, currentColor) center / 100% 1px no-repeat;
+  }
+
+  .memory-spacing-hud {
+    --hairline: color-mix(in srgb, currentColor 22%, transparent);
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+    overflow: clip;
+    opacity: 0;
+    transition: opacity 160ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  [data-memory-spacing-active] .memory-spacing-hud { opacity: 1; }
+
+  .memory-spacing-hud::before,
+  .memory-spacing-hud::after {
+    content: "";
+    position: absolute;
+    background: var(--hairline);
+  }
+
+  .memory-spacing-hud::before { inset: 0 auto 0 var(--hud-x); width: 1px; }
+  .memory-spacing-hud::after { inset: var(--hud-y) 0 auto; height: 1px; }
+
+  .memory-spacing-dot {
+    position: absolute;
+    top: var(--hud-y);
+    left: var(--hud-x);
+    width: 7px;
+    height: 7px;
+    z-index: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 4px var(--hairline);
+  }
+
+  .memory-spacing-readout {
+    position: absolute;
+    z-index: 1;
+    left: clamp(0px, calc(var(--hud-x) + 14px), calc(100% - 7.5rem));
+    top: clamp(0px, calc(var(--hud-y) + 10px), calc(100% - 1.75rem));
+    padding: .2rem .45rem;
+    border-radius: .3rem;
+    background: var(--memory-surface);
+    font: 500 .7rem / 1.4 ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: pre;
+  }
+
+  @media (max-width: 48rem) {
+    .memory-intro {
+      --lens-size: clamp(18rem, 88vw, 25rem);
+      padding-block-start: 3.8rem;
+    }
+    .memory-lens { --lens-mask: linear-gradient(#000 55%, rgb(0 0 0 / 0.86) 63%, transparent 84%); }
+    .memory-lens-glass {
+      background-image: radial-gradient(closest-side, var(--memory-surface) 76%,
+        rgb(from var(--memory-surface) r g b / .85) 88%, rgb(from var(--memory-surface) r g b / 0));
+    }
   }
 
   .memory-photo {
@@ -288,13 +496,41 @@ const isOverlay = mode === "overlay";
   @media (prefers-reduced-motion: reduce) {
     .memory-page.is-overlay { transition-duration: 120ms; }
     .memory-lightbox::backdrop { animation: none; transition: none; }
+    .memory-spacing-hud { transition: none; }
   }
 </style>
 
 <script>
+  import { mountMemorySpacing } from "../scripts/memory-spacing";
+
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const desktopGlass = matchMedia("(min-width: 48rem) and (pointer: fine)");
   const clamp = (value: number) => Math.max(0, Math.min(1, value));
   const ease = (value: number) => value * value * (3 - 2 * value);
+
+  const refractionMap = () => {
+    const canvas = document.createElement("canvas");
+    const size = 160;
+    canvas.width = canvas.height = size;
+    const context = canvas.getContext("2d");
+    if (!context) return "";
+    const image = context.createImageData(size, size);
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const dx = 2 * (x + 0.5) / size - 1;
+        const dy = 2 * (y + 0.5) / size - 1;
+        const radius = Math.hypot(dx, dy);
+        const edge = radius < 1 ? clamp((radius - 0.84) / 0.16) ** 2 : 0;
+        const i = (y * size + x) * 4;
+        image.data[i] = Math.round(128 - dx * edge * 127);
+        image.data[i + 1] = Math.round(128 - dy * edge * 127);
+        image.data[i + 2] = 128;
+        image.data[i + 3] = 255;
+      }
+    }
+    context.putImageData(image, 0, 0);
+    return canvas.toDataURL();
+  };
 
   document.querySelectorAll<HTMLElement>("[data-memory-stage]").forEach((stage) => {
     const lightbox = stage.querySelector<HTMLDialogElement>("[data-memory-lightbox]")!;
@@ -303,6 +539,13 @@ const isOverlay = mode === "overlay";
     const isOverlay = stage.dataset.memoryStage === "overlay";
     const scrollRoot = isOverlay ? stage : document.documentElement;
     const rolls = [...stage.querySelectorAll<HTMLOListElement>("[data-memory-unfold]")];
+    const spacing = stage.querySelector<HTMLElement>("[data-memory-spacing]");
+    if (spacing) mountMemorySpacing(spacing, stage, reduced);
+    const lens = stage.querySelector<HTMLElement>("[data-memory-lens]")!;
+    const filter = stage.querySelector<SVGFilterElement>(".memory-lens-filter filter")!;
+    const map = filter.querySelector<SVGFEImageElement>("feImage")!;
+    const displacement = filter.querySelector<SVGFEDisplacementMapElement>("feDisplacementMap")!;
+    let diameter = 0;
     let tiles: { photo: HTMLAnchorElement; x: number; y: number; angle: number; scale: number; delay: number }[] = [];
     let lastProgress = -1;
     let travel = 0;
@@ -315,18 +558,41 @@ const isOverlay = mode === "overlay";
       frame = 0;
       if (isOverlay && !stage.classList.contains("is-open")) return;
       const y = isOverlay ? stage.scrollTop : window.scrollY;
-      const progress = reduced.matches || travel < 32 ? 1 : clamp(y / travel);
+      const animateIntro = !reduced.matches && travel >= 32;
+      const progress = animateIntro ? clamp(y / travel) : 0;
       if (progress === lastProgress) return;
       lastProgress = progress;
 
+      lens.style.setProperty("--memory-lens-angle", `${156 * progress}deg`);
+      lens.style.setProperty("--memory-lens-y", `${-12 * progress}px`);
+      lens.style.setProperty("--memory-lens-opacity", String(1 - ease(clamp((progress - 0.18) / 0.82))));
+
       for (const { photo, x, y, angle, scale, delay } of tiles) {
-        const fold = 1 - ease(clamp((progress - delay) / (1 - delay)));
+        const fold = animateIntro ? 1 - ease(clamp((progress - delay) / (1 - delay))) : 0;
         photo.style.transform = fold === 0 ? "" :
           `translate(${x * fold}%, ${y * fold}px) rotate(${angle * fold}deg) scale(${1 - scale * fold})`;
       }
     };
 
     const measure = () => {
+      if (desktopGlass.matches && navigator.userAgent.includes("Chrome/")) {
+        const width = lens.offsetWidth;
+        if (width && width !== diameter) {
+          if (!map.getAttribute("href")) {
+            const data = refractionMap();
+            if (data) map.setAttribute("href", data);
+          }
+          if (map.getAttribute("href")) {
+            diameter = width;
+            for (const node of [filter, map]) {
+              node.setAttribute("width", String(width));
+              node.setAttribute("height", String(width));
+            }
+            displacement.setAttribute("scale", String(width * 0.082));
+            lens.setAttribute("data-refract", "");
+          }
+        }
+      }
       const depth = stage.clientWidth > 768 ? 1 : 0.65;
       tiles = rolls.flatMap((roll, rollIndex) => {
         return [...roll.querySelectorAll<HTMLAnchorElement>("[data-memory-photo]")].map((photo, i) => {
@@ -342,7 +608,7 @@ const isOverlay = mode === "overlay";
           };
         });
       });
-      travel = Math.min(scrollRoot.clientHeight * 0.44, scrollRoot.scrollHeight - scrollRoot.clientHeight);
+      travel = Math.round(Math.min(scrollRoot.clientHeight * 0.44, scrollRoot.scrollHeight - scrollRoot.clientHeight));
       lastProgress = -1;
       cancelAnimationFrame(frame);
       paint();
@@ -431,6 +697,7 @@ const isOverlay = mode === "overlay";
     resize.observe(stage);
     resize.observe(stage.querySelector(".memory-archive")!);
     stage.addEventListener("memory-layout", measure);
+    desktopGlass.addEventListener("change", measure);
     reduced.addEventListener("change", measure);
     window.addEventListener("pageshow", measure);
     measure();
