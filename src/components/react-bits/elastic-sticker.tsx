@@ -94,12 +94,6 @@ interface Controller {
   moveTo: (x: number, y: number) => void;
 }
 
-interface Hooks {
-  onAspect: (aspect: number) => void;
-  onReady: () => void;
-  onFail: () => void;
-}
-
 type Vec = { x: number; y: number };
 
 const DEFAULT_SRC =
@@ -528,8 +522,9 @@ void main() {
 
 const createSticker = (
   root: HTMLDivElement,
+  poster: HTMLImageElement,
   settingsRef: { current: Settings },
-  hooks: Hooks,
+  onAspect: (aspect: number) => void,
 ): Controller | null => {
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
@@ -538,6 +533,14 @@ const createSticker = (
   canvas.style.display = "block";
   canvas.style.opacity = "0";
   root.appendChild(canvas);
+
+  let showingCanvas = false;
+  const showCanvas = (show: boolean) => {
+    if (showingCanvas === show) return;
+    showingCanvas = show;
+    canvas.style.opacity = show ? "1" : "0";
+    poster.style.visibility = show ? "hidden" : "";
+  };
 
   let renderer: THREE.WebGLRenderer;
   try {
@@ -761,6 +764,8 @@ const createSticker = (
     if (nextWidth < 4 || nextHeight < 4) return;
     if (settings.src !== loadedSrc && settings.src !== failedSrc) {
       loadedSrc = settings.src;
+      ready = false;
+      showCanvas(false);
       const requested = settings.src;
       loadImage(requested)
         .then((loaded) => {
@@ -768,16 +773,15 @@ const createSticker = (
           image = loaded;
           cutout = hasTransparency(loaded);
           const size = naturalSize(loaded);
-          hooks.onAspect(size.width / size.height);
+          onAspect(size.width / size.height);
           artKey = "";
           rebuild();
         })
         .catch(() => {
           if (destroyed || settingsRef.current.src !== requested) return;
           failedSrc = requested;
-          hooks.onFail();
         });
-      if (!image) return;
+      return;
     }
     if (!image || settings.src === failedSrc) return;
     const key = [nextWidth, nextHeight, settings.src, settings.radius, settings.border, settings.borderColor, settings.lift, image ? 1 : 0].join("|");
@@ -791,7 +795,7 @@ const createSticker = (
       art.getContext("2d")?.getImageData(0, 0, 1, 1);
     } catch {
       ready = false;
-      hooks.onFail();
+      showCanvas(false);
       return;
     }
     const shadowMap = drawShadowMap(art, width, height, shadowMargin, [1.4, 0.03 * span + 3, 0.07 * span + 6]);
@@ -812,8 +816,6 @@ const createSticker = (
     ready = true;
     flat = false;
     render();
-    canvas.style.opacity = "1";
-    hooks.onReady();
     wake();
   };
 
@@ -938,7 +940,14 @@ const createSticker = (
     const minSide = Math.min(width, height);
     const radius = 0.08 * minSide + 4;
     const bent = chains.some((chain) => chain.angle.some((value) => Math.abs(value) > 1e-4));
-    if (grabHeight > 0.05 || bent) {
+    const lifted = grabHeight > 0.05 || bent;
+    const curled = !settings.reduced && cornerAmount.some((value) => value > 0.001);
+    // Keep the real image painted when the sticker is flat, even if WebGL drops its frame.
+    if (!lifted && !curled) {
+      showCanvas(false);
+      return;
+    }
+    if (lifted) {
       writeProfile(grabHeight, radius);
       flat = false;
     } else if (!flat) {
@@ -980,6 +989,7 @@ const createSticker = (
     const sheenColor = parseColor(settings.sheenColor, [1, 1, 1]);
     sheetMaterial.uniforms.uSheenColor.value.set(sheenColor[0], sheenColor[1], sheenColor[2]);
     renderer.render(scene, camera);
+    showCanvas(true);
   };
 
   const springStep = (value: number, velocity: number, target: number, omega: number, zeta: number, h: number) => {
@@ -1446,8 +1456,7 @@ const createSticker = (
   const onContextLost = (event: Event) => {
     event.preventDefault();
     ready = false;
-    canvas.style.opacity = "0";
-    hooks.onFail();
+    showCanvas(false);
   };
   canvas.addEventListener("webglcontextlost", onContextLost);
 
@@ -1463,6 +1472,7 @@ const createSticker = (
     },
     destroy: () => {
       destroyed = true;
+      showCanvas(false);
       cancelAnimationFrame(raf);
       window.clearTimeout(hintTimer);
       root.removeEventListener("pointerdown", onPointerDown);
@@ -1532,10 +1542,10 @@ const ElasticSticker = forwardRef<ElasticStickerHandle, ElasticStickerProps>(fun
   ref,
 ) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const posterRef = useRef<HTMLImageElement>(null);
   const controllerRef = useRef<Controller | null>(null);
   const reduced = useSyncExternalStore(subscribeToMotion, readMotion, () => false);
   const [aspect, setAspect] = useState<number | null>(null);
-  const [fallback, setFallback] = useState(true);
   const settingsRef = useRef<Settings>({
     src,
     radius,
@@ -1601,14 +1611,10 @@ const ElasticSticker = forwardRef<ElasticStickerHandle, ElasticStickerProps>(fun
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root) return;
-    const controller = createSticker(root, settingsRef, {
-      onAspect: setAspect,
-      onReady: () => setFallback(false),
-      onFail: () => setFallback(true),
-    });
+    const poster = posterRef.current;
+    if (!root || !poster) return;
+    const controller = createSticker(root, poster, settingsRef, setAspect);
     controllerRef.current = controller;
-    if (!controller) queueMicrotask(() => setFallback(true));
     return () => {
       controller?.destroy();
       controllerRef.current = null;
@@ -1649,23 +1655,21 @@ const ElasticSticker = forwardRef<ElasticStickerHandle, ElasticStickerProps>(fun
         ...style,
       }}
     >
-      {fallback && (
-        <img
-          src={src}
-          alt=""
-          draggable={false}
-          style={{
-            display: "block",
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            borderRadius: radius,
-            border: `${border}px solid ${borderColor}`,
-            boxSizing: "border-box",
-            boxShadow: "0 1px 2px rgba(0,0,0,0.18)",
-          }}
-        />
-      )}
+      <img
+        ref={posterRef}
+        src={src}
+        alt=""
+        draggable={false}
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: radius,
+          border: `${border}px solid ${borderColor}`,
+          boxSizing: "border-box",
+        }}
+      />
     </div>
   );
 });
