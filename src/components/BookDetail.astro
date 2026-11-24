@@ -1,0 +1,147 @@
+---
+import BookJacket from "./BookJacket.astro";
+import { bookNumber, type Book } from "../data/books";
+interface Props { book: Book; standalone?: boolean }
+const { book, standalone = false } = Astro.props;
+const Heading = standalone ? "h1" : "h2";
+---
+
+<article class="book-detail" data-book-content>
+  <div class="book-detail-text">
+    <div class="book-detail-heading" data-detail-reveal style="--reveal: 0">
+      <p class="book-stage">Stage {bookNumber(book)} · {book.stage}</p>
+      <Heading id="book-detail-title">{book.title}</Heading>
+      <p class="book-byline">{book.authors}{book.ed && ` · ${book.ed}`}</p>
+      <p class="book-summary">{book.summary}</p>
+    </div>
+    <ol class:list={["book-topics", book.topics.length > 8 && "two-columns"]}
+      style={{ "--topic-rows": Math.ceil(book.topics.length / 2) }} aria-label="Reading topics">
+      {book.topics.map(({ number, title: topic }, index) => (
+        <li data-detail-reveal style={{ "--reveal": index + 1 }}>
+          <span>{number}</span><span>{topic}</span>
+        </li>
+      ))}
+    </ol>
+    <div class="book-detail-links" data-detail-reveal style={{ "--reveal": book.topics.length + 1 }}>
+      <a href={book.url} target="_blank" rel="noopener noreferrer">View book <span aria-hidden="true">↗</span></a>
+      {book.roles.map((role) => (
+        <a href={`https://layoffsandhires.com/jobs?q=${encodeURIComponent(role)}`} target="_blank" rel="noopener noreferrer">
+          See {role.toLowerCase()} jobs <span aria-hidden="true">↗</span>
+        </a>
+      ))}
+    </div>
+  </div>
+  <div class="book-detail-poster">
+    <div class="book-detail-art" style={{ "--poster-ratio": book.aspect }} role="img" aria-label={`Cover of ${book.title}`}>
+      <BookJacket book={book} eager />
+    </div>
+  </div>
+</article>
+
+<style>
+  .book-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 7vw, 7.25rem);
+    width: var(--books-wrap);
+    min-height: calc(100svh - 6.5rem);
+    margin-inline: auto;
+    padding: 1.5rem 0 3.5rem;
+    color: var(--books-ink);
+  }
+  .book-detail-text { min-width: 0; }
+  .book-stage {
+    margin-bottom: 1rem;
+    color: var(--books-muted);
+    font: 550 .76rem / 1.4 ui-monospace, SFMono-Regular, monospace;
+  }
+  .book-detail-heading :is(h1, h2) {
+    margin: 0;
+    font-size: clamp(2.1rem, 4vw, 3.75rem);
+    font-weight: 630;
+    letter-spacing: -.06em;
+    line-height: 1.02;
+    overflow-wrap: break-word;
+  }
+  .book-byline {
+    margin-top: 1rem;
+    color: var(--books-muted);
+    font-size: .875rem;
+    line-height: 1.4;
+  }
+  .book-summary {
+    max-width: 34ch;
+    margin-top: .5rem;
+    font-size: clamp(.95rem, 1.5vw, 1.1rem);
+    line-height: 1.5;
+  }
+  .book-topics {
+    display: grid;
+    gap: .68rem 1.3rem;
+    margin: 1.5rem 0 0;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--books-line);
+    list-style: none;
+  }
+  .book-topics.two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--topic-rows), auto);
+    grid-auto-flow: column;
+  }
+  .book-topics li {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    font-size: .85rem;
+    line-height: 1.35;
+  }
+  .book-topics li > :first-child {
+    color: var(--books-muted);
+    font: 500 .75rem / 1.5 ui-monospace, SFMono-Regular, monospace;
+  }
+  .book-detail-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    margin-top: 1.25rem;
+    font-size: .82rem;
+  }
+  .book-detail-links a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: .4rem;
+    text-underline-offset: 3px;
+  }
+  .book-detail-links a:hover { text-decoration: underline; }
+  .book-detail-links a:first-child { font-weight: 650; }
+  .book-detail-poster {
+    display: grid;
+    min-width: 0;
+    place-items: center;
+  }
+  .book-detail-art {
+    position: relative;
+    width: min(100%, 30rem, calc(68svh * var(--poster-ratio)));
+    aspect-ratio: var(--poster-ratio);
+    border-radius: 2px;
+    box-shadow: 0 18px 42px -22px rgb(22 13 8 / .42);
+  }
+  .book-detail-art[data-ink] { mask-image: url(#books-ink); mask-mode: alpha; }
+  @media (max-width: 900px) {
+    .book-detail {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: 2rem;
+      max-width: 38rem;
+      padding-top: .5rem;
+    }
+    .book-detail-poster { order: -1; }
+    .book-detail-art { width: min(76%, 24rem, calc(43svh * var(--poster-ratio))); }
+  }
+  @media (max-width: 520px) {
+    .book-topics.two-columns { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; }
+    .book-detail-links { gap: .2rem .8rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .book-detail-art[data-ink] { mask-image: none; } }
+</style>

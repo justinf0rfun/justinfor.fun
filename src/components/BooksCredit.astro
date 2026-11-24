@@ -1,0 +1,21 @@
+---
+import { readingMapUrl } from "../data/books";
+---
+<footer class="books-credit">
+  Reading map by <a href={readingMapUrl} target="_blank" rel="noopener noreferrer">Vineer Pasam</a>
+  · <a href={`${readingMapUrl}/blob/ee9391a1612c8feaec9f32b64af066ec85610044/LICENSE`} target="_blank" rel="noopener noreferrer">MIT</a>
+  · Covers from publishers and <a href="https://openlibrary.org/" target="_blank" rel="noopener noreferrer">Open Library</a>
+</footer>
+
+<style>
+  .books-credit {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: .85rem 0 1.55rem;
+    border-top: 1px solid var(--books-line);
+    color: var(--books-muted);
+    font-size: .75rem;
+    line-height: 1.7;
+  }
+  .books-credit a { text-decoration: underline; text-underline-offset: 3px; }
+</style>

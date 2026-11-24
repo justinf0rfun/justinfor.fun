@@ -1,0 +1,148 @@
+---
+import { books, bookNumber } from "../data/books";
+const preview = [books[1], books[3], books[12]];
+---
+
+<a class="books-folder" href="/books" data-folder="books" data-books-entry aria-label={`Open Books, ${books.length} books`}>
+  <div class="books-case">
+    <div class="books-case-back" aria-hidden="true"></div>
+    <div class="books-case-volumes" aria-hidden="true">
+      {preview.map((book, index) => (
+        <span class="books-case-spine" style={{ "--book-cloth": book.color, "--book-text": book.ink, "--book-height": [78, 93, 85][index] + "%" }}>
+          <span class="books-case-number">{bookNumber(book)}</span>
+          <span class="books-case-title">{book.spine}</span>
+        </span>
+      ))}
+    </div>
+    <div class="books-case-base">
+      <span class="books-case-label"><span>Books</span><span>{books.length}</span></span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .books-folder {
+    display: block;
+    color: #463627;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+  }
+
+  .books-case {
+    --wood-surface: #b98659;
+    --wood-dark: #8c5c39;
+    --wood-edge: #e0b98e;
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 20 / 17;
+    transition: translate 160ms var(--ease-out, ease-out);
+  }
+
+  .books-case-back {
+    position: absolute;
+    inset: 10% 0 11%;
+    border: 1px solid #6e492f;
+    border-radius: 7% 7% 4% 4% / 8% 8% 6% 6%;
+    background:
+      repeating-linear-gradient(0deg, rgb(34 16 10 / .055) 0 1px, transparent 1px 4px),
+      linear-gradient(143deg, #79583a, #4a2e20 58%, #7f5132);
+    box-shadow: inset 0 3px 2px #2f1e15a0, inset 0 -1px 8px #4d2e1d, 0 9px 24px -11px #321c1c73;
+  }
+
+  .books-case-back::before, .books-case-back::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    width: 5.8%;
+    background:
+      repeating-linear-gradient(0deg, #3b21180d 0 2px, transparent 2px 6px),
+      linear-gradient(90deg, var(--wood-edge), var(--wood-surface) 18%, var(--wood-dark) 84%);
+  }
+  .books-case-back::before { left: 0; border-start-start-radius: inherit; }
+  .books-case-back::after { right: 0; border-start-end-radius: inherit; transform: scaleX(-1); }
+
+  .books-case-volumes {
+    position: absolute;
+    inset: 0 13.5% 26%;
+    display: grid;
+    grid-template-columns: .9fr 1.14fr 1fr;
+    align-items: end;
+    gap: 4%;
+  }
+
+  .books-case-spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    height: var(--book-height);
+    padding: 9% 4% 7%;
+    border-radius: 5% 5% 2% 2%;
+    background:
+      repeating-linear-gradient(0deg, #ffffff09 0 1px, transparent 1px 3px),
+      linear-gradient(90deg, #1d130f30, transparent 15%, #ffffff20 50%, transparent 91%, #1b15144d),
+      var(--book-cloth);
+    color: var(--book-text);
+    box-shadow: inset 0 1px #fff4, inset -1px 0 #2d211e4d, 2px 1px 6px #14100b54;
+  }
+  .books-case-number {
+    width: 76%;
+    margin: 0 0 14%;
+    border-block-end: 1px solid color-mix(in srgb, currentColor 48%, transparent);
+    font: 650 clamp(8px, 1vw, 11px) / 1.5 ui-monospace, monospace;
+    text-align: center;
+  }
+  .books-case-title {
+    overflow: hidden;
+    max-height: 78%;
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    font: 600 clamp(8px, 1.05vw, 12px) / 1.05 Georgia, serif;
+    letter-spacing: -.02em;
+  }
+
+  .books-case-base {
+    position: absolute;
+    inset: 72% 0 0;
+    display: grid;
+    place-items: center;
+    padding-block-start: 1%;
+    border-radius: 2.4% 2.4% 6% 6% / 11% 11% 22% 22%;
+    background:
+      repeating-linear-gradient(0deg, #4328150c 0 1px, transparent 1px 3px, #fde8bb12 3px 4px, transparent 4px 7px),
+      linear-gradient(175deg, var(--wood-edge) 0 4%, var(--wood-surface) 17%, var(--wood-dark) 100%);
+    box-shadow: inset 0 1px #fff0c38a, inset 0 -2px #603a24a0, 0 9px 18px -10px #3a201ca8;
+  }
+
+  .books-case-label {
+    display: flex;
+    width: 68%;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 5px;
+    padding: 3% 7%;
+    border-radius: 3px;
+    background:
+      linear-gradient(90deg, rgb(78 59 35 / .1), transparent 16%, rgb(255 255 255 / .19) 63%, rgb(98 74 42 / .13)),
+      #e4d4b1;
+    box-shadow: inset 0 1px #ffefd1, inset 0 0 0 1px #8b6f46a0, 0 1px 2px #40231965;
+    font-size: clamp(12px, 1.25vw, 15px);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .books-case-label > :last-child {
+    font: 500 clamp(9px, .9vw, 11px) / 1 ui-monospace, monospace;
+    color: #6b583d;
+  }
+
+  :global(html[data-home-theme=dark]) .books-case {
+    --wood-surface: #916d51;
+    --wood-dark: #66462f;
+    --wood-edge: #b39472;
+  }
+  .books-folder:focus-visible { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
+  @media (hover: hover) and (pointer: fine) { .books-folder:hover .books-case { translate: 0 -2px; } }
+  .books-folder:active .books-case { translate: 0 1px; }
+  @media (prefers-reduced-motion: reduce) { .books-case { transition: none; } }
+</style>

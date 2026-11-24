@@ -19,14 +19,15 @@ test("all standalone pages return to their explicit parent, including direct art
     if (/http-equiv="refresh"/.test(html)) continue;
     const controls = parents(html);
     const article = file.startsWith("thoughts/") && file !== "thoughts/index.html";
+    const book = file.startsWith("books/") && file !== "books/index.html";
     assert.equal(controls.length, article ? 2 : 1, file);
     if (article) {
       assert.equal(controls.filter(control => /class="[^"]*\barticle-parent\b/.test(control)).length, 1);
       assert.equal(controls.filter(control => /class="[^"]*\breading-back\b/.test(control)).length, 1);
     }
     for (const control of controls) {
-      assert.ok(control.includes(`href="${article ? "/thoughts" : "/"}"`), file);
-      assert.ok(control.includes(`aria-label="Back to ${article ? "Thoughts" : "Home"}"`), file);
+      assert.ok(control.includes(`href="${article ? "/thoughts" : book ? "/books" : "/"}"`), file);
+      assert.ok(control.includes(`aria-label="Back to ${article ? "Thoughts" : book ? "Books" : "Home"}"`), file);
       assert.match(control, /src="\/justin-avatar\.png"/);
       assert.match(control, /width="32" height="32"/);
       assert.doesNotMatch(control, /history\.back/);

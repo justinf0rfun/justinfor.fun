@@ -8,6 +8,7 @@ import HomeEmail from "../components/HomeEmail";
 import HomeRideCoupon from "../components/HomeRideCoupon.astro";
 import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
+import BooksFolder from "../components/BooksFolder.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
 import LocalTimeFooter from "../components/LocalTimeFooter.astro";
 import MusicShowcase from "../components/MusicShowcase.astro";
@@ -47,6 +48,7 @@ import { folderMusicTracks } from "../data/music";
     <GitHubContributions />
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}
+      <BooksFolder />
     </div>
     <BeliefNote />
     <LocalTimeFooter showInspired />

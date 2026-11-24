@@ -347,7 +347,7 @@ const back = `M0,26 A26,26 0 0 1 26,0 L154,0 A26,26 0 0 1 180,26
   /* Folders: hover fan, single-out, press                               */
   /* ------------------------------------------------------------------ */
 
-  document.querySelectorAll<HTMLElement>("[data-folder]:not([data-music-entry])").forEach((folder) => {
+  document.querySelectorAll<HTMLElement>("[data-folder]:not([data-music-entry], [data-books-entry])").forEach((folder) => {
     const slug = folder.dataset.folder ?? "";
     const folderSpring = (s: object) =>
       folder.dataset.layout === "uses" || folder.dataset.layout === "projects"

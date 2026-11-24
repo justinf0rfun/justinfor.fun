@@ -1,0 +1,127 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ParentLink from "../../components/ParentLink.astro";
+import BooksShelf from "../../components/BooksShelf.astro";
+import BookDetail from "../../components/BookDetail.astro";
+import BooksCredit from "../../components/BooksCredit.astro";
+import { books, readingMapUrl, type Book } from "../../data/books";
+
+export function getStaticPaths() {
+  return [
+    { params: { book: undefined }, props: { selected: null } },
+    ...books.map((book) => ({ params: { book: book.id }, props: { selected: book } })),
+  ];
+}
+
+interface Props { selected: Book | null }
+const { selected } = Astro.props;
+const title = selected ? `${selected.title} · Books` : "Books · Justin";
+const url = `https://justinfor.fun/books${selected ? `/${selected.id}` : ""}`;
+const description = selected?.summary ?? "A reading shelf of fourteen engineering books from systems to AI.";
+---
+
+<Layout {title} full surface="books">
+  <Fragment slot="head">
+    <meta name="page-type" content="software" />
+    <meta name="site-kind" content="software" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <link rel="canonical" href={url} />
+    <script is:inline>
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("m-enter");
+      let mode;
+      try { mode = localStorage.getItem("home-theme"); } catch {}
+      document.documentElement.dataset.homeTheme = mode === "light" || mode === "dark"
+        ? mode : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    </script>
+  </Fragment>
+
+  <header class="books-header nav">
+    <div class="wrap books-header-wrap">
+      <a class="books-skip" href={selected ? "#book" : "#books-shelf"}>Skip to content</a>
+      <ParentLink label={selected ? "Books" : "Home"} href={selected ? "/books" : "/"} />
+      <a class="books-map" href={readingMapUrl} target="_blank" rel="noopener noreferrer">Reading map <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  {selected ? (
+    <main id="book" class="books-direct">
+      <BookDetail book={selected} standalone />
+      <div class="books-direct-credit"><BooksCredit /></div>
+    </main>
+  ) : <BooksShelf><BooksCredit /></BooksShelf>}
+</Layout>
+
+<style>
+  :global(body.books-page) {
+    --books-gutter: clamp(1rem, 4vw, 4rem);
+    --books-wrap: min(76rem, calc(100% - var(--books-gutter) * 2));
+    --books-header-height: 5.5rem;
+    --books-paper: #f6f4ee;
+    --books-ink: #252822;
+    --books-muted: #645d50;
+    --books-surface: #fbfaf5;
+    --books-line: #dcd7ca;
+    --books-selected: #e8dfcb;
+    min-height: 100svh;
+    overflow-x: clip;
+    background: var(--books-paper);
+    color: var(--books-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  :global(html[data-home-theme="dark"] body.books-page) {
+    --books-paper: #171916;
+    --books-ink: #f2eee1;
+    --books-muted: #c1b9aa;
+    --books-surface: #22251f;
+    --books-line: #434438;
+    --books-selected: #3b3b2e;
+    color-scheme: dark;
+  }
+  .books-skip {
+    position: fixed;
+    z-index: 10;
+    top: .5rem;
+    left: .5rem;
+    translate: 0 -150%;
+    padding: .6rem .8rem;
+    border-radius: 6px;
+    background: var(--books-ink);
+    color: var(--books-paper);
+  }
+  .books-skip:focus { translate: none; }
+  .books-header-wrap, .books-direct-credit {
+    width: var(--books-wrap);
+    margin-inline: auto;
+  }
+  .books-header {
+    position: absolute;
+    z-index: 7;
+    inset: 0 0 auto;
+  }
+  .books-header-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--books-header-height);
+    color: var(--books-ink);
+    font-size: .875rem;
+  }
+  .books-header :global(.parent-link) { color: var(--books-muted); }
+  .books-header :global(.parent-link:hover), .books-header :global(.parent-link:focus-visible),
+  .books-header :global(.parent-link-arrow) { color: var(--books-ink); }
+  .books-map {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: .45rem;
+    color: var(--books-muted);
+    text-underline-offset: 3px;
+  }
+  .books-map:hover { color: var(--books-ink); text-decoration: underline; }
+  .books-direct { padding-top: var(--books-header-height); }
+  @media (max-width: 760px) {
+    :global(body.books-page) { --books-header-height: 4.25rem; }
+  }
+</style>

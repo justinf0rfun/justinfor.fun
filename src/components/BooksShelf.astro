@@ -1,0 +1,375 @@
+---
+import BookDetail from "./BookDetail.astro";
+import BookJacket from "./BookJacket.astro";
+import { books, bookGroups, bookNumber, topicCount } from "../data/books";
+
+const count = books.length;
+const volumes = Array.from({ length: count * 3 }, (_, slot) => ({ book: books[slot % count], slot }));
+const first = books[0];
+---
+
+<main class="books-shelf" data-books-shelf data-books-count={count}>
+  <section class="books-hero hero" id="books-shelf" aria-labelledby="books-title" data-enter>
+    <div class="wrap books-wrap">
+      <div class="books-lead hero-text">
+        <div>
+          <h1 id="books-title">Engineering bookshelf</h1>
+          <p>{count} books, {topicCount} topics, from systems to AI.</p>
+        </div>
+      </div>
+
+      <div class="books-display">
+        <div class="books-categories" role="group" aria-label="Book categories" data-books-categories>
+          <span class="books-category-marker" data-books-category-marker aria-hidden="true"></span>
+          {bookGroups.map((name, index) => (
+            <button type="button" data-books-group={index - 1} aria-pressed={index === 1 ? "true" : "false"}
+              aria-controls="book-viewport">{name}</button>
+          ))}
+        </div>
+
+        <div class="books-viewport" id="book-viewport" data-books-viewport data-visual
+          role="group" aria-label="Bookshelf. Scroll, drag or use the arrow keys to choose a book." tabindex="0">
+          <div class="books-stage" aria-hidden="true">
+            {volumes.map(({ book, slot }) => {
+              const offset = slot - count;
+              const active = offset === 0;
+              return (
+                <div class="books-volume" data-books-slot={slot} data-book-id={book.id}
+                  data-title={book.title} data-author={book.authors} data-group={book.group} data-aspect={book.aspect}
+                  data-side={active ? "cover" : "spine"}
+                  style={{
+                    "--slot": offset, "--book-ratio": book.aspect, "--book-cloth": book.color, "--book-text": book.ink,
+                    "--turn": active ? "-90deg" : "0deg", "--roll": active ? "-4.5deg" : "0deg", "--depth": active ? ".2" : "0",
+                    "--lift": active ? "-.025" : "0", "--front-alpha": active ? "1" : "0", "--spine-alpha": active ? "0" : "1",
+                  }}>
+                  <div class="books-spine">
+                    <span class="spine-number">{bookNumber(book)}</span>
+                    <span class="spine-title">{book.spine}</span>
+                    <span class="spine-author">{book.short}</span>
+                  </div>
+                  <div class="books-cover" data-book-cover>
+                    <BookJacket book={book} eager={active} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div class="books-actions">
+          <button type="button" data-books-step="-1" aria-label="Previous book">←</button>
+          <a data-books-open href={`/books/${first.id}`} aria-label={`Open book: ${first.title}`}>Open book</a>
+          <button type="button" data-books-step="1" aria-label="Next book">→</button>
+        </div>
+        <p class="sr-only" data-books-announcement aria-live="polite">{first.title}, {first.authors}</p>
+        <noscript>
+          <ol class="books-static">
+            {books.map((book) => <li><a href={`/books/${book.id}`}>{book.title}</a></li>)}
+          </ol>
+        </noscript>
+        <slot />
+      </div>
+    </div>
+  </section>
+
+  <div class="books-pointer" data-books-pointer aria-hidden="true"><span>Open</span></div>
+
+  <dialog class="books-dialog" data-books-dialog aria-labelledby="book-detail-title">
+    <header class="books-dialog-bar">
+      <button type="button" data-books-close aria-label="Close book"><span aria-hidden="true">×</span> Close</button>
+    </header>
+    <div data-books-dialog-main></div>
+  </dialog>
+  {books.map((book) => (
+    <template data-book-detail={book.id}><BookDetail book={book} /></template>
+  ))}
+  <svg class="books-ink-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="books-ink-noise" x="-20%" y="-20%" width="140%" height="140%" primitiveUnits="objectBoundingBox">
+        <feTurbulence type="fractalNoise" baseFrequency="5 7" numOctaves="3" seed="7" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale=".21" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <mask id="books-ink" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+        <g fill="white" filter="url(#books-ink-noise)">
+          <circle cx=".17" cy=".23" r="0" /><circle cx=".73" cy=".56" r="0" />
+          <circle cx=".41" cy=".79" r="0" /><circle cx=".83" cy=".19" r="0" />
+        </g>
+      </mask>
+    </defs>
+  </svg>
+</main>
+
+<script>
+  import { mountBooksShelf } from "../scripts/books-shelf";
+  document.querySelectorAll<HTMLElement>("[data-books-shelf]").forEach(mountBooksShelf);
+</script>
+
+<style>
+  .books-hero > .books-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    justify-items: center;
+    align-items: start;
+    min-height: 100svh;
+    width: var(--books-wrap);
+    margin-inline: auto;
+    padding: calc(var(--books-header-height) + clamp(1rem, 3vh, 2rem)) 0 0;
+  }
+  .books-display {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto auto auto;
+    justify-items: center;
+    width: 100%;
+    height: 100%;
+  }
+  .books-lead {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .books-lead h1 {
+    margin: 0;
+    font-size: clamp(1.85rem, 4.2vw, 3.7rem);
+    font-weight: 640;
+    letter-spacing: -.065em;
+    line-height: 1.03;
+  }
+  .books-lead p { margin: .8rem 0 0; color: var(--books-muted); font-size: .875rem; }
+  .books-categories {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    gap: .2rem;
+    max-width: 100%;
+    margin-top: clamp(1.5rem, 4vh, 2.4rem);
+    padding: 3px 4px;
+    overflow-x: auto;
+    border: 1px solid var(--books-line);
+    border-radius: 12px;
+    background: var(--books-surface);
+    scrollbar-width: none;
+  }
+  .books-categories::-webkit-scrollbar { display: none; }
+  .books-category-marker {
+    position: absolute;
+    z-index: -1;
+    inset: 3px auto auto 0;
+    height: 44px;
+    width: var(--category-width, 0px);
+    translate: var(--category-x, 0px) 0;
+    border-radius: 8px;
+    background: var(--books-selected);
+    transition: translate 230ms var(--ease-out, ease-out);
+    pointer-events: none;
+  }
+  .books-categories button {
+    flex: none;
+    min-height: 44px;
+    padding-inline: .84rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--books-muted);
+    cursor: pointer;
+    font-size: .81rem;
+    white-space: nowrap;
+    transition: color 140ms ease, background-color 140ms ease;
+  }
+  .books-categories button[aria-pressed="true"] { color: var(--books-ink); font-weight: 650; }
+  .books-categories:not([data-ready]) button[aria-pressed="true"] { background: var(--books-selected); }
+  .books-categories button:hover { color: var(--books-ink); }
+  .books-categories button:active { translate: 0 1px; }
+
+  .books-viewport {
+    --book-height: clamp(190px, min(43svh, 31vw), 454px);
+    --spine-width: calc(var(--book-height) * .15);
+    --book-gap: calc(var(--book-height) * .031);
+    --pitch: calc(var(--spine-width) + var(--book-gap));
+    align-self: center;
+    position: relative;
+    width: 100vw;
+    min-width: 0;
+    height: calc(var(--book-height) + 93px);
+    overflow: clip;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .books-viewport:focus-visible { outline: 1px solid var(--books-muted); outline-offset: -2px; }
+  .books-viewport[data-dragging] { cursor: grabbing; }
+  .books-stage { position: absolute; inset: 0; }
+  .books-volume {
+    --cover-width: calc(var(--book-height) * var(--book-ratio));
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform: translateX(var(--book-x, calc(var(--slot) * var(--pitch) + clamp(-125px, var(--slot) * var(--book-height) * .27, 125px))));
+  }
+  .books-spine, .books-cover {
+    --physical-pose: perspective(2200px) translate3d(0, calc(var(--lift) * var(--book-height)), calc(var(--depth) * var(--book-height)))
+      rotateZ(var(--roll)) rotateX(var(--book-tilt-x, 0deg));
+    position: absolute;
+    inset: 0 auto auto 0;
+    height: var(--book-height);
+    border-radius: 2px;
+    cursor: pointer;
+    transform-origin: center;
+  }
+  .books-spine {
+    display: grid;
+    width: var(--spine-width);
+    grid-template-rows: 15% minmax(0, 1fr) 23%;
+    place-items: center;
+    padding: 0 0 5px;
+    overflow: hidden;
+    transform: translate(-50%, -50%) var(--physical-pose) rotateY(calc(var(--turn) + var(--book-tilt-y, 0deg))) translateZ(calc(var(--cover-width) / 2));
+    opacity: var(--spine-alpha);
+    background:
+      repeating-linear-gradient(0deg, #ffffff10 0 1px, transparent 1px 3px),
+      linear-gradient(90deg, #0003, transparent 14%, #fff2 55%, transparent 84%, #0003),
+      var(--book-cloth);
+    color: var(--book-text);
+    box-shadow: inset 0 1px #fff7, 0 11px 14px -12px #301d19bd;
+  }
+  .spine-number {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background: color-mix(in srgb, var(--book-text) 22%, var(--book-cloth));
+    font: 650 clamp(9px, 1vw, 13px) / 1 ui-monospace, monospace;
+    letter-spacing: .02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .spine-title, .spine-author {
+    writing-mode: vertical-rl;
+    text-align: center;
+    max-height: 100%;
+    overflow-wrap: anywhere;
+  }
+  .spine-title { padding-inline: 4px; font: 650 clamp(10px, calc(var(--book-height) * .038), 17px) / 1 Georgia, serif; }
+  .spine-author {
+    overflow: hidden;
+    padding-inline: 3px;
+    font-size: clamp(7px, calc(var(--book-height) * .023), 11px);
+    letter-spacing: -.015em;
+  }
+  .books-cover {
+    width: var(--cover-width);
+    transform: translate(-50%, -50%) var(--physical-pose) rotateY(calc(90deg + var(--turn) + var(--book-tilt-y, 0deg))) translateZ(calc(var(--spine-width) / 2));
+    opacity: var(--front-alpha);
+    box-shadow: 0 22px 32px -24px rgb(24 15 12 / .56);
+  }
+  .books-volume:not([data-side="cover"]) .books-cover,
+  .books-volume[data-side="cover"] .books-spine { pointer-events: none; }
+  .books-volume:is([data-spine-edge], [data-side="cover"]) .books-spine span { visibility: hidden; }
+
+  .books-actions { display: flex; gap: .65rem; align-items: center; justify-content: center; }
+  .books-actions :is(button, a), .books-dialog-bar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    gap: .45rem;
+    border: 1px solid var(--books-line);
+    border-radius: 9px;
+    background: var(--books-surface);
+    color: var(--books-ink);
+    cursor: pointer;
+    transition: background-color 140ms ease, translate 140ms var(--ease-out, ease-out);
+  }
+  .books-actions a, .books-dialog-bar button { padding-inline: 1rem; font-size: .85rem; font-weight: 550; }
+  .books-actions button { font-size: 1.12rem; }
+  .books-actions :is(button, a):hover, .books-dialog-bar button:hover { background: var(--books-selected); }
+  .books-actions :is(button, a):active, .books-dialog-bar button:active { translate: 0 1px; }
+  .books-categories button:focus-visible, .books-actions :is(button, a):focus-visible,
+  .books-dialog-bar button:focus-visible {
+    outline: 2px solid var(--books-ink);
+    outline-offset: -2px;
+  }
+
+  .books-dialog {
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--books-paper);
+    color: var(--books-ink);
+    overflow: auto;
+    overscroll-behavior-y: contain;
+  }
+  .books-dialog::backdrop { background: transparent; }
+  :global(html:has(.books-dialog[open])) { overflow: hidden; }
+  .books-dialog-bar {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    display: flex;
+    justify-content: flex-start;
+    width: var(--books-wrap);
+    margin-inline: auto;
+    padding: 1.25rem 0 1rem;
+  }
+  .books-dialog-bar button span { font-size: 1.22rem; line-height: 1; }
+  .books-ink-defs { position: absolute; pointer-events: none; }
+  .books-static { width: var(--books-wrap); margin: 1.5rem auto 0; list-style: decimal inside; }
+  .books-static a { display: inline-block; padding-block: .5rem; text-decoration: underline; }
+  .books-pointer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .books-pointer[data-pointer] {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      translate: -50% -50%;
+      border-radius: 50%;
+      background: var(--books-surface);
+      color: var(--books-ink);
+      box-shadow: inset 0 0 0 1px var(--books-muted), 0 1px 7px #362a1e29;
+    }
+    .books-viewport[data-pointer] :is(.books-spine, .books-cover), .books-viewport[data-pointer] { cursor: none; }
+    .books-pointer span { display: none; font-size: .72rem; font-weight: 650; }
+    .books-pointer[data-pointer="cover"] { width: 50px; height: 50px; }
+    .books-pointer[data-pointer="cover"] span { display: block; }
+    .books-pointer[data-pointer="spine"]::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.m-enter) .books-wrap :is(.books-lead, .books-categories, .books-viewport, .books-actions) {
+      animation: shelves-enter 380ms var(--ease-out, ease-out) both;
+    }
+    .books-viewport { animation-delay: 70ms; }
+  }
+  @keyframes shelves-enter { from { opacity: 0; translate: 0 8px; } }
+  @media (max-width: 760px) {
+    .books-viewport { --book-height: clamp(198px, min(42svh, 72vw), 375px); }
+    .books-categories { margin-top: 1rem; }
+    .books-categories button { padding-inline: .56rem; font-size: .735rem; }
+    .books-dialog-bar { justify-content: flex-end; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .books-actions :is(button, a), .books-categories button, .books-dialog-bar button,
+    .books-category-marker { transition: none; }
+  }
+</style>
