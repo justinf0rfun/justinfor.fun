@@ -50,7 +50,7 @@ const first = books[0];
                       <span class="spine-author">{book.short}</span>
                     </div>
                     <div class="books-cover" data-book-cover>
-                      <BookJacket book={book} eager={active} />
+                      <BookJacket book={book} eager={Math.abs(offset) <= 1} />
                     </div>
                   </div>
                 );

@@ -18,6 +18,7 @@ const { selected } = Astro.props;
 const title = selected ? `${selected.title} · Books` : "Books · Justin";
 const url = `https://justinfor.fun/books${selected ? `/${selected.id}` : ""}`;
 const description = selected?.summary ?? "A reading shelf of fourteen engineering books from systems to AI.";
+const leadCover = (selected ?? books[0]).cover;
 ---
 
 <Layout {title} full surface="books">
@@ -29,6 +30,7 @@ const description = selected?.summary ?? "A reading shelf of fourteen engineerin
     <meta property="og:description" content={description} />
     <meta property="og:url" content={url} />
     <link rel="canonical" href={url} />
+    {leadCover && <link rel="preload" as="image" href={leadCover} fetchpriority="high" />}
     <script is:inline>
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("m-enter");
       let mode;

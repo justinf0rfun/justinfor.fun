@@ -3,7 +3,8 @@ import { books, bookNumber } from "../data/books";
 const preview = [books[1], books[3], books[12]];
 ---
 
-<a class="books-folder" href="/books" data-folder="books" data-books-entry aria-label={`Open Books, ${books.length} books`}>
+<a class="books-folder" href="/books" data-folder="books" data-books-entry
+  data-books-first-cover={books[0].cover ?? undefined} aria-label={`Open Books, ${books.length} books`}>
   <div class="books-case">
     <div class="books-case-back" aria-hidden="true"></div>
     <div class="books-case-volumes" aria-hidden="true">
@@ -19,6 +20,21 @@ const preview = [books[1], books[3], books[12]];
     </div>
   </div>
 </a>
+
+<script>
+  const entry = document.querySelector<HTMLAnchorElement>("[data-books-first-cover]");
+  const cover = entry?.dataset.booksFirstCover;
+  if (entry && cover) {
+    const observer = new IntersectionObserver(([change]) => {
+      if (!change.isIntersecting) return;
+      observer.disconnect();
+      const image = new Image();
+      image.fetchPriority = "low";
+      image.src = cover;
+    }, { rootMargin: "200px 0px" });
+    observer.observe(entry);
+  }
+</script>
 
 <style>
   .books-folder {
