@@ -1,0 +1,127 @@
+---
+interface Props { target: string }
+const { target } = Astro.props;
+---
+
+<style is:inline>
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+  }
+</style>
+
+<script is:inline define:vars={{ target }}>
+  (() => {
+    let keyboard = false;
+    let clearFlight;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const path = (url) => url ? new URL(url).pathname.replace(/\/$/, "") : null;
+    const isPair = (from, to) => (from === "" && to === "/books") || (from === "/books" && to === "");
+
+    // A history restore can reach its first paint while the home tile is still being parsed.
+    const from = path(window.navigation?.activation?.from?.url ?? document.referrer);
+    if ("onpagereveal" in window && !reduced.matches && isPair(from, path(location.href))) {
+      const expect = document.createElement("link");
+      expect.rel = "expect";
+      expect.href = `#${target}`;
+      expect.setAttribute("blocking", "render");
+      document.head.append(expect);
+    }
+
+    document.addEventListener("click", (event) => {
+      if (!event.target?.closest?.("[data-books-entry], [data-books-home]") ||
+          event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      keyboard = event.detail === 0;
+    }, true);
+
+    const carry = (transition, leaving, activation) => {
+      const instant = keyboard || reduced.matches;
+      keyboard = false;
+      clearFlight?.();
+      if (!transition) return;
+
+      const from = path(activation?.from?.url);
+      const to = path(activation?.entry?.url);
+      if (instant || (from !== null && to !== null && !isPair(from, to))) {
+        transition.skipTransition();
+        return;
+      }
+
+      const home = document.querySelector("[data-books-entry]");
+      const cover = document.querySelector(home
+        ? "[data-books-home-cover]"
+        : '[data-side="cover"] [data-book-cover]');
+      if (!cover) {
+        transition.skipTransition();
+        return;
+      }
+
+      if (home && !leaving) {
+        const rect = home.getBoundingClientRect();
+        if (rect.top < 0 || rect.bottom > innerHeight) home.scrollIntoView({ block: "center", behavior: "instant" });
+      }
+      const root = document.documentElement;
+      root.dataset.booksFlight = home ? (leaving ? "take" : "land") : (leaving ? "return" : "open");
+      const rect = cover.getBoundingClientRect();
+      const art = home?.dataset.booksFirstCover ?? cover.querySelector("[data-jacket-image]")?.dataset.jacketImage;
+      if (!art) {
+        delete root.dataset.booksFlight;
+        transition.skipTransition();
+        return;
+      }
+
+      // WebKit can omit transformed book faces from snapshots. Capture a flat cover instead.
+      const poster = document.createElement("div");
+      poster.className = "books-flight-cover";
+      poster.setAttribute("aria-hidden", "true");
+      Object.assign(poster.style, {
+        left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`,
+        backgroundImage: `url(${JSON.stringify(art)})`, viewTransitionName: "books-flight",
+      });
+      cover.style.visibility = "hidden";
+      document.body.append(poster);
+      const clear = () => {
+        if (clearFlight !== clear) return;
+        if (home && !leaving && home.matches(":hover")) {
+          home.dataset.booksHoverPaused = "";
+          home.addEventListener("pointerleave", () => delete home.dataset.booksHoverPaused, { once: true });
+        }
+        poster.remove();
+        cover.style.visibility = "";
+        delete root.dataset.booksFlight;
+        clearFlight = undefined;
+      };
+      clearFlight = clear;
+      transition.finished.then(clear, clear);
+    };
+
+    addEventListener("pageswap", (event) => carry(event.viewTransition, true, event.activation));
+    addEventListener("pagereveal", (event) => carry(event.viewTransition, false, window.navigation?.activation));
+  })();
+</script>
+
+<style is:global>
+  .books-flight-cover {
+    position: fixed;
+    z-index: 80;
+    border-radius: 2px;
+    background-color: #e6dfcd;
+    background-size: 100% 100%;
+    box-shadow: 0 16px 26px -17px #2820165e;
+    pointer-events: none;
+  }
+  html[data-books-flight]::view-transition { pointer-events: none; }
+  html[data-books-flight]::view-transition-group(root) { animation: none; }
+  html[data-books-flight]::view-transition-old(root) { display: none; }
+  html[data-books-flight]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  html[data-books-flight]::view-transition-group(books-flight) {
+    z-index: 1;
+    animation-duration: 500ms;
+    animation-timing-function: cubic-bezier(.22,.8,.25,1);
+  }
+  html[data-books-flight="open"]::view-transition-old(books-flight),
+  html[data-books-flight="land"]::view-transition-new(books-flight) {
+    display: none;
+  }
+  html[data-books-flight="open"]::view-transition-new(books-flight),
+  html[data-books-flight="land"]::view-transition-old(books-flight) { animation: none; mix-blend-mode: normal; }
+</style>

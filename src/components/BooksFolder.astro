@@ -1,17 +1,23 @@
 ---
 import { books, bookNumber } from "../data/books";
-const preview = [books[1], books[3], books[12]];
+const preview = [books[1], books[0], books[12]];
 ---
 
-<a class="books-folder" href="/books" data-folder="books" data-books-entry
+<a id="books" class="books-folder" href="/books" data-folder="books" data-books-entry
   data-books-first-cover={books[0].cover ?? undefined} aria-label={`Open Books, ${books.length} books`}>
   <div class="books-case">
     <div class="books-case-back" aria-hidden="true"></div>
     <div class="books-case-volumes" aria-hidden="true">
       {preview.map((book, index) => (
-        <span class="books-case-spine" style={{ "--book-cloth": book.color, "--book-text": book.ink, "--book-height": [78, 93, 85][index] + "%" }}>
-          <span class="books-case-number">{bookNumber(book)}</span>
-          <span class="books-case-title">{book.spine}</span>
+        <span class:list={["books-case-volume", { "books-case-feature": index === 1 }]}
+          style={{ "--book-cloth": book.color, "--book-text": book.ink, "--book-height": [78, 93, 85][index] + "%" }}>
+          <span class="books-case-spine">
+            <span class="books-case-number">{bookNumber(book)}</span>
+            <span class="books-case-title">{book.spine}</span>
+          </span>
+          {index === 1 && <span id="home-books-cover" class="books-case-cover" data-books-home-cover style={{ "--book-aspect": book.aspect }}>
+            <img alt="" draggable="false" fetchpriority="low" />
+          </span>}
         </span>
       ))}
     </div>
@@ -24,12 +30,11 @@ const preview = [books[1], books[3], books[12]];
 <script>
   const entry = document.querySelector<HTMLAnchorElement>("[data-books-first-cover]");
   const cover = entry?.dataset.booksFirstCover;
-  if (entry && cover) {
+  const image = entry?.querySelector<HTMLImageElement>("[data-books-home-cover] img");
+  if (entry && cover && image) {
     const observer = new IntersectionObserver(([change]) => {
       if (!change.isIntersecting) return;
       observer.disconnect();
-      const image = new Image();
-      image.fetchPriority = "low";
       image.src = cover;
     }, { rootMargin: "200px 0px" });
     observer.observe(entry);
@@ -79,20 +84,35 @@ const preview = [books[1], books[3], books[12]];
 
   .books-case-volumes {
     position: absolute;
+    z-index: 1;
     inset: 0 13.5% 26%;
     display: grid;
     grid-template-columns: .9fr 1.14fr 1fr;
     grid-template-rows: minmax(0, 1fr);
     align-items: end;
     gap: 4%;
+    perspective: 520px;
   }
 
+  .books-case-volume {
+    position: relative;
+    min-width: 0;
+    height: var(--book-height);
+    transform: translate3d(var(--book-shift, 0px), var(--book-rise, 0px), 0) rotateZ(var(--book-lean, 0deg));
+    transform-origin: 50% 90%;
+    transition: transform 340ms cubic-bezier(.22,.8,.25,1);
+  }
+  .books-case-feature {
+    z-index: 1;
+    transform: translateY(var(--book-rise, 0px)) rotateZ(var(--book-lean, 0deg)) rotateY(var(--book-turn, 0deg));
+    transform-origin: left center;
+    transform-style: preserve-3d;
+  }
   .books-case-spine {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 0;
-    height: var(--book-height);
+    height: 100%;
     padding: 9% 4% 7%;
     border-radius: 5% 5% 2% 2%;
     background:
@@ -102,6 +122,20 @@ const preview = [books[1], books[3], books[12]];
     color: var(--book-text);
     box-shadow: inset 0 1px #fff4, inset -1px 0 #2d211e4d, 2px 1px 6px #14100b54;
   }
+  .books-case-cover {
+    position: absolute;
+    inset: 0 auto 0 100%;
+    aspect-ratio: var(--book-aspect);
+    overflow: hidden;
+    border-radius: 1px 4px 4px 1px;
+    background: var(--book-cloth);
+    transform: rotateY(90deg);
+    transform-origin: left center;
+    backface-visibility: hidden;
+    pointer-events: none;
+  }
+  .books-case-cover img { width: 100%; height: 100%; }
+  .books-case-cover img:not([src]) { visibility: hidden; }
   .books-case-number {
     width: 76%;
     margin: 0 0 14%;
@@ -120,6 +154,7 @@ const preview = [books[1], books[3], books[12]];
 
   .books-case-base {
     position: absolute;
+    z-index: 2;
     inset: 72% 0 0;
     display: grid;
     place-items: center;
@@ -159,7 +194,26 @@ const preview = [books[1], books[3], books[12]];
     --wood-edge: #b39472;
   }
   .books-folder:focus-visible { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
-  @media (hover: hover) and (pointer: fine) { .books-folder:hover .books-case { translate: 0 -2px; } }
+  @media (hover: hover) and (pointer: fine) {
+    :where(.books-folder:hover:not([data-books-hover-paused])) .books-case { translate: 0 -2px; }
+    :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-feature { --book-rise: -19%; --book-lean: -3deg; --book-turn: -28deg; }
+    :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-volume:first-child { --book-shift: -6%; --book-rise: -4%; --book-lean: -3deg; }
+    :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-volume:last-child { --book-shift: 8%; --book-rise: -5%; --book-lean: 4deg; }
+  }
+  :global(html[data-books-flight=take]) .books-case-feature {
+    --book-rise: -22%;
+    --book-lean: -4deg;
+    --book-turn: -32deg;
+    transition: none;
+  }
+  :global(html[data-books-flight=land]) .books-case-feature {
+    --book-rise: -6%;
+    --book-turn: -14deg;
+    transition: none;
+  }
   .books-folder:active .books-case { translate: 0 1px; }
-  @media (prefers-reduced-motion: reduce) { .books-case { transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .books-folder .books-case { translate: none; transition: none; }
+    .books-folder .books-case-volume { transform: none; transition: none; }
+  }
 </style>

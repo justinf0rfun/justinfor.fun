@@ -51,7 +51,7 @@ const first = books[0];
                       <span class="spine-title">{book.spine}</span>
                       <span class="spine-author">{book.short}</span>
                     </div>
-                    <div class="books-cover" data-book-cover>
+                    <div id={active ? "shelf-books-cover" : undefined} class="books-cover" data-book-cover>
                       <BookJacket book={book} eager={Math.abs(offset) <= 1} />
                     </div>
                   </div>

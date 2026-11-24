@@ -9,6 +9,7 @@ import HomeRideCoupon from "../components/HomeRideCoupon.astro";
 import BeliefNote from "../components/BeliefNote.astro";
 import Folder from "../components/Folder.astro";
 import BooksFolder from "../components/BooksFolder.astro";
+import BooksTransition from "../components/BooksTransition.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
 import LocalTimeFooter from "../components/LocalTimeFooter.astro";
 import MusicShowcase from "../components/MusicShowcase.astro";
@@ -23,6 +24,7 @@ import { folderMusicTracks } from "../data/music";
 
 <Layout surface="home">
   <Fragment slot="head">
+    <BooksTransition target="home-books-cover" />
     <script is:inline>
       let mode = "system";
       try {

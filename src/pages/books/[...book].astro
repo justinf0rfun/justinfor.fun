@@ -4,6 +4,7 @@ import ParentLink from "../../components/ParentLink.astro";
 import BooksShelf from "../../components/BooksShelf.astro";
 import BookDetail from "../../components/BookDetail.astro";
 import BooksCredit from "../../components/BooksCredit.astro";
+import BooksTransition from "../../components/BooksTransition.astro";
 import { books, readingMapUrl, type Book } from "../../data/books";
 
 export function getStaticPaths() {
@@ -23,6 +24,7 @@ const leadCover = (selected ?? books[0]).cover;
 
 <Layout {title} full surface="books">
   <Fragment slot="head">
+    {!selected && <BooksTransition target="shelf-books-cover" />}
     <meta name="page-type" content="software" />
     <meta name="site-kind" content="software" />
     <meta name="description" content={description} />
@@ -43,7 +45,7 @@ const leadCover = (selected ?? books[0]).cover;
   <header class="books-header nav">
     <div class="wrap books-header-wrap">
       <a class="books-skip" href={selected ? "#book" : "#books-shelf"}>Skip to content</a>
-      <ParentLink label={selected ? "Books" : "Home"} href={selected ? "/books" : "/"} />
+      <ParentLink label={selected ? "Books" : "Home"} href={selected ? "/books" : "/"} data-books-home={!selected || undefined} />
       <a class="books-map" href={readingMapUrl} target="_blank" rel="noopener noreferrer">Reading map <span aria-hidden="true">↗</span></a>
     </div>
   </header>
