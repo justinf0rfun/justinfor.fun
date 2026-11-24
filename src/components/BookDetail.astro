@@ -8,28 +8,32 @@ const Heading = standalone ? "h1" : "h2";
 
 <article class="book-detail" data-book-content>
   <div class="book-detail-text">
-    <div class="book-detail-heading" data-detail-reveal style="--reveal: 0">
-      <p class="book-stage">Stage {bookNumber(book)} · {book.stage}</p>
-      <Heading id="book-detail-title">{book.title}</Heading>
-      <p class="book-byline">{book.authors}{book.ed && ` · ${book.ed}`}</p>
-      <p class="book-summary">{book.summary}</p>
+    <div class="book-detail-heading">
+      <div data-rise="head"><p class="book-stage">Stage {bookNumber(book)} · {book.stage}</p></div>
+      <div data-rise="head"><Heading id="book-detail-title">{book.title}</Heading></div>
+      <div data-rise="head">
+        <div>
+          <p class="book-byline">{book.authors}{book.ed && ` · ${book.ed}`}</p>
+          <p class="book-summary">{book.summary}</p>
+        </div>
+      </div>
     </div>
     <ol class:list={["book-topics", book.topics.length > 8 && "two-columns"]}
       style={{ "--topic-rows": Math.ceil(book.topics.length / 2) }} aria-label="Reading topics">
-      {book.topics.map(({ number, title: topic }, index) => (
-        <li data-detail-reveal style={{ "--reveal": index + 1 }}>
-          <span>{number}</span><span>{topic}</span>
+      {book.topics.map(({ number, title: topic }) => (
+        <li data-rise="row">
+          <span class="book-topic"><span>{number}</span><span>{topic}</span></span>
         </li>
       ))}
     </ol>
-    <div class="book-detail-links" data-detail-reveal style={{ "--reveal": book.topics.length + 1 }}>
+    <div data-rise="tail"><div class="book-detail-links">
       <a href={book.url} target="_blank" rel="noopener noreferrer">View book <span aria-hidden="true">↗</span></a>
       {book.roles.map((role) => (
         <a href={`https://layoffsandhires.com/jobs?q=${encodeURIComponent(role)}`} target="_blank" rel="noopener noreferrer">
           See {role.toLowerCase()} jobs <span aria-hidden="true">↗</span>
         </a>
       ))}
-    </div>
+    </div></div>
   </div>
   <div class="book-detail-poster">
     <div class="book-detail-art" style={{ "--poster-ratio": book.aspect }} role="img" aria-label={`Cover of ${book.title}`}>
@@ -89,13 +93,15 @@ const Heading = standalone ? "h1" : "h2";
     grid-template-rows: repeat(var(--topic-rows), auto);
     grid-auto-flow: column;
   }
-  .book-topics li {
+  [data-rise] { overflow: hidden; }
+  [data-rise="head"]:has(h1, h2) { padding-bottom: .11em; margin-bottom: -.11em; }
+  .book-topic {
     display: grid;
     grid-template-columns: 2.1rem 1fr;
     font-size: .85rem;
     line-height: 1.35;
   }
-  .book-topics li > :first-child {
+  .book-topic > :first-child {
     color: var(--books-muted);
     font: 500 .75rem / 1.5 ui-monospace, SFMono-Regular, monospace;
   }

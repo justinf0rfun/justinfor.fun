@@ -2,6 +2,7 @@
 import BookDetail from "./BookDetail.astro";
 import BookJacket from "./BookJacket.astro";
 import { books, bookGroups, bookNumber, topicCount } from "../data/books";
+import { inkPoints } from "../scripts/books-motion";
 
 const count = books.length;
 const volumes = Array.from({ length: count * 3 }, (_, slot) => ({ book: books[slot % count], slot }));
@@ -27,32 +28,34 @@ const first = books[0];
           ))}
         </div>
 
-        <div class="books-viewport" id="book-viewport" data-books-viewport data-visual
-          role="group" aria-label="Bookshelf. Scroll, drag or use the arrow keys to choose a book." tabindex="0">
-          <div class="books-stage" aria-hidden="true">
-            {volumes.map(({ book, slot }) => {
-              const offset = slot - count;
-              const active = offset === 0;
-              return (
-                <div class="books-volume" data-books-slot={slot} data-book-id={book.id}
-                  data-title={book.title} data-author={book.authors} data-group={book.group} data-aspect={book.aspect}
-                  data-side={active ? "cover" : "spine"}
-                  style={{
-                    "--slot": offset, "--book-ratio": book.aspect, "--book-cloth": book.color, "--book-text": book.ink,
-                    "--turn": active ? "-90deg" : "0deg", "--roll": active ? "-4.5deg" : "0deg", "--depth": active ? ".2" : "0",
-                    "--lift": active ? "-.025" : "0", "--front-alpha": active ? "1" : "0", "--spine-alpha": active ? "0" : "1",
-                  }}>
-                  <div class="books-spine">
-                    <span class="spine-number">{bookNumber(book)}</span>
-                    <span class="spine-title">{book.spine}</span>
-                    <span class="spine-author">{book.short}</span>
+        <div class="books-fit">
+          <div class="books-viewport" id="book-viewport" data-books-viewport data-visual
+            role="group" aria-label="Bookshelf. Scroll, drag or use the arrow keys to choose a book." tabindex="0">
+            <div class="books-stage" aria-hidden="true">
+              {volumes.map(({ book, slot }) => {
+                const offset = slot - count;
+                const active = offset === 0;
+                return (
+                  <div class="books-volume" data-books-slot={slot} data-book-id={book.id}
+                    data-title={book.title} data-author={book.authors} data-group={book.group} data-aspect={book.aspect}
+                    data-side={active ? "cover" : "spine"}
+                    style={{
+                      "--slot": offset, "--book-ratio": book.aspect, "--book-cloth": book.color, "--book-text": book.ink,
+                      "--turn": active ? "-90deg" : "0deg", "--roll": active ? "-4.5deg" : "0deg", "--depth": active ? ".2" : "0",
+                      "--lift": active ? "-.025" : "0", "--spine-shade": active ? ".55" : "0", "--cover-shade": active ? "0" : ".5",
+                    }}>
+                    <div class="books-spine">
+                      <span class="spine-number">{bookNumber(book)}</span>
+                      <span class="spine-title">{book.spine}</span>
+                      <span class="spine-author">{book.short}</span>
+                    </div>
+                    <div class="books-cover" data-book-cover>
+                      <BookJacket book={book} eager={active} />
+                    </div>
                   </div>
-                  <div class="books-cover" data-book-cover>
-                    <BookJacket book={book} eager={active} />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -72,7 +75,11 @@ const first = books[0];
     </div>
   </section>
 
-  <div class="books-pointer" data-books-pointer aria-hidden="true"><span>Open</span></div>
+  <div class="books-pointer" data-books-pointer aria-hidden="true">
+    <span class="books-pointer-ring"></span>
+    <span class="books-pointer-dot"></span>
+    <span class="books-pointer-label">Open</span>
+  </div>
 
   <dialog class="books-dialog" data-books-dialog aria-labelledby="book-detail-title">
     <header class="books-dialog-bar">
@@ -85,14 +92,13 @@ const first = books[0];
   ))}
   <svg class="books-ink-defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
-      <filter id="books-ink-noise" x="-20%" y="-20%" width="140%" height="140%" primitiveUnits="objectBoundingBox">
-        <feTurbulence type="fractalNoise" baseFrequency="5 7" numOctaves="3" seed="7" result="noise" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale=".21" xChannelSelector="R" yChannelSelector="G" />
+      <filter id="books-ink-noise" x="-200" y="-200" width="874" height="1300" filterUnits="userSpaceOnUse">
+        <feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="120" xChannelSelector="R" yChannelSelector="G" />
       </filter>
       <mask id="books-ink" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
-        <g fill="white" filter="url(#books-ink-noise)">
-          <circle cx=".17" cy=".23" r="0" /><circle cx=".73" cy=".56" r="0" />
-          <circle cx=".41" cy=".79" r="0" /><circle cx=".83" cy=".19" r="0" />
+        <g fill="white" filter="url(#books-ink-noise)" transform={`scale(${1 / 474} ${1 / 900})`}>
+          {inkPoints.map(({ x, y }) => <circle cx={x} cy={y} r="0" />)}
         </g>
       </mask>
     </defs>
@@ -185,16 +191,24 @@ const first = books[0];
   .books-categories button:hover { color: var(--books-ink); }
   .books-categories button:active { translate: 0 1px; }
 
+  .books-fit {
+    display: flex;
+    align-items: center;
+    width: 100vw;
+    min-height: 200px;
+    height: 100%;
+    container-type: size;
+  }
   .books-viewport {
-    --book-height: clamp(190px, min(43svh, 31vw), 454px);
+    --book-height: max(120px, min(calc(100cqh - 80px), 31vw));
     --spine-width: calc(var(--book-height) * .15);
-    --book-gap: calc(var(--book-height) * .031);
+    --book-gap: calc(var(--book-height) * .03);
     --pitch: calc(var(--spine-width) + var(--book-gap));
     align-self: center;
     position: relative;
-    width: 100vw;
+    width: 100%;
     min-width: 0;
-    height: calc(var(--book-height) + 93px);
+    height: calc(var(--book-height) + 80px);
     overflow: clip;
     touch-action: pan-y;
     user-select: none;
@@ -205,32 +219,43 @@ const first = books[0];
   .books-stage { position: absolute; inset: 0; }
   .books-volume {
     --cover-width: calc(var(--book-height) * var(--book-ratio));
+    --initial-x: calc(var(--slot) * var(--pitch) + clamp(-125px, var(--slot) * var(--book-height) * .27, 125px));
+    --initial-pose: perspective(2200px) translate3d(var(--initial-x), calc(var(--lift) * var(--book-height)), calc(var(--depth) * var(--book-height))) rotateZ(var(--roll)) rotateY(var(--turn));
     position: absolute;
     top: 50%;
     left: 50%;
     width: 0;
     height: 0;
-    transform: translateX(var(--book-x, calc(var(--slot) * var(--pitch) + clamp(-125px, var(--slot) * var(--book-height) * .27, 125px))));
   }
   .books-spine, .books-cover {
-    --physical-pose: perspective(2200px) translate3d(0, calc(var(--lift) * var(--book-height)), calc(var(--depth) * var(--book-height)))
-      rotateZ(var(--roll)) rotateX(var(--book-tilt-x, 0deg));
     position: absolute;
-    inset: 0 auto auto 0;
+    top: calc(var(--book-height) / -2);
     height: var(--book-height);
     border-radius: 2px;
     cursor: pointer;
     transform-origin: center;
+    backface-visibility: hidden;
+  }
+  .books-spine::after, .books-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #000;
+    opacity: var(--face-shade);
+    border-radius: inherit;
+    pointer-events: none;
   }
   .books-spine {
+    --face-shade: var(--spine-shade);
     display: grid;
     width: var(--spine-width);
+    left: calc(var(--spine-width) / -2);
     grid-template-rows: 15% minmax(0, 1fr) 23%;
     place-items: center;
     padding: 0 0 5px;
     overflow: hidden;
-    transform: translate(-50%, -50%) var(--physical-pose) rotateY(calc(var(--turn) + var(--book-tilt-y, 0deg))) translateZ(calc(var(--cover-width) / 2));
-    opacity: var(--spine-alpha);
+    transform: var(--book-pose, var(--initial-pose)) translateZ(calc(var(--cover-width) / 2));
     background:
       repeating-linear-gradient(0deg, #ffffff10 0 1px, transparent 1px 3px),
       linear-gradient(90deg, #0003, transparent 14%, #fff2 55%, transparent 84%, #0003),
@@ -262,14 +287,13 @@ const first = books[0];
     letter-spacing: -.015em;
   }
   .books-cover {
+    --face-shade: var(--cover-shade);
     width: var(--cover-width);
-    transform: translate(-50%, -50%) var(--physical-pose) rotateY(calc(90deg + var(--turn) + var(--book-tilt-y, 0deg))) translateZ(calc(var(--spine-width) / 2));
-    opacity: var(--front-alpha);
+    left: calc(var(--cover-width) / -2);
+    transform: var(--book-pose, var(--initial-pose)) rotateY(90deg) translateZ(calc(var(--spine-width) / 2));
     box-shadow: 0 22px 32px -24px rgb(24 15 12 / .56);
   }
-  .books-volume:not([data-side="cover"]) .books-cover,
-  .books-volume[data-side="cover"] .books-spine { pointer-events: none; }
-  .books-volume:is([data-spine-edge], [data-side="cover"]) .books-spine span { visibility: hidden; }
+  .books-volume[data-spine-edge] .books-spine span { visibility: hidden; }
 
   .books-actions { display: flex; gap: .65rem; align-items: center; justify-content: center; }
   .books-actions :is(button, a), .books-dialog-bar button {
@@ -335,24 +359,50 @@ const first = books[0];
     left: 0;
     z-index: 5;
     pointer-events: none;
+    opacity: 0;
+    width: 58px;
+    height: 58px;
+    margin: -29px 0 0 -29px;
+    transition: opacity .25s;
   }
   @media (hover: hover) and (pointer: fine) {
-    .books-pointer[data-pointer] {
+    .books-pointer { display: block; }
+    .books-pointer[data-pointer] { opacity: 1; }
+    .books-viewport[data-pointer] :is(.books-spine, .books-cover), .books-viewport[data-pointer] { cursor: none; }
+    .books-pointer-ring {
+      position: absolute;
+      inset: 0;
+      border: 1.5px solid var(--books-ink);
+      border-radius: 50%;
+      transition: transform .5s cubic-bezier(.2,.8,.2,1), background-color .4s cubic-bezier(.2,.8,.2,1);
+    }
+    .books-pointer-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      margin: -3px 0 0 -3px;
+      border-radius: 50%;
+      background: var(--books-ink);
+      transition: transform .4s cubic-bezier(.2,.8,.2,1);
+    }
+    .books-pointer-label {
+      position: absolute;
+      inset: 0;
       display: grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
-      translate: -50% -50%;
-      border-radius: 50%;
-      background: var(--books-surface);
-      color: var(--books-ink);
-      box-shadow: inset 0 0 0 1px var(--books-muted), 0 1px 7px #362a1e29;
+      color: var(--books-paper);
+      font-size: 13px;
+      font-weight: 650;
+      letter-spacing: .06em;
+      transform: scale(0);
+      transition: transform .45s cubic-bezier(.2,.8,.2,1);
     }
-    .books-viewport[data-pointer] :is(.books-spine, .books-cover), .books-viewport[data-pointer] { cursor: none; }
-    .books-pointer span { display: none; font-size: .72rem; font-weight: 650; }
-    .books-pointer[data-pointer="cover"] { width: 50px; height: 50px; }
-    .books-pointer[data-pointer="cover"] span { display: block; }
-    .books-pointer[data-pointer="spine"]::after { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .books-pointer[data-pointer="spine"] .books-pointer-ring { transform: scale(.72); }
+    .books-pointer[data-pointer="cover"] .books-pointer-ring { background: var(--books-ink); transform: scale(1.75); }
+    .books-pointer[data-pointer="cover"] .books-pointer-dot { transform: scale(0); }
+    .books-pointer[data-pointer="cover"] .books-pointer-label { transform: scale(1); }
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -362,14 +412,14 @@ const first = books[0];
     .books-viewport { animation-delay: 70ms; }
   }
   @keyframes shelves-enter { from { opacity: 0; translate: 0 8px; } }
-  @media (max-width: 760px) {
-    .books-viewport { --book-height: clamp(198px, min(42svh, 72vw), 375px); }
+  @media (max-width: 767px) {
+    .books-viewport { --book-height: max(120px, min(calc(100cqh - 80px), 72vw)); }
     .books-categories { margin-top: 1rem; }
     .books-categories button { padding-inline: .56rem; font-size: .735rem; }
     .books-dialog-bar { justify-content: flex-end; }
   }
   @media (prefers-reduced-motion: reduce) {
     .books-actions :is(button, a), .books-categories button, .books-dialog-bar button,
-    .books-category-marker { transition: none; }
+    .books-category-marker, .books-pointer, .books-pointer span { transition: none; }
   }
 </style>
