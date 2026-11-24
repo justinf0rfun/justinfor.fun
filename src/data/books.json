@@ -32,7 +32,8 @@
     "short": "Bryant · O'Hallaron",
     "color": "#354348",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9780134092669-L.jpg?default=false"
+    "spinePalette": {"body": "#232226", "text": "#EDEBE6", "band": "#5B8FD0"},
+    "cover": "/books/covers/csapp.webp"
   },
   {
     "id": "ostep",
@@ -67,7 +68,8 @@
     "short": "Arpaci-Dusseau",
     "color": "#3f473f",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781985086593-L.jpg?default=false"
+    "spinePalette": {"body": "#121212", "text": "#EDEBE6", "band": "#BFC6CF"},
+    "cover": "/books/covers/ostep.webp"
   },
   {
     "id": "network",
@@ -96,7 +98,8 @@
     "short": "Kurose · Ross",
     "color": "#783d38",
     "ink": "#f9f2dc",
-    "cover": "https://www.pearson.com/store/pmccommercewebservices/v2/medias/size-W650-desktop-P2000-00-01-33-P200000013385-P200000013385-Lrg.jpg?context=bWFzdGVyfGltYWdlc3w1NzgxMTJ8aW1hZ2UvanBlZ3xzeXMtbWFzdGVyL2ltYWdlcy9oMTgvaDVjLzE1NTc5ODcxNDQ1MDIyL3NpemVfVzY1MF9kZXNrdG9wXy9QMjAwMC8wMC8wMS8zMy9QMjAwMDAwMDEzMzg1L1AyMDAwMDAwMTMzODVfTHJnLmpwZ3xjZjE3MzRiNTMzODcxOGJjZjdmZjQ0MDg2OTI2NmJkNjYwN2U2NjNhMzQ0NzVlNzIzMzM0ZmU2YWY5MGFkMDFm"
+    "spinePalette": {"body": "#B3202A", "text": "#F4F2ED", "band": "#F4F2ED"},
+    "cover": "/books/covers/network.webp"
   },
   {
     "id": "ddia",
@@ -132,7 +135,8 @@
     "short": "Kleppmann · Riccomini",
     "color": "#ece0c5",
     "ink": "#211910",
-    "cover": "https://dataintensive.net/images/book-cover.png"
+    "spinePalette": {"body": "#ECEAE4", "text": "#141414", "band": "#C8372D"},
+    "cover": "/books/covers/ddia.webp"
   },
   {
     "id": "sdi",
@@ -170,7 +174,8 @@
     "short": "Alex Xu",
     "color": "#3f4f64",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9798664653403-L.jpg?default=false"
+    "spinePalette": {"body": "#383D63", "text": "#F4F2ED", "band": "#C6D93B"},
+    "cover": "/books/covers/sdi.webp"
   },
   {
     "id": "micro",
@@ -195,7 +200,8 @@
     "short": "Newman",
     "color": "#6a563e",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781492034025-L.jpg?default=false"
+    "spinePalette": {"body": "#EFEBE2", "text": "#141414", "band": "#D9A42B"},
+    "cover": "/books/covers/micro.webp"
   },
   {
     "id": "docker",
@@ -220,7 +226,8 @@
     "short": "Poulton",
     "color": "#3b5351",
     "ink": "#f9f2dc",
-    "cover": "https://d2sofvawe08yqg.cloudfront.net/dockerdeepdive/s_hero2x?1747071117&1747071117"
+    "spinePalette": {"body": "#4C76B6", "text": "#F4F2ED", "band": "#F4F2ED"},
+    "cover": "/books/covers/docker.webp"
   },
   {
     "id": "k8s",
@@ -246,7 +253,8 @@
     "short": "Burns et al.",
     "color": "#626753",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781098110208-L.jpg?default=false"
+    "spinePalette": {"body": "#ECEAE4", "text": "#141414", "band": "#2A6FB5"},
+    "cover": "/books/covers/k8s.webp"
   },
   {
     "id": "terraform",
@@ -271,7 +279,8 @@
     "short": "Brikman",
     "color": "#495a59",
     "ink": "#f9f2dc",
-    "cover": "https://books.google.com/books/content?vid=ISBN9781098116743&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    "spinePalette": {"body": "#ECEAE4", "text": "#141414", "band": "#6E6A2E"},
+    "cover": "/books/covers/terraform.webp"
   },
   {
     "id": "sre",
@@ -306,7 +315,8 @@
     "short": "Google SRE",
     "color": "#40545b",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781491929124-L.jpg?default=false"
+    "spinePalette": {"body": "#2F63A6", "text": "#F4F2ED", "band": "#F4F2ED"},
+    "cover": "/books/covers/sre.webp"
   },
   {
     "id": "dl",
@@ -333,7 +343,8 @@
     "short": "Goodfellow et al.",
     "color": "#ded3bd",
     "ink": "#211910",
-    "cover": "https://covers.openlibrary.org/b/isbn/9780262035613-L.jpg?default=false"
+    "spinePalette": {"body": "#3E5A49", "text": "#F4F2ED", "band": "#C9A0B5"},
+    "cover": "/books/covers/dl.webp"
   },
   {
     "id": "dmls",
@@ -370,7 +381,8 @@
     "short": "Huyen",
     "color": "#39464a",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781098107963-L.jpg?default=false"
+    "spinePalette": {"body": "#ECEAE4", "text": "#141414", "band": "#B23A2E"},
+    "cover": "/books/covers/dmls.webp"
   },
   {
     "id": "llm",
@@ -408,7 +420,8 @@
     "short": "Raschka",
     "color": "#2b4b49",
     "ink": "#f9f2dc",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781633437166-L.jpg?default=false"
+    "spinePalette": {"body": "#141012", "text": "#F4F2ED", "band": "#D21F2C"},
+    "cover": "/books/covers/llm.webp"
   },
   {
     "id": "aie",
@@ -444,6 +457,7 @@
     "short": "Huyen",
     "color": "#dac9a7",
     "ink": "#211910",
-    "cover": "https://covers.openlibrary.org/b/isbn/9781098166304-L.jpg?default=false"
+    "spinePalette": {"body": "#ECEAE4", "text": "#141414", "band": "#7A5B3A"},
+    "cover": "/books/covers/aie.webp"
   }
 ]

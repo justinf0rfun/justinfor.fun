@@ -138,12 +138,14 @@ export function mountBooksShelf(root: HTMLElement) {
 
       const pose = bookPose(x, offset, height, tiltX, tiltY, copy.lift);
       const front = pose.turn;
-      if (front > .1 && copy.jacket && !copy.imageRequested) {
+      const coverNearViewport = Math.abs(x) <= halfViewport + spine;
+      if ((front > .1 || coverNearViewport) && copy.jacket && !copy.imageRequested) {
         copy.imageRequested = true;
         const image = new Image();
         image.alt = "";
         image.draggable = false;
         image.decoding = "async";
+        image.fetchPriority = front > .1 ? "auto" : "low";
         image.dataset.bookImage = "";
         image.src = copy.jacket.dataset.jacketImage!;
         copy.jacket.append(image);

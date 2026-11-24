@@ -20,6 +20,7 @@ export interface Book {
   short: string;
   color: string;
   ink: string;
+  spinePalette: { body: string; text: string; band: string };
   cover: string | null;
 }
 
