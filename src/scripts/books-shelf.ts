@@ -317,7 +317,12 @@ export function mountBooksShelf(root: HTMLElement) {
     show(selectedCopy().id);
   });
 
+  root.addEventListener("pointerdown", () => {
+    root.setAttribute("data-books-pointer-input", "");
+  }, { capture: true, passive: true });
+
   window.addEventListener("keydown", (event) => {
+    root.removeAttribute("data-books-pointer-input");
     if (dialog.open || event.ctrlKey || event.metaKey || event.altKey) return;
     const focused = document.activeElement;
     if (focused && focused !== document.body && !root.contains(focused)) return;

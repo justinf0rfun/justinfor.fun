@@ -319,6 +319,9 @@ const first = books[0];
     outline: 2px solid var(--books-ink);
     outline-offset: -2px;
   }
+  .books-shelf[data-books-pointer-input] :is(.books-viewport, [data-books-close], [data-books-open]):focus {
+    outline: none;
+  }
 
   .books-dialog {
     position: fixed;
@@ -348,6 +351,7 @@ const first = books[0];
     margin-inline: auto;
     padding: 1.25rem 0 1rem;
   }
+  .books-dialog-bar button { border: 0; }
   .books-dialog-bar button span { font-size: 1.22rem; line-height: 1; }
   .books-ink-defs { position: absolute; pointer-events: none; }
   .books-static { width: var(--books-wrap); margin: 1.5rem auto 0; list-style: decimal inside; }
