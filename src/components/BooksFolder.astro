@@ -1,20 +1,18 @@
 ---
 import BookSpine from "./BookSpine.astro";
 import { books } from "../data/books";
-const preview = [books[1], books[0], books[12]];
+const preview = [books[5], books[0], books[6]];
 ---
 
 <a id="books" class="books-folder" href="/books" data-folder="books" data-books-entry
   data-books-first-cover={books[0].cover ?? undefined} aria-label={`Open Books, ${books.length} books`}>
   <div class="books-case">
-    <div class="books-case-back" aria-hidden="true"></div>
     <div class="books-case-bed" aria-hidden="true"></div>
-    <div class="books-case-support" aria-hidden="true"></div>
-    <div class="books-case-support books-case-support-right" aria-hidden="true"></div>
+    <div class="books-case-bookend" aria-hidden="true"></div>
     <div class="books-case-volumes" aria-hidden="true">
       {preview.map((book, index) => (
         <span class:list={["books-case-volume", { "books-case-feature": index === 1 }]}
-          style={{ "--book-height": [78, 96, 88][index] + "%" }}>
+          style={{ "--book-height": [85, 99, 91][index] + "%" }}>
           {index === 1 ? (
             <span class="books-case-turn">
               <BookSpine {book} compact />
@@ -55,54 +53,46 @@ const preview = [books[1], books[0], books[12]];
   }
 
   .books-case {
-    /* Wood 020 by ambientCG, CC0. */
-    --wood-grain: url('/books/walnut-grain.webp');
+    --aluminum-top: #f1f0ea;
+    --aluminum-face: #d9d9d3;
+    --aluminum-edge: #b5b6b1;
+    --aluminum-ink: #30332f;
     position: relative;
     isolation: isolate;
     aspect-ratio: 20 / 17;
   }
 
-  .books-case-back {
-    position: absolute;
-    inset: 62% 9% 12%;
-    border-radius: 3px;
-    background:
-      linear-gradient(#ffdab232, #1e120a91),
-      var(--wood-grain) center 36% / 112% auto #63432e;
-    box-shadow: inset 0 1px #f4c39954, inset 0 -2px 5px #1c1009a0;
-  }
-
   .books-case-bed {
     position: absolute;
-    inset: 77% 2% 10%;
-    clip-path: polygon(7% 0, 93% 0, 100% 60%, 100% 100%, 0 100%, 0 60%);
+    inset: 76% 4% 12%;
+    clip-path: polygon(8% 0, 88% 0, 100% 77%, 100% 100%, 0 100%, 0 77%);
     background:
-      linear-gradient(#140b079c, #ffd9af2b 76%),
-      var(--wood-grain) center 77% / 100% auto #674531;
+      radial-gradient(ellipse at 48% 62%, #1519143d, transparent 64%),
+      linear-gradient(167deg, var(--aluminum-face), var(--aluminum-top) 80%);
   }
 
-  .books-case-support {
+  .books-case-bookend {
     position: absolute;
     z-index: 1;
-    inset: 41% auto 13% 8%;
-    width: 12%;
-    clip-path: polygon(0 27%, 77% 0, 100% 5%, 100% 100%, 0 100%);
+    inset: 45% 13% 13.8% auto;
+    width: 11%;
+    border-radius: 3px 6px 3px 2px;
+    clip-path: polygon(0 13%, 75% 0, 100% 5%, 100% 100%, 0 100%);
     background:
-      linear-gradient(78deg, #24140c40, #e2ae7d28 78%, #120a078c 80%, #1e120c8a),
-      var(--wood-grain) 85% 55% / auto 160% #6a4b34;
-    box-shadow: inset 0 1px #f0c9a268;
+      linear-gradient(180deg, #ffe2c626, transparent 31%, #3d0f1424),
+      linear-gradient(90deg, #a84835, #d27254 74%, #ef9773 75%, #a44633 79%, #9a3d2e);
+    box-shadow: inset 0 1px #ffd3b07a;
   }
-  .books-case-support-right { inset-inline: auto 8%; transform: scaleX(-1); }
 
   .books-case-volumes {
     position: absolute;
     z-index: 2;
-    inset: 6% 20% 14%;
+    inset: 8% 21% 13%;
     display: grid;
-    grid-template-columns: .81fr 1fr .94fr;
+    grid-template-columns: .94fr 1fr .86fr;
     grid-template-rows: minmax(0, 1fr);
     align-items: end;
-    gap: 6%;
+    gap: 2.8%;
     perspective: 680px;
   }
 
@@ -111,9 +101,10 @@ const preview = [books[1], books[0], books[12]];
     min-width: 0;
     height: var(--book-height);
     border-radius: 2px 2px 1px 1px;
-    box-shadow: 2px 1px 5px #21140f4a;
+    box-shadow: 1px 2px 4px #1d221d38;
   }
   .books-case-feature {
+    --book-turn: -8deg;
     z-index: 1;
     transform: translateY(var(--book-rise, 0px));
     transform-style: preserve-3d;
@@ -149,15 +140,15 @@ const preview = [books[1], books[0], books[12]];
   .books-case-base {
     position: absolute;
     z-index: 3;
-    inset: 83% 2% 0;
+    inset: 85% 4% 2.5%;
     display: flex;
     align-items: center;
-    padding-inline: 9%;
-    border-radius: 2px 2px 5px 5px;
+    padding-inline: 7.5%;
+    border-radius: 2px 2px 4px 4px;
     background:
-      linear-gradient(177deg, #f3c89e43, #190c0865),
-      var(--wood-grain) 50% 14% / 100% auto #63432e;
-    box-shadow: inset 0 1px #f8d0a470, inset 0 -2px #180c0870, 0 5px 9px -4px #331e1880, 0 14px 20px -12px #3120176b;
+      linear-gradient(106deg, #fff4, transparent 38% 75%, #1b201916),
+      linear-gradient(var(--aluminum-top), var(--aluminum-face) 65%, var(--aluminum-edge));
+    box-shadow: inset 0 1px #fff8, inset 0 -1px #23282035, 0 4px 7px -3px #1d221e50, 0 10px 16px -10px #1d221e65;
   }
 
   .books-case-label {
@@ -166,8 +157,7 @@ const preview = [books[1], books[0], books[12]];
     justify-content: space-between;
     align-items: baseline;
     gap: 5px;
-    color: #f6e5ce;
-    text-shadow: 0 1px 1px #1f0e07b3;
+    color: var(--aluminum-ink);
     font-size: clamp(12px, 1.25vw, 15px);
     font-weight: 600;
     line-height: 1.1;
@@ -175,7 +165,13 @@ const preview = [books[1], books[0], books[12]];
 
   .books-case-label > :last-child {
     font: 500 clamp(9px, .9vw, 11px) / 1 ui-monospace, monospace;
-    color: #e3c7aa;
+  }
+
+  :global(html[data-home-theme=dark]) .books-case {
+    --aluminum-top: #c3c4c0;
+    --aluminum-face: #a9aba6;
+    --aluminum-edge: #7e817a;
+    --aluminum-ink: #20231f;
   }
 
   .books-folder:focus-visible { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
