@@ -7,23 +7,20 @@ export type SendStatus = "idle" | "sending" | "sent" | "failed";
 
 /**
  * What the button is showing. It seals the letter while the request is out,
- * holds the envelope until there's an answer, and only then lets it fly.
+ * holds the envelope until the preview receipt is ready.
  */
 type Stage =
   | "idle"
   | "morph"
   | "open"
   | "sealing"
-  | "waiting"
-  | "plane"
-  | "flown";
+  | "waiting";
 
 /** How long each stage holds before the next, in ms. The CSS fits inside these. */
 const STAGE_MS = {
   morph: 320,
   open: 300,
   sealing: 460,
-  plane: 200,
 };
 
 type Point = [number, number];
@@ -122,26 +119,22 @@ const easeInOut = cubicBezier(0.77, 0, 0.175, 1);
 
 export function SendButton({
   status,
-  onFlight,
+  onReceipt,
 }: {
   status: SendStatus;
-  onFlight: (button: HTMLButtonElement) => void;
+  onReceipt: () => void;
 }) {
   const [stage, setStage] = useState<Stage>("idle");
   const outline = useRef<SVGPathElement>(null);
-  const button = useRef<HTMLButtonElement>(null);
-  const notifyFlight = useEffectEvent(onFlight);
+  const notifyReceipt = useEffectEvent(onReceipt);
 
   if (status === "sending" && stage === "idle") setStage("morph");
   if ((status === "idle" || status === "failed") && stage !== "idle") {
     setStage("idle");
   }
-  // The envelope waits for the answer however long sealing it took
-  if (status === "sent" && stage === "waiting") setStage("plane");
-
   useLayoutEffect(() => {
-    if (stage === "flown" && button.current) notifyFlight(button.current);
-  }, [stage]);
+    if (status === "sent" && stage === "waiting") notifyReceipt();
+  }, [status, stage]);
 
   useEffect(() => {
     const path = outline.current;
@@ -188,12 +181,11 @@ export function SendButton({
       };
     }
 
-    if (stage === "waiting" || stage === "flown") return;
+    if (stage === "waiting") return;
 
-    const next: Record<Exclude<Stage, "idle" | "morph" | "waiting" | "flown">, () => void> = {
+    const next: Record<Exclude<Stage, "idle" | "morph" | "waiting">, () => void> = {
       open: () => setStage("sealing"),
       sealing: () => setStage("waiting"),
-      plane: () => setStage("flown"),
     };
     const timer = setTimeout(next[stage], STAGE_MS[stage]);
     return () => clearTimeout(timer);
@@ -203,7 +195,6 @@ export function SendButton({
 
   return (
     <button
-      ref={button}
       type="submit"
       data-stage={stage}
       aria-disabled={isBusy}
@@ -237,12 +228,6 @@ export function SendButton({
           </g>
         </g>
 
-        <g className="email-send-plane">
-          <PlaneShape />
-          <path d="M-8 8L-10.5 10.5" className="email-send-dash" />
-          <path d="M-3.5 11.5L-5.5 13.5" className="email-send-dash" />
-          <path d="M-13 12.5L-15 14.5" className="email-send-dash" />
-        </g>
       </svg>
 
       <span className="email-send-label absolute inset-0 flex items-center justify-center text-sm font-medium">
@@ -250,8 +235,4 @@ export function SendButton({
       </span>
     </button>
   );
-}
-
-export function PlaneShape() {
-  return <><path d="M10 -10L3 10L-1 1L-10 -3Z" className="email-send-paper" /><path d="M10 -10L-1 1" /></>;
 }

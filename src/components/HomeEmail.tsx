@@ -1,8 +1,8 @@
 // Adapted from LauraBeatris/laurabeatris.com/components/email-me.tsx; see email-composer/SOURCE.md.
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { PlaneShape, SendButton, type SendStatus } from "./email-composer/SendButton";
-import { emailPaperPose, emailReturnFrames, hasEmailDraft, hasText, isEmailAddress, MAX_EMAIL_LENGTH, MAX_MESSAGE_LENGTH, MAX_SUBJECT_LENGTH, type EmailPoint } from "../lib/email-composer";
+import { SendButton, type SendStatus } from "./email-composer/SendButton";
+import { emailPaperPose, hasEmailDraft, hasText, isEmailAddress, MAX_EMAIL_LENGTH, MAX_MESSAGE_LENGTH, MAX_SUBJECT_LENGTH } from "../lib/email-composer";
 import "./email-composer/composer.css";
 
 const SHEET = "(max-width: 639.98px), (pointer: coarse) and (max-height: 520px)";
@@ -12,22 +12,18 @@ export default function HomeEmail() {
   const [host, setHost] = useState<HTMLElement | null>(null);
   const [status, setStatus] = useState<SendStatus>("idle"), [error, setError] = useState<string | null>(null);
   const [shortcutDown, setShortcutDown] = useState(false), [recipient, setRecipient] = useState("");
-  const [hasDraft, setHasDraft] = useState(false), [complete, setComplete] = useState(false);
-  const [flight, setFlight] = useState<{ from: EmailPoint; to: EmailPoint; compact: boolean } | null>(null);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [receipt, setReceipt] = useState<{ subject: string } | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null), panel = useRef<HTMLDivElement>(null), backdrop = useRef<HTMLDivElement>(null);
   const form = useRef<HTMLFormElement>(null), wanted = useRef(false);
   const closing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), releasing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const preview = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const noteTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hoverReset = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const plane = useRef<SVGSVGElement>(null), returnAnimation = useRef<Animation | null>(null), dockResponse = useRef<Animation | null>(null);
-  const generation = useRef(0);
+  const dockResponse = useRef<Animation | null>(null);
   const drag = useRef<{ startY: number; lastY: number; lastAt: number; velocity: number; height: number } | null>(null);
 
-  function cancelReturn() {
-    ++generation.current; returnAnimation.current?.cancel(); returnAnimation.current = null;
+  function resetDockMotion() {
     dockResponse.current?.cancel(); dockResponse.current = null;
-    clearTimeout(noteTimer.current); setFlight(null); setComplete(false);
     clearTimeout(hoverReset.current);
     document.querySelector<HTMLElement>(".home-dock")?.removeAttribute("data-email-returning");
   }
@@ -52,10 +48,10 @@ export default function HomeEmail() {
   }
 
   function change(next: boolean, restoreFocus: "visible" | "quiet" | false = "visible") {
-    cancelReturn();
+    resetDockMotion();
     wanted.current = next;
     clearTimeout(closing.current); clearTimeout(preview.current);
-    if (next) { setStatus("idle"); window.dispatchEvent(new CustomEvent("home-email-opening")); }
+    if (next) { setStatus("idle"); setReceipt(null); window.dispatchEvent(new CustomEvent("home-email-opening")); }
     else {
       const dock = document.querySelector<HTMLElement>(".home-dock");
       if (dock) dock.dataset.emailReturning = "true";
@@ -63,7 +59,7 @@ export default function HomeEmail() {
       setShortcutDown(false); drag.current = null;
       if (panel.current) { panel.current.style.transition = ""; panel.current.style.transform = ""; }
       if (backdrop.current) { backdrop.current.style.transition = ""; backdrop.current.style.opacity = ""; }
-      closing.current = setTimeout(() => setStatus("idle"), 240);
+      closing.current = setTimeout(() => { setStatus("idle"); setReceipt(null); }, 240);
       if (restoreFocus && panel.current?.contains(document.activeElement)) requestAnimationFrame(() => {
         if (!wanted.current && trigger.current) {
           if (restoreFocus === "quiet") trigger.current.dataset.emailFocusRestored = "true";
@@ -83,45 +79,22 @@ export default function HomeEmail() {
     setIsOpen(next);
   }
 
-  function receive() {
-    setComplete(true);
-    const icon = trigger.current?.querySelector<HTMLElement>(".email-icons");
-    if (icon && !matchMedia("(prefers-reduced-motion: reduce)").matches) dockResponse.current = icon.animate([
-      { transform: "translateY(0) scale(1)" }, { transform: "translateY(2px) scale(.9,1.08)", offset: .4 }, { transform: "translateY(0) scale(1)" },
-    ], { duration: 280, easing: "cubic-bezier(.22,1,.36,1)" });
-    noteTimer.current = setTimeout(() => setComplete(false), 1400);
-  }
-
-  function flyHome(button: HTMLButtonElement) {
-    if (!wanted.current || !trigger.current) return;
-    const source = button.getBoundingClientRect(), destination = trigger.current.querySelector(".email-icons")!.getBoundingClientRect();
-    const compact = matchMedia(SHEET).matches, focused = document.activeElement as HTMLElement | null;
-    change(false, "quiet");
-    if (compact) focused?.blur();
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { receive(); return; }
-    setFlight({ from: { x: source.left + source.width / 2, y: source.top + source.height / 2 }, to: { x: destination.left + destination.width / 2, y: destination.top + destination.height / 2 }, compact });
+  function showReceipt() {
+    if (!wanted.current) return;
+    const subject = form.current?.elements.namedItem("subject") as HTMLInputElement | null;
+    setReceipt({ subject: subject?.value.trim() ?? "" });
   }
 
   useLayoutEffect(() => {
-    if (!flight || !plane.current) return;
-    clearTimeout(hoverReset.current);
-    const token = ++generation.current;
-    const animation = plane.current.animate(emailReturnFrames(flight.from, flight.to, flight.compact), { duration: flight.compact ? 520 : 720, easing: "cubic-bezier(.32,0,.2,1)", fill: "both" });
-    returnAnimation.current = animation;
-    animation.finished.then(() => {
-      if (token !== generation.current) return;
-      document.querySelector<HTMLElement>(".home-dock")?.removeAttribute("data-email-returning");
-      returnAnimation.current = null; setFlight(null); receive();
-    }, () => {});
-    return () => { animation.cancel(); if (returnAnimation.current === animation) returnAnimation.current = null; };
-  }, [flight]);
+    if (receipt && isOpen) panel.current?.focus({ preventScroll: true });
+  }, [receipt, isOpen]);
 
   useLayoutEffect(() => {
     const button = trigger.current;
     if (!button) return;
-    button.dataset.draft = String(hasDraft); button.dataset.previewComplete = String(complete);
+    button.dataset.draft = String(hasDraft);
     button.setAttribute("aria-label", isOpen ? "Close email" : hasDraft ? "Email me, continue draft" : "Email me");
-  }, [hasDraft, complete, host, isOpen]);
+  }, [hasDraft, host, isOpen]);
 
   useEffect(() => {
     const button = document.querySelector<HTMLButtonElement>("[data-home-email-trigger]");
@@ -129,35 +102,24 @@ export default function HomeEmail() {
     trigger.current = button; setRecipient(button.dataset.emailAddress ?? ""); setHost(document.body); button.disabled = false;
     const media = matchMedia(SHEET), resize = () => setSheet(media.matches);
     const toggle = (event: MouseEvent) => change(!wanted.current, event.detail === 0 ? "visible" : "quiet");
-    const close = () => { if (wanted.current) change(false, false); else cancelReturn(); };
+    const close = () => { if (wanted.current) change(false, false); };
     const guide = (event: Event) => { if ((event as CustomEvent<boolean>).detail) close(); };
     const chat = document.querySelector("[data-home-chat-trigger]");
-    let width = window.innerWidth;
-    const interrupt = () => { if (returnAnimation.current) cancelReturn(); };
-    const cancelKey = (event: globalThis.KeyboardEvent) => {
-      trigger.current?.removeAttribute("data-email-focus-restored");
-      if (event.key === "Escape") interrupt();
-    };
-    const resized = () => { if (width !== window.innerWidth) interrupt(); width = window.innerWidth; };
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
-    const reduce = () => { if (reduced.matches) returnAnimation.current?.finish(); };
+    const cancelKey = () => button.removeAttribute("data-email-focus-restored");
     resize(); media.addEventListener("change", resize); button.addEventListener("click", toggle);
     chat?.addEventListener("click", close);
     for (const event of ["home-moments-opening", "inspired-opening", "ride-coupon-opening"]) window.addEventListener(event, close);
     window.addEventListener("home-chat-guide-state", guide);
-    window.addEventListener("pointerdown", interrupt); window.addEventListener("scroll", interrupt, { passive: true }); window.addEventListener("resize", resized);
     window.addEventListener("keydown", cancelKey);
-    reduced.addEventListener("change", reduce);
     return () => {
-      ++generation.current; returnAnimation.current?.cancel(); dockResponse.current?.cancel(); clearTimeout(noteTimer.current);
+      dockResponse.current?.cancel();
       clearTimeout(hoverReset.current);
       clearTimeout(closing.current); clearTimeout(releasing.current); clearTimeout(preview.current);
       button.removeEventListener("click", toggle); chat?.removeEventListener("click", close); media.removeEventListener("change", resize);
       for (const event of ["home-moments-opening", "inspired-opening", "ride-coupon-opening"]) window.removeEventListener(event, close);
       window.removeEventListener("home-chat-guide-state", guide);
-      window.removeEventListener("pointerdown", interrupt); window.removeEventListener("scroll", interrupt); window.removeEventListener("resize", resized); reduced.removeEventListener("change", reduce);
       window.removeEventListener("keydown", cancelKey);
-      button.disabled = true; button.setAttribute("aria-expanded", "false"); delete button.dataset.open; delete button.dataset.draft; delete button.dataset.previewComplete; delete button.dataset.emailFocusRestored;
+      button.disabled = true; button.setAttribute("aria-expanded", "false"); delete button.dataset.open; delete button.dataset.draft; delete button.dataset.emailFocusRestored;
       const dock = document.querySelector<HTMLElement>(".home-dock");
       dock?.removeAttribute("data-email-open"); dock?.removeAttribute("data-email-returning");
       window.dispatchEvent(new CustomEvent("home-email-change", { detail: false }));
@@ -227,7 +189,7 @@ export default function HomeEmail() {
   }, [isOpen, sheet]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key !== "Enter" || event.nativeEvent.isComposing || event.keyCode === 229) return;
+    if (receipt || event.key !== "Enter" || event.nativeEvent.isComposing || event.keyCode === 229) return;
     if (event.metaKey || event.ctrlKey) {
       event.preventDefault(); setShortcutDown(true); clearTimeout(releasing.current);
       releasing.current = setTimeout(() => setShortcutDown(false), 160); form.current?.requestSubmit();
@@ -271,21 +233,26 @@ export default function HomeEmail() {
     const fields = event.currentTarget.elements, from = fields.namedItem("from") as HTMLInputElement, message = fields.namedItem("message") as HTMLTextAreaElement;
     if (!isEmailAddress(from.value.trim())) { setError("Add your email so I can write back."); from.focus(); return; }
     if (!hasText(message.value)) { setError("Write a message first."); message.focus(); return; }
-    setError(null); setStatus("sending");
-    // Preview the original animation locally; keep the draft and never deliver it.
+    setError(null);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStatus("sent");
+      showReceipt();
+      return;
+    }
+    setStatus("sending");
     preview.current = setTimeout(() => { if (wanted.current) setStatus("sent"); }, 700);
   }
 
   const locked = status === "sending" || status === "sent";
   return host && createPortal(<div className="home-email-layer">
     <div ref={backdrop} aria-hidden="true" data-open={isOpen} onClick={() => change(false, "quiet")} className="home-email-composer-backdrop" />
-    <div ref={panel} id="home-email" role="dialog" aria-label="Email Justin" aria-describedby="home-email-preview" aria-modal={sheet && isOpen} tabIndex={-1} data-open={isOpen} inert={!isOpen} onKeyDown={handleKeyDown} className="home-email-composer">
+    <div ref={panel} id="home-email" role="dialog" aria-label={receipt ? "Email preview receipt" : "Email Justin"} aria-describedby="home-email-preview" aria-modal={sheet && isOpen} tabIndex={-1} data-open={isOpen} data-receipt={Boolean(receipt)} inert={!isOpen} onKeyDown={handleKeyDown} className="home-email-composer">
       <div onPointerDown={handleDragStart} onPointerMove={handleDragMove} onPointerUp={handleDragEnd} onPointerCancel={handleDragEnd} className="home-email-composer-header">
         <span aria-hidden="true" className="home-email-composer-grabber" />
-        <div className="home-email-recipient"><img src="/justin-avatar.png" width="32" height="32" alt="" /><div><h2>Write to Justin</h2><span>{recipient}</span></div></div>
+        {!receipt && <div className="home-email-recipient"><img src="/justin-avatar.png" width="32" height="32" alt="" /><div><h2>Write to Justin</h2><span>{recipient}</span></div></div>}
         <button type="button" onClick={event => change(false, event.detail === 0 ? "visible" : "quiet")} aria-label="Close email" className="home-email-close relative inline-flex size-6 items-center justify-center rounded-full text-muted transition-transform active:scale-95"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" /></svg></button>
       </div>
-      <form ref={form} noValidate aria-busy={status === "sending"} onSubmit={handleSubmit} onInput={() => {
+      <form ref={form} hidden={Boolean(receipt)} noValidate aria-busy={status === "sending"} onSubmit={handleSubmit} onInput={() => {
         const fields = form.current!.elements;
         setHasDraft(hasEmailDraft((fields.namedItem("from") as HTMLInputElement).value, (fields.namedItem("subject") as HTMLInputElement).value, (fields.namedItem("message") as HTMLTextAreaElement).value));
       }} className="flex min-h-0 flex-1 flex-col">
@@ -296,14 +263,35 @@ export default function HomeEmail() {
         </div>
         <div className="home-email-footer">
           {error ? <p role="alert" className="home-email-composer-alert min-w-0 text-pretty text-[13px] leading-snug text-muted">{error}</p> : <div className="home-email-actions-note"><span>Preview only</span><SendHint spent={locked} pressed={shortcutDown} /></div>}
-          <SendButton status={status} onFlight={flyHome} />
+          <SendButton status={status} onReceipt={showReceipt} />
         </div>
-        <p id="home-email-preview" className="sr-only">This is a preview. No email is sent. Your draft stays on this page until you leave.</p>
       </form>
+      {receipt && <EmailReceipt recipient={recipient} subject={receipt.subject} />}
+      <p id="home-email-preview" className="sr-only">This is a preview. No email is sent. Your draft stays on this page until you leave.</p>
     </div>
-    {flight && <svg ref={plane} className="home-email-flight" data-email-flight aria-hidden="true" viewBox="-16 -16 32 32" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" style={{ transform: `translate3d(${flight.from.x}px,${flight.from.y}px,0)` }}><PlaneShape /></svg>}
-    <p aria-live="polite" className="sr-only">{complete ? "Preview complete. No email was sent." : locked && isOpen ? "Previewing the send animation" : ""}</p>
+    <p aria-live="polite" className="sr-only">{isOpen && (receipt ? "Preview complete. No email was sent." : locked ? "Preparing your preview receipt" : "")}</p>
   </div>, host);
+}
+
+function EmailReceipt({ recipient, subject }: { recipient: string; subject: string }) {
+  return <div className="home-email-receipt" data-email-receipt>
+    <div className="email-receipt-printer">
+      <div className="email-receipt-window">
+        <div className="email-receipt-paper">
+          <h2>Preview receipt</h2>
+          <dl>
+            <dt>To</dt><dd>{recipient}</dd>
+            <dt>Subject</dt><dd title={subject || undefined}>{subject || "No subject"}</dd>
+          </dl>
+          <div className="email-receipt-result">
+            <i aria-hidden="true" />
+            <div><strong>Preview complete</strong><p>No email was sent.</p></div>
+          </div>
+        </div>
+      </div>
+      <div className="email-receipt-tray" aria-hidden="true"><i /></div>
+    </div>
+  </div>;
 }
 
 const FIELD = "min-w-0 flex-1 bg-transparent text-base outline-none placeholder:opacity-60";

@@ -8,7 +8,7 @@ Original files:
 - `components/email-me.tsx`: composer, field order, IME-safe shortcuts, draft
   preservation, visual-viewport keyboard handling and touch-sheet dismissal.
 - `components/send-button.tsx`: original SVG geometry, cubic-bezier morph and
-  morph/open/sealing/waiting/plane/flown sequence, including its original timings.
+  morph/open/sealing/waiting sequence.
 - `app/globals.css`: original flap/heart, window, mobile sheet and send animation
   rules. Class names are prefixed to avoid affecting other site components.
 - `lib/contact.ts`: original field limits and email/invisible-text validation.
@@ -31,19 +31,19 @@ Mobile focus is contained and background scrolling is restored on dismissal.
 ## Preview only
 
 There is no contact API, fetch, mailto action, third-party sender, persisted draft
-or real delivery. The preview retains the original envelope morph, letter insertion
-and sealing. The same paper plane returns to the Dock while the window closes;
-its receipt shows “Preview complete.” Closing cancels
-pending preview timers; reopening preserves the in-memory draft. A page reload
+or real delivery. The preview starts with the envelope morph, letter insertion
+and sealing. A receipt then feeds out in three steps and stays in the composer
+until dismissed. It shows the recipient, subject, and “Preview complete.” Closing
+cancels pending preview timers. Reopening preserves the in-memory draft. A page reload
 or navigation clears it. The hidden honeypot and real delivery error handling
 are omitted because no delivery route is implemented.
 
 ## Local refinements
 
-`HomeEmail.tsx` keeps the lifecycle; `email-composer.ts` holds paper-to-button
-geometry and flight frames. The original send button hands off its plane drawing
-at the flown stage: desktop uses a 720ms arc, mobile a shorter 520ms arc. A
-generation guard cancels obsolete returns and their completion feedback.
+`HomeEmail.tsx` keeps the lifecycle and `email-composer.ts` holds paper-to-button
+geometry. The send button hands off to the receipt after sealing. The receipt
+animation uses a clipped paper track over a compact printer slot, based on the
+user’s video reference. Reduced motion shows the receipt in its final position.
 
 While returning, the Dock marks `data-email-returning`. Folder hover handlers
 defer layout-generated pointer entry until an actual hover-pointer move, without

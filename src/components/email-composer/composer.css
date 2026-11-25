@@ -108,7 +108,7 @@ html[data-home-theme="dark"] .home-email-layer {
   }
 
   /* Signature: Send folds into an envelope, tucks the letter in and seals it. */
-  /* The envelope waits for the inbox to answer, then leaves as a paper plane */
+  /* The sealed envelope hands off to the preview receipt. */
   .email-send-paper {
     fill: hsl(var(--background));
   }
@@ -194,15 +194,6 @@ html[data-home-theme="dark"] .home-email-layer {
     opacity: 1;
   }
 
-  /* Leans into the plane it's about to be */
-  .email-send-button:is([data-stage="plane"], [data-stage="flown"]) .email-send-envelope {
-    opacity: 0;
-    transform: rotate(-14deg) scale(0.88);
-    transition:
-      opacity 0.16s ease,
-      transform 0.16s ease;
-  }
-
   /* Everything inside goes back to open only once the envelope has faded */
   .email-send-letter,
   .email-send-folds,
@@ -237,9 +228,7 @@ html[data-home-theme="dark"] .home-email-layer {
 
   .email-send-button:is(
       [data-stage="sealing"],
-      [data-stage="waiting"],
-      [data-stage="plane"],
-      [data-stage="flown"]
+      [data-stage="waiting"]
     )
     .email-send-folds {
     opacity: 1;
@@ -247,9 +236,7 @@ html[data-home-theme="dark"] .home-email-layer {
 
   .email-send-button:is(
       [data-stage="sealing"],
-      [data-stage="waiting"],
-      [data-stage="plane"],
-      [data-stage="flown"]
+      [data-stage="waiting"]
     )
     .email-send-letter {
     opacity: 1;
@@ -270,9 +257,7 @@ html[data-home-theme="dark"] .home-email-layer {
 
   .email-send-button:is(
       [data-stage="sealing"],
-      [data-stage="waiting"],
-      [data-stage="plane"],
-      [data-stage="flown"]
+      [data-stage="waiting"]
     )
     .email-send-flap-back {
     transform: scaleY(0);
@@ -281,9 +266,7 @@ html[data-home-theme="dark"] .home-email-layer {
 
   .email-send-button:is(
       [data-stage="sealing"],
-      [data-stage="waiting"],
-      [data-stage="plane"],
-      [data-stage="flown"]
+      [data-stage="waiting"]
     )
     .email-send-flap-front {
     transform: scaleY(-1);
@@ -301,58 +284,6 @@ html[data-home-theme="dark"] .home-email-layer {
     animation: email-send-bob 1.4s cubic-bezier(0.37, 0, 0.63, 1) 0.3s infinite;
   }
 
-  .email-send-plane {
-    opacity: 0;
-    transform: rotate(16deg) scale(0.85);
-  }
-
-  [data-stage="plane"] .email-send-plane {
-    opacity: 1;
-    transform: none;
-    transition:
-      opacity 0.16s ease,
-      transform 0.2s var(--ease-out);
-  }
-
-  /* Gathers itself, then goes: up and to the right, shrinking into the distance */
-  [data-stage="flown"] .email-send-plane {
-    opacity: 0;
-    transform: translate(58px, -50px) scale(0.4);
-    transition:
-      transform 0.72s var(--ease-in-out),
-      opacity 0.26s ease 0.4s;
-  }
-
-  .email-send-dash {
-    opacity: 0;
-  }
-
-  @keyframes email-send-dash {
-    0% {
-      opacity: 0;
-      transform: translate(3px, -3px);
-    }
-    35% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-      transform: translate(-4px, 4px);
-    }
-  }
-
-  .email-send-button:is([data-stage="plane"], [data-stage="flown"]) .email-send-dash {
-    animation: email-send-dash 0.36s linear 2 both;
-  }
-
-  .email-send-dash + .email-send-dash {
-    animation-delay: 0.09s;
-  }
-
-  .email-send-dash + .email-send-dash + .email-send-dash {
-    animation-delay: 0.18s;
-  }
-
   /* With reduced motion nothing travels: each step fades into the next */
   @media (prefers-reduced-motion: reduce) {
     .home-email-composer,
@@ -362,16 +293,13 @@ html[data-home-theme="dark"] .home-email-layer {
 
     .home-email-composer-key[data-pressed="true"],
     .email-send-button .email-send-letter,
-    .email-send-button .email-send-plane,
     .email-send-button .email-send-envelope {
       transform: none;
     }
 
     .email-send-button:is(
         [data-stage="sealing"],
-        [data-stage="waiting"],
-        [data-stage="plane"],
-        [data-stage="flown"]
+        [data-stage="waiting"]
       )
       .email-send-letter {
       opacity: 0;
@@ -383,12 +311,7 @@ html[data-home-theme="dark"] .home-email-layer {
       transition-duration: 0s;
     }
 
-    [data-stage="flown"] .email-send-plane {
-      transition: opacity 0.3s ease;
-    }
-
-    .email-send-button .email-send-envelope-bob,
-    .email-send-button .email-send-dash {
+    .email-send-button .email-send-envelope-bob {
       animation: none;
     }
   }
@@ -568,8 +491,121 @@ html[data-home-theme="dark"] .home-email-layer {
 .home-email-composer-message { padding-inline:20px; font-size:16px; line-height:1.65; }
 .home-email-footer { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-shrink:0; min-height:64px; padding:16px 20px; }
 .home-email-actions-note { display:flex; align-items:center; gap:12px; color:hsl(var(--muted)); font-size:13px; }
-.home-email-flight { position:fixed; z-index:60; top:-16px; left:-16px; width:32px; height:32px; overflow:visible; color:hsl(var(--foreground)); pointer-events:none; transform-origin:50% 50%; }
-.email-send-button[data-stage=flown] .email-send-plane { opacity:0; transform:none; transition:none; }
+.home-email-composer form[hidden] { display:none; }
+.home-email-composer[data-receipt="true"] { background:#f4f2eb; }
+html[data-home-theme="dark"] .home-email-composer[data-receipt="true"] { background:#20201d; }
+.home-email-composer[data-receipt="true"] .home-email-composer-header {
+  height:48px;
+  justify-content:flex-end;
+  border-bottom:0;
+}
+.home-email-receipt {
+  min-height:0;
+  padding:0 24px 24px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+.email-receipt-printer {
+  width:min(100%, 288px);
+  margin-inline:auto;
+}
+.email-receipt-window {
+  margin:0 11px -8px;
+  padding:5px 6px 0;
+  overflow:hidden;
+}
+.email-receipt-paper {
+  padding:14px 14px 18px;
+  background:linear-gradient(100deg,#fff9 0%,transparent 55%,#e1d2ae26),#fbf9ef;
+  color:#26241d;
+  font:12px/1.4 ui-monospace,SFMono-Regular,monospace;
+  box-shadow:0 0 6px #32291128;
+  animation:email-receipt-feed 1460ms cubic-bezier(.24,.67,.26,1) both;
+}
+.email-receipt-paper h2 {
+  padding-bottom:7px;
+  border-bottom:1px solid #ded6c3;
+  color:#625947;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.email-receipt-paper dl { margin:9px 0 0; }
+.email-receipt-paper dt { color:#69604f; font-size:10px; }
+.email-receipt-paper dd { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.email-receipt-paper dd + dt { margin-top:5px; }
+.email-receipt-result {
+  display:flex;
+  align-items:flex-start;
+  gap:7px;
+  margin-top:9px;
+  padding-top:9px;
+  border-top:1px dashed #cfc3a8;
+}
+.email-receipt-result strong { font-weight:650; }
+.email-receipt-result p { color:#69604f; font-size:10px; }
+.email-receipt-result i {
+  position:relative;
+  flex:none;
+  width:14px;
+  height:14px;
+  margin-top:1px;
+  border-radius:50%;
+  background:#bb4820;
+}
+.email-receipt-result i::after {
+  content:"";
+  position:absolute;
+  left:3px;
+  top:4px;
+  width:7px;
+  height:4px;
+  border:solid #fff9ed;
+  border-width:0 0 1.5px 1.5px;
+  transform:rotate(-45deg);
+}
+.email-receipt-tray {
+  position:relative;
+  z-index:1;
+  height:31px;
+  border-radius:9px 9px 7px 7px;
+  background:linear-gradient(#444640,#31322e 40%,#282923);
+  box-shadow:inset 0 1px #ffffff25,inset 0 -2px #13141191,0 9px 15px -7px #15150f78;
+}
+.email-receipt-tray::before {
+  position:absolute;
+  inset:2px 13px auto;
+  height:6px;
+  content:"";
+  border-radius:1px 1px 4px 4px;
+  background:#1d1e19;
+  box-shadow:0 1px #ffffff14;
+}
+.email-receipt-tray i {
+  position:absolute;
+  inset:auto auto 9px 12px;
+  width:7px;
+  height:2px;
+  border-radius:2px;
+  background:#f78c46;
+  box-shadow:0 0 5px #f78c4690;
+  animation:email-receipt-lamp 1460ms steps(1,end) both;
+}
+@keyframes email-receipt-feed {
+  0%, 7% { transform:translate3d(0,101%,0); }
+  26%, 36% { transform:translate3d(0,70%,0); }
+  56%, 66% { transform:translate3d(0,31%,0); }
+  90% { transform:translate3d(0,-2px,0); }
+  100% { transform:none; }
+}
+@keyframes email-receipt-lamp {
+  0%, 36%, 66%, 100% { opacity:1; }
+  26%, 56%, 90% { opacity:.4; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .email-receipt-paper,.email-receipt-tray i { animation:none; }
+}
 .home-email-mail-flap { transform-origin:14px 8.5px; transition:transform 220ms var(--ease-out); }
 .home-email-wax-seal { transform-origin:14px 16px; transition:opacity 100ms 160ms,transform 160ms var(--ease-out) 140ms; }
 .home-email-draft-paper { opacity:0; transform:translateY(3px); transition:opacity 160ms,transform 220ms var(--ease-out); }
@@ -582,8 +618,6 @@ html[data-home-theme="dark"] .home-email-layer {
   .dock-email:hover .home-email-wax-seal { opacity:0; transform:translateY(-1.5px) scale(.85); transition-delay:0s; }
   .dock-email:hover .home-email-draft-paper { opacity:1; transform:translateY(-6px); transition-delay:0s; }
 }
-.dock-email::after { content:"Preview complete"; position:absolute; left:50%; bottom:calc(100% + 20px); padding:7px 11px; border-radius:8px; background:#202221; color:#fff; white-space:nowrap; font:12px/1.5 var(--font-sans); opacity:0; visibility:hidden; transform:translate(-50%,4px); transition:opacity 140ms,transform 180ms var(--ease-out),visibility 0s 180ms; pointer-events:none; }
-.dock-email[data-preview-complete=true]::after { opacity:1; visibility:visible; transform:translate(-50%,0); transition-delay:0s; }
 .home-dock .dock-controls>button[data-home-email-trigger][data-email-focus-restored]:focus-visible { outline:none; }
 
 @media (min-width:640px) and (pointer:fine), (min-width:640px) and (min-height:521px) {
@@ -595,5 +629,4 @@ html[data-home-theme="dark"] .home-email-layer {
   .home-email-composer,.home-email-composer[data-open=true] { clip-path:none; transform:none; transition-property:opacity,visibility; }
   @starting-style { .home-email-composer[data-open=true] { clip-path:none; transform:none; } }
   .home-email-mail-flap,.home-email-wax-seal,.home-email-draft-paper { transition:none; }
-  .dock-email::after,.dock-email[data-preview-complete=true]::after { transform:translate(-50%,0); transition-property:opacity,visibility; }
 }

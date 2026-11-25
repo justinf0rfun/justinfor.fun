@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { emailPaperPose, emailReturnFrames, hasEmailDraft, hasText, isEmailAddress, MAX_EMAIL_LENGTH, MAX_MESSAGE_LENGTH, MAX_SUBJECT_LENGTH } from "../src/lib/email-composer.ts";
+import { emailPaperPose, hasEmailDraft, hasText, isEmailAddress, MAX_EMAIL_LENGTH, MAX_MESSAGE_LENGTH, MAX_SUBJECT_LENGTH } from "../src/lib/email-composer.ts";
 
 test("composer validation preserves the source's address and invisible-text checks", () => {
   for (const address of ["hello@example.com", "user+note@sub.example.com"]) assert.equal(isEmailAddress(address), true);
@@ -21,7 +21,7 @@ test("Dock email opens the preview without retaining clipboard or delivery actio
   assert.match(composer, /event\.preventDefault\(\)/);
   assert.match(composer, /Preview complete\. No email was sent\./);
   assert.doesNotMatch(composer, /form\.current\?\.reset\(\)/);
-  assert.match(send, /onFlight/);
+  assert.match(send, /status === "sent" && stage === "waiting"\) notifyReceipt\(\)/);
   assert.doesNotMatch(send, />\s*Email sent\s*</);
 });
 
@@ -44,14 +44,9 @@ test("the paper closes exactly onto the native Dock button without stretching te
   assert.ok(edge.left >= 0 && edge.right >= 0 && edge.top >= 0);
 });
 
-test("the return flight starts at the send button, arcs and disappears into the Dock", () => {
-  for (const compact of [false, true]) {
-    const frames = emailReturnFrames({ x: 550, y: 500 }, { x: 560, y: 580 }, compact);
-    assert.match(frames[0].transform, /translate3d\(550px,500px,0\)/);
-    assert.match(frames.at(-1).transform, /translate3d\(560px,580px,0\)/);
-    assert.equal(frames[0].opacity, 1); assert.equal(frames.at(-1).opacity, 0);
-    assert.equal(frames[0].offset, 0); assert.equal(frames.at(-1).offset, 1);
-    assert.ok(frames.some(frame => Number(frame.transform.match(/,([\d.]+)px,0/)[1]) < 500));
-    assert.ok(frames.every(frame => !/NaN|Infinity/.test(frame.transform) && frame.opacity >= 0 && frame.opacity <= 1));
-  }
+test("the preview receipt uses the composer’s populated fields and preserves the form", () => {
+  const composer = readFileSync(new URL("../src/components/HomeEmail.tsx", import.meta.url), "utf8");
+  assert.match(composer, /<form ref=\{form\} hidden=\{Boolean\(receipt\)\}/);
+  assert.match(composer, /<EmailReceipt recipient=\{recipient\} subject=\{receipt\.subject\}/);
+  assert.match(composer, /<p>No email was sent\.<\/p>/);
 });
