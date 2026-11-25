@@ -44,7 +44,8 @@ export function mountDockScroll(dock: HTMLElement) {
     if (window.innerWidth !== viewportWidth) {
       if (guiding) return;
       viewportWidth = window.innerWidth;
-      if (!chatting && !guiding && !moments && !emailing) pinAnchor();
+      const emailSheet = emailing && document.documentElement.style.overflow === "hidden";
+      if (!chatting && !guiding && !moments && !emailSheet) pinAnchor();
       resetTracking();
     } else {
       // Keep real scroll intent while browser chrome changes only the viewport height.

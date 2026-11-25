@@ -130,6 +130,15 @@ test("desktop dock does not acquire a fixed mobile anchor", () => {
   assert.equal(f.properties.size, 0);
 });
 
+test("rotation reanchors the mobile dock while its non-modal email receipt is showing", () => {
+  const f = fixture({ touch: true });
+  f.window.fire("home-email-change", { detail: true });
+  f.window.innerWidth = 844;
+  f.window.innerHeight = 390;
+  f.window.fire("resize");
+  assert.equal(f.anchor(), "352px");
+});
+
 test("scale eases through intermediate sizes instead of completing in a snap", () => {
   const f = fixture({ start: 100 });
   f.scroll(140);

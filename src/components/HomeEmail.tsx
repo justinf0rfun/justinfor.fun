@@ -15,12 +15,14 @@ export default function HomeEmail() {
   const [hasDraft, setHasDraft] = useState(false);
   const [receipt, setReceipt] = useState<{ subject: string } | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null), panel = useRef<HTMLDivElement>(null), backdrop = useRef<HTMLDivElement>(null);
+  const receiptPanel = useRef<HTMLDivElement>(null);
   const form = useRef<HTMLFormElement>(null), wanted = useRef(false);
   const closing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), releasing = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const preview = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hoverReset = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dockResponse = useRef<Animation | null>(null);
   const drag = useRef<{ startY: number; lastY: number; lastAt: number; velocity: number; height: number } | null>(null);
+  const isComposing = isOpen && !receipt;
 
   function resetDockMotion() {
     dockResponse.current?.cancel(); dockResponse.current = null;
@@ -60,7 +62,7 @@ export default function HomeEmail() {
       if (panel.current) { panel.current.style.transition = ""; panel.current.style.transform = ""; }
       if (backdrop.current) { backdrop.current.style.transition = ""; backdrop.current.style.opacity = ""; }
       closing.current = setTimeout(() => { setStatus("idle"); setReceipt(null); }, 240);
-      if (restoreFocus && panel.current?.contains(document.activeElement)) requestAnimationFrame(() => {
+      if (restoreFocus && (panel.current?.contains(document.activeElement) || receiptPanel.current?.contains(document.activeElement))) requestAnimationFrame(() => {
         if (!wanted.current && trigger.current) {
           if (restoreFocus === "quiet") trigger.current.dataset.emailFocusRestored = "true";
           else delete trigger.current.dataset.emailFocusRestored;
@@ -86,15 +88,41 @@ export default function HomeEmail() {
   }
 
   useLayoutEffect(() => {
-    if (receipt && isOpen) panel.current?.focus({ preventScroll: true });
+    const node = receiptPanel.current, icon = trigger.current?.querySelector(".email-icons"), dock = icon?.closest(".home-dock");
+    if (!receipt || !isOpen || !node || !icon || !dock) return;
+    const viewport = window.visualViewport;
+    const place = () => {
+      const bounds = icon.getBoundingClientRect();
+      const x = bounds.left + bounds.width / 2;
+      const left = viewport?.offsetLeft ?? 0;
+      const right = left + (viewport?.width ?? window.innerWidth);
+      const bottom = (viewport?.offsetTop ?? 0) + (viewport?.height ?? window.innerHeight);
+      node.style.setProperty("--receipt-x", `${x}px`);
+      node.style.setProperty("--receipt-y", `${Math.min(dock.getBoundingClientRect().top, bottom) - 8}px`);
+      node.style.setProperty("--receipt-width", `${Math.min(288, Math.max(0, 2 * (Math.min(x - left, right - x) - 12)))}px`);
+    };
+    place();
+    node.focus({ preventScroll: true });
+    const observer = new ResizeObserver(place);
+    observer.observe(dock);
+    window.addEventListener("resize", place);
+    viewport?.addEventListener("resize", place);
+    viewport?.addEventListener("scroll", place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", place);
+      viewport?.removeEventListener("resize", place);
+      viewport?.removeEventListener("scroll", place);
+    };
   }, [receipt, isOpen]);
 
   useLayoutEffect(() => {
     const button = trigger.current;
     if (!button) return;
     button.dataset.draft = String(hasDraft);
-    button.setAttribute("aria-label", isOpen ? "Close email" : hasDraft ? "Email me, continue draft" : "Email me");
-  }, [hasDraft, host, isOpen]);
+    button.setAttribute("aria-controls", receipt && isOpen ? "home-email-receipt" : "home-email");
+    button.setAttribute("aria-label", isOpen ? receipt ? "Close receipt" : "Close email" : hasDraft ? "Email me, continue draft" : "Email me");
+  }, [hasDraft, host, isOpen, receipt]);
 
   useEffect(() => {
     const button = document.querySelector<HTMLButtonElement>("[data-home-email-trigger]");
@@ -119,7 +147,8 @@ export default function HomeEmail() {
       for (const event of ["home-moments-opening", "inspired-opening", "ride-coupon-opening"]) window.removeEventListener(event, close);
       window.removeEventListener("home-chat-guide-state", guide);
       window.removeEventListener("keydown", cancelKey);
-      button.disabled = true; button.setAttribute("aria-expanded", "false"); delete button.dataset.open; delete button.dataset.draft; delete button.dataset.emailFocusRestored;
+      button.disabled = true; button.setAttribute("aria-expanded", "false"); button.setAttribute("aria-controls", "home-email");
+      delete button.dataset.open; delete button.dataset.draft; delete button.dataset.emailFocusRestored;
       const dock = document.querySelector<HTMLElement>(".home-dock");
       dock?.removeAttribute("data-email-open"); dock?.removeAttribute("data-email-returning");
       window.dispatchEvent(new CustomEvent("home-email-change", { detail: false }));
@@ -131,13 +160,13 @@ export default function HomeEmail() {
     if (trigger.current) trigger.current.dataset.open = String(isOpen);
     const dock = document.querySelector<HTMLElement>(".home-dock");
     if (dock) dock.dataset.emailOpen = String(isOpen);
-    if (!isOpen) return;
+    if (!isComposing) return;
     measurePaper(); window.addEventListener("resize", measurePaper);
     return () => window.removeEventListener("resize", measurePaper);
-  }, [isOpen, host, sheet]);
+  }, [isOpen, isComposing, host, sheet]);
 
   useLayoutEffect(() => {
-    if (!isOpen || !sheet) return;
+    if (!isComposing || !sheet) return;
     const main = document.querySelector<HTMLElement>(".home-content"), dock = document.querySelector<HTMLElement>(".home-dock");
     const overflow = document.documentElement.style.overflow, mainInert = main?.inert, dockInert = dock?.inert;
     document.documentElement.style.overflow = "hidden";
@@ -148,7 +177,7 @@ export default function HomeEmail() {
       if (main) main.inert = !!mainInert;
       if (dock) dock.inert = !!dockInert;
     };
-  }, [isOpen, sheet]);
+  }, [isComposing, sheet]);
 
   useEffect(() => {
     const viewport = window.visualViewport, node = panel.current;
@@ -173,11 +202,12 @@ export default function HomeEmail() {
     if (!isOpen) return;
     const outside = (event: Event) => {
       const target = event.target as Node;
-      if (!sheet && !panel.current?.contains(target) && !trigger.current?.contains(target)) change(false, false);
+      const surface = receipt ? receiptPanel.current : panel.current;
+      if ((receipt || !sheet) && !surface?.contains(target) && !trigger.current?.contains(target)) change(false, false);
     };
     const key = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") { event.preventDefault(); change(false); }
-      if (event.key !== "Tab" || !sheet || !panel.current) return;
+      if (event.key !== "Tab" || !sheet || !isComposing || !panel.current) return;
       const stops = [...panel.current.querySelectorAll<HTMLElement>('button:not([aria-disabled="true"]), input, textarea')].filter(el => el.getClientRects().length > 0);
       const first = stops[0], last = stops.at(-1);
       const outsideStops = !stops.includes(document.activeElement as HTMLElement);
@@ -186,7 +216,7 @@ export default function HomeEmail() {
     };
     document.addEventListener("click", outside); window.addEventListener("keydown", key);
     return () => { document.removeEventListener("click", outside); window.removeEventListener("keydown", key); };
-  }, [isOpen, sheet]);
+  }, [isOpen, isComposing, sheet, receipt]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (receipt || event.key !== "Enter" || event.nativeEvent.isComposing || event.keyCode === 229) return;
@@ -245,14 +275,14 @@ export default function HomeEmail() {
 
   const locked = status === "sending" || status === "sent";
   return host && createPortal(<div className="home-email-layer">
-    <div ref={backdrop} aria-hidden="true" data-open={isOpen} onClick={() => change(false, "quiet")} className="home-email-composer-backdrop" />
-    <div ref={panel} id="home-email" role="dialog" aria-label={receipt ? "Email preview receipt" : "Email Justin"} aria-describedby="home-email-preview" aria-modal={sheet && isOpen} tabIndex={-1} data-open={isOpen} data-receipt={Boolean(receipt)} inert={!isOpen} onKeyDown={handleKeyDown} className="home-email-composer">
+    <div ref={backdrop} hidden={Boolean(receipt)} aria-hidden="true" data-open={isComposing} onClick={() => change(false, "quiet")} className="home-email-composer-backdrop" />
+    <div ref={panel} hidden={Boolean(receipt)} id="home-email" role="dialog" aria-label="Email Justin" aria-describedby="home-email-preview" aria-modal={sheet && isComposing} tabIndex={-1} data-open={isComposing} inert={!isComposing} onKeyDown={handleKeyDown} className="home-email-composer">
       <div onPointerDown={handleDragStart} onPointerMove={handleDragMove} onPointerUp={handleDragEnd} onPointerCancel={handleDragEnd} className="home-email-composer-header">
         <span aria-hidden="true" className="home-email-composer-grabber" />
-        {!receipt && <div className="home-email-recipient"><img src="/justin-avatar.png" width="32" height="32" alt="" /><div><h2>Write to Justin</h2><span>{recipient}</span></div></div>}
+        <div className="home-email-recipient"><img src="/justin-avatar.png" width="32" height="32" alt="" /><div><h2>Write to Justin</h2><span>{recipient}</span></div></div>
         <button type="button" onClick={event => change(false, event.detail === 0 ? "visible" : "quiet")} aria-label="Close email" className="home-email-close relative inline-flex size-6 items-center justify-center rounded-full text-muted transition-transform active:scale-95"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" /></svg></button>
       </div>
-      <form ref={form} hidden={Boolean(receipt)} noValidate aria-busy={status === "sending"} onSubmit={handleSubmit} onInput={() => {
+      <form ref={form} noValidate aria-busy={status === "sending"} onSubmit={handleSubmit} onInput={() => {
         const fields = form.current!.elements;
         setHasDraft(hasEmailDraft((fields.namedItem("from") as HTMLInputElement).value, (fields.namedItem("subject") as HTMLInputElement).value, (fields.namedItem("message") as HTMLTextAreaElement).value));
       }} className="flex min-h-0 flex-1 flex-col">
@@ -266,31 +296,31 @@ export default function HomeEmail() {
           <SendButton status={status} onReceipt={showReceipt} />
         </div>
       </form>
-      {receipt && <EmailReceipt recipient={recipient} subject={receipt.subject} />}
       <p id="home-email-preview" className="sr-only">This is a preview. No email is sent. Your draft stays on this page until you leave.</p>
     </div>
+    {isOpen && receipt && <div ref={receiptPanel} id="home-email-receipt" role="dialog" aria-label="Email preview receipt" tabIndex={-1} className="home-email-receipt" data-email-receipt>
+      <EmailReceipt recipient={recipient} subject={receipt.subject} />
+    </div>}
     <p aria-live="polite" className="sr-only">{isOpen && (receipt ? "Preview complete. No email was sent." : locked ? "Preparing your preview receipt" : "")}</p>
   </div>, host);
 }
 
 function EmailReceipt({ recipient, subject }: { recipient: string; subject: string }) {
-  return <div className="home-email-receipt" data-email-receipt>
-    <div className="email-receipt-printer">
-      <div className="email-receipt-window">
-        <div className="email-receipt-paper">
-          <h2>Preview receipt</h2>
-          <dl>
-            <dt>To</dt><dd>{recipient}</dd>
-            <dt>Subject</dt><dd title={subject || undefined}>{subject || "No subject"}</dd>
-          </dl>
-          <div className="email-receipt-result">
-            <i aria-hidden="true" />
-            <div><strong>Preview complete</strong><p>No email was sent.</p></div>
-          </div>
+  return <div className="email-receipt-printer">
+    <div className="email-receipt-window">
+      <div className="email-receipt-paper">
+        <h2>Preview receipt</h2>
+        <dl>
+          <dt>To</dt><dd>{recipient}</dd>
+          <dt>Subject</dt><dd title={subject || undefined}>{subject || "No subject"}</dd>
+        </dl>
+        <div className="email-receipt-result">
+          <i aria-hidden="true" />
+          <div><strong>Preview complete</strong><p>No email was sent.</p></div>
         </div>
       </div>
-      <div className="email-receipt-tray" aria-hidden="true"><i /></div>
     </div>
+    <div className="email-receipt-tray" aria-hidden="true"><i /></div>
   </div>;
 }
 

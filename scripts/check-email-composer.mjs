@@ -46,7 +46,8 @@ test("the paper closes exactly onto the native Dock button without stretching te
 
 test("the preview receipt uses the composer’s populated fields and preserves the form", () => {
   const composer = readFileSync(new URL("../src/components/HomeEmail.tsx", import.meta.url), "utf8");
-  assert.match(composer, /<form ref=\{form\} hidden=\{Boolean\(receipt\)\}/);
+  assert.match(composer, /ref=\{panel\} hidden=\{Boolean\(receipt\)\}/);
+  assert.match(composer, /trigger\.current\?\.querySelector\("\.email-icons"\)/);
   assert.match(composer, /<EmailReceipt recipient=\{recipient\} subject=\{receipt\.subject\}/);
   assert.match(composer, /<p>No email was sent\.<\/p>/);
 });

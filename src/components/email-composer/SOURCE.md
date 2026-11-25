@@ -32,7 +32,7 @@ Mobile focus is contained and background scrolling is restored on dismissal.
 
 There is no contact API, fetch, mailto action, third-party sender, persisted draft
 or real delivery. The preview starts with the envelope morph, letter insertion
-and sealing. A receipt then feeds out in three steps and stays in the composer
+and sealing. A receipt then feeds out above the Dock’s envelope icon and stays
 until dismissed. It shows the recipient, subject, and “Preview complete.” Closing
 cancels pending preview timers. Reopening preserves the in-memory draft. A page reload
 or navigation clears it. The hidden honeypot and real delivery error handling
