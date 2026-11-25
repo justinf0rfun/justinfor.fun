@@ -1,7 +1,8 @@
 ---
 import BookDetail from "./BookDetail.astro";
 import BookJacket from "./BookJacket.astro";
-import { books, bookGroups, bookNumber, topicCount } from "../data/books";
+import BookSpine from "./BookSpine.astro";
+import { books, bookGroups, topicCount } from "../data/books";
 import { inkPoints } from "../scripts/books-motion";
 
 const count = books.length;
@@ -35,21 +36,17 @@ const first = books[0];
               {volumes.map(({ book, slot }) => {
                 const offset = slot - count;
                 const active = offset === 0;
-                const { body, text, band } = book.spinePalette;
                 return (
                   <div class="books-volume" data-books-slot={slot} data-book-id={book.id}
                     data-title={book.title} data-author={book.authors} data-group={book.group} data-aspect={book.aspect}
                     data-side={active ? "cover" : "spine"}
                     style={{
                       "--slot": offset, "--book-ratio": book.aspect,
-                      "--spine-body": body, "--spine-text": text, "--spine-band": band,
                       "--turn": active ? "-90deg" : "0deg", "--roll": active ? "-4.5deg" : "0deg", "--depth": active ? ".2" : "0",
                       "--lift": active ? "-.025" : "0", "--spine-shade": active ? ".55" : "0", "--cover-shade": active ? "0" : ".5",
                     }}>
                     <div class="books-spine">
-                      <span class="spine-number">{bookNumber(book)}</span>
-                      <span class="spine-title">{book.spine}</span>
-                      <span class="spine-author">{book.short}</span>
+                      <BookSpine book={book} />
                     </div>
                     <div id={active ? "shelf-books-cover" : undefined} class="books-cover" data-book-cover>
                       <BookJacket book={book} eager={Math.abs(offset) <= 1} />
@@ -251,60 +248,11 @@ const first = books[0];
   }
   .books-spine {
     --face-shade: var(--spine-shade);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     width: var(--spine-width);
     left: calc(var(--spine-width) / -2);
-    padding: 0 0 5px;
     overflow: hidden;
     transform: var(--book-pose, var(--initial-pose)) translateZ(calc(var(--cover-width) / 2));
-    background:
-      linear-gradient(90deg, #0003, transparent 14%, #ffffff0e 55%, transparent 84%, #0003),
-      var(--spine-body);
-    color: var(--spine-text);
-    box-shadow: inset 0 1px #fff7, 0 11px 14px -12px #301d19bd;
-  }
-  .spine-number {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 100%;
-    height: 12%;
-    background: var(--spine-band);
-    color: var(--spine-body);
-    font: 650 clamp(9px, 1vw, 13px) / 1 ui-monospace, monospace;
-    letter-spacing: .02em;
-    font-variant-numeric: tabular-nums;
-  }
-  .spine-title, .spine-author {
-    writing-mode: vertical-rl;
-    text-align: center;
-    max-height: 100%;
-    overflow-wrap: anywhere;
-  }
-  .spine-title {
-    display: grid;
-    place-items: center;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
-    padding-inline: 4px;
-    font-size: clamp(10px, calc(var(--book-height) * .038), 17px);
-    font-weight: 650;
-    line-height: 1.05;
-  }
-  .spine-author {
-    flex: none;
-    max-height: 32%;
-    overflow: hidden;
-    padding-inline: 3px;
-    padding-bottom: calc(var(--spine-width) * .1);
-    font-size: clamp(6px, calc(var(--book-height) * .021), 10px);
-    letter-spacing: .055em;
-    text-transform: uppercase;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    box-shadow: 0 11px 14px -12px #301d19bd;
   }
   .books-cover {
     --face-shade: var(--cover-shade);
@@ -313,7 +261,7 @@ const first = books[0];
     transform: var(--book-pose, var(--initial-pose)) rotateY(90deg) translateZ(calc(var(--spine-width) / 2));
     box-shadow: 0 22px 32px -24px rgb(24 15 12 / .56);
   }
-  .books-volume[data-spine-edge] .books-spine span { visibility: hidden; }
+  .books-volume[data-spine-edge] .books-spine :global(.book-spine > span) { visibility: hidden; }
 
   .books-actions { display: flex; gap: .65rem; align-items: center; justify-content: center; }
   .books-actions :is(button, a), .books-dialog-bar button {

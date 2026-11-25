@@ -118,6 +118,10 @@ const { target } = Astro.props;
     animation-duration: 500ms;
     animation-timing-function: cubic-bezier(.22,.8,.25,1);
   }
+  html[data-books-flight="land"]::view-transition-group(books-flight) {
+    animation-duration: 440ms;
+    animation-timing-function: cubic-bezier(.3,.04,.24,1);
+  }
   html[data-books-flight="open"]::view-transition-old(books-flight),
   html[data-books-flight="land"]::view-transition-new(books-flight) {
     display: none;

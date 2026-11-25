@@ -1,0 +1,81 @@
+---
+import { bookNumber, type Book } from "../data/books";
+
+interface Props { book: Book; compact?: boolean }
+const { book, compact } = Astro.props;
+const { body, text, band } = book.spinePalette;
+---
+
+<span class="book-spine" data-compact={compact || undefined}
+  style={{ "--spine-body": body, "--spine-text": text, "--spine-band": band }}>
+  <span class="spine-number">{bookNumber(book)}</span>
+  <span class="spine-title">{book.spine}</span>
+  <span class="spine-author">{book.short}</span>
+</span>
+
+<style>
+  .book-spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding-block-end: 5px;
+    overflow: hidden;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0003, transparent 14%, #ffffff0e 55%, transparent 84%, #0003), var(--spine-body);
+    color: var(--spine-text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-shadow: inset 0 1px #fff7;
+  }
+  .spine-number {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 100%;
+    height: 12%;
+    background: var(--spine-band);
+    color: var(--spine-body);
+    font: 650 var(--number-size, clamp(9px, 1vw, 13px)) / 1 ui-monospace, monospace;
+    letter-spacing: .02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .spine-title, .spine-author {
+    writing-mode: vertical-rl;
+    text-align: center;
+    max-height: 100%;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+  .spine-title {
+    display: grid;
+    place-items: center;
+    flex: 1;
+    min-height: 0;
+    padding-inline: var(--title-padding, 4px);
+    font-size: var(--title-size, clamp(10px, calc(var(--book-height) * .038), 17px));
+    font-weight: 650;
+    line-height: 1.05;
+  }
+  .spine-author {
+    flex: none;
+    max-height: 32%;
+    padding-inline: var(--author-padding, 3px);
+    padding-bottom: calc(var(--spine-width) * .1);
+    font-size: var(--author-size, clamp(6px, calc(var(--book-height) * .021), 10px));
+    letter-spacing: .055em;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .book-spine[data-compact] {
+    --number-size: clamp(6px, 6.2cqh, 10px);
+    --title-size: clamp(5.5px, 4.65cqh, 8.5px);
+    --author-size: clamp(3.6px, 2.8cqh, 5.5px);
+    --title-padding: 2px;
+    --author-padding: 1px;
+    --spine-width: 100cqw;
+    padding-block-end: 2px;
+    container-type: size;
+  }
+</style>
