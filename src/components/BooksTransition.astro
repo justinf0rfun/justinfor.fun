@@ -33,6 +33,31 @@ const { target } = Astro.props;
       keyboard = event.detail === 0;
     }, true);
 
+    // Sample the projected corners so the flat snapshot begins at the book's current angle.
+    const coverTransform = (cover, width, height, bounds) => {
+      const corners = [[0, 0], [width, 0], [0, height]].map(([left, top]) => {
+        const point = document.createElement("span");
+        point.style.cssText = `position:absolute;left:${left}px;top:${top}px;width:0;height:0;pointer-events:none`;
+        cover.append(point);
+        return point;
+      });
+      const [origin, right, bottom] = corners.map(point => point.getBoundingClientRect());
+      corners.forEach(point => point.remove());
+      // Fit the affine approximation to the full projected bounds, including the far corner.
+      const across = { x: right.x - origin.x, y: right.y - origin.y };
+      const down = { x: bottom.x - origin.x, y: bottom.y - origin.y };
+      const scaleX = bounds.width / (Math.abs(across.x) + Math.abs(down.x));
+      const scaleY = bounds.height / (Math.abs(across.y) + Math.abs(down.y));
+      const x = bounds.left - scaleX * (Math.min(0, across.x) + Math.min(0, down.x));
+      const y = bounds.top - scaleY * (Math.min(0, across.y) + Math.min(0, down.y));
+      const matrix = [
+        across.x * scaleX / width, across.y * scaleY / width,
+        down.x * scaleX / height, down.y * scaleY / height,
+        x, y,
+      ];
+      return `matrix(${matrix.join(", ")})`;
+    };
+
     const carry = (transition, leaving, activation) => {
       const instant = keyboard || reduced.matches;
       keyboard = false;
@@ -54,6 +79,11 @@ const { target } = Astro.props;
         transition.skipTransition();
         return;
       }
+      const image = cover.querySelector("img");
+      if (leaving && (!image?.complete || !image.naturalWidth)) {
+        transition.skipTransition();
+        return;
+      }
 
       if (home && !leaving) {
         const rect = home.getBoundingClientRect();
@@ -61,9 +91,11 @@ const { target } = Astro.props;
       }
       const root = document.documentElement;
       root.dataset.booksFlight = home ? (leaving ? "take" : "land") : (leaving ? "return" : "open");
-      const rect = cover.getBoundingClientRect();
+      if (!home && !leaving) root.classList.remove("m-enter");
+      const { offsetWidth: width, offsetHeight: height } = cover;
+      const bounds = cover.getBoundingClientRect();
       const art = home?.dataset.booksFirstCover ?? cover.querySelector("[data-jacket-image]")?.dataset.jacketImage;
-      if (!art) {
+      if (!art || !width || !height || !bounds.width || !bounds.height) {
         delete root.dataset.booksFlight;
         transition.skipTransition();
         return;
@@ -73,11 +105,13 @@ const { target } = Astro.props;
       const poster = document.createElement("div");
       poster.className = "books-flight-cover";
       poster.setAttribute("aria-hidden", "true");
+      const artwork = `url(${JSON.stringify(art)})`;
+      if (!home && !leaving) root.style.setProperty("--books-flight-art", artwork);
       Object.assign(poster.style, {
-        left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`,
-        backgroundImage: `url(${JSON.stringify(art)})`, viewTransitionName: "books-flight",
+        width: `${width}px`, height: `${height}px`, transform: coverTransform(cover, width, height, bounds),
+        backgroundImage: artwork, viewTransitionName: "books-flight",
       });
-      cover.style.visibility = "hidden";
+      cover.setAttribute("data-books-carried", "");
       document.body.append(poster);
       const clear = () => {
         if (clearFlight !== clear) return;
@@ -86,8 +120,9 @@ const { target } = Astro.props;
           home.addEventListener("pointerleave", () => delete home.dataset.booksHoverPaused, { once: true });
         }
         poster.remove();
-        cover.style.visibility = "";
+        cover.removeAttribute("data-books-carried");
         delete root.dataset.booksFlight;
+        root.style.removeProperty("--books-flight-art");
         clearFlight = undefined;
       };
       clearFlight = clear;
@@ -100,32 +135,52 @@ const { target } = Astro.props;
 </script>
 
 <style is:global>
+  [data-books-carried] { opacity: 0; }
   .books-flight-cover {
     position: fixed;
+    inset: 0 auto auto 0;
     z-index: 80;
     border-radius: 2px;
     background-color: #e6dfcd;
     background-size: 100% 100%;
     box-shadow: 0 16px 26px -17px #2820165e;
     pointer-events: none;
+    transform-origin: top left;
   }
   html[data-books-flight]::view-transition { pointer-events: none; }
   html[data-books-flight]::view-transition-group(root) { animation: none; }
-  html[data-books-flight]::view-transition-old(root) { display: none; }
+  html[data-books-flight]::view-transition-old(root) {
+    z-index: 1;
+    mix-blend-mode: normal;
+    animation: books-page-release 120ms var(--ease-out) 20ms both;
+  }
   html[data-books-flight]::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
   html[data-books-flight]::view-transition-group(books-flight) {
     z-index: 1;
-    animation-duration: 500ms;
+    animation-duration: 440ms;
     animation-timing-function: cubic-bezier(.22,.8,.25,1);
   }
-  html[data-books-flight="land"]::view-transition-group(books-flight) {
-    animation-duration: 440ms;
-    animation-timing-function: cubic-bezier(.3,.04,.24,1);
+  /* Paint directly into the growing group so mobile Safari never upscales a narrow snapshot. */
+  html[data-books-flight="open"]::view-transition-group(books-flight) {
+    border-radius: 2px;
+    background: var(--books-flight-art) center / 100% 100% no-repeat;
+    box-shadow: 0 16px 26px -17px #2820165e;
   }
-  html[data-books-flight="open"]::view-transition-old(books-flight),
-  html[data-books-flight="land"]::view-transition-new(books-flight) {
+  html[data-books-flight="land"]::view-transition-group(books-flight) {
+    animation-duration: 380ms;
+    animation-timing-function: cubic-bezier(.3,.12,.24,1);
+  }
+  html[data-books-flight]::view-transition-new(books-flight),
+  html[data-books-flight="open"]::view-transition-old(books-flight) {
     display: none;
   }
-  html[data-books-flight="open"]::view-transition-new(books-flight),
-  html[data-books-flight="land"]::view-transition-old(books-flight) { animation: none; mix-blend-mode: normal; }
+  html[data-books-flight="land"]::view-transition-old(books-flight) {
+    mix-blend-mode: normal;
+    animation: books-cover-seat 380ms linear both;
+  }
+  @keyframes books-page-release { to { opacity: 0; } }
+  @keyframes books-cover-seat {
+    0%, 82% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 </style>

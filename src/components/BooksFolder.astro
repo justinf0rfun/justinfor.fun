@@ -108,7 +108,7 @@ const preview = [books[5], books[0], books[6]];
     z-index: 1;
     transform: translateY(var(--book-rise, 0px));
     transform-style: preserve-3d;
-    transition: transform 295ms cubic-bezier(.32,.04,.31,1) 35ms;
+    transition: transform 240ms var(--ease-out) 32ms;
     box-shadow: none;
   }
   .books-case-turn {
@@ -117,10 +117,10 @@ const preview = [books[5], books[0], books[6]];
     width: 100%;
     height: 100%;
     border-radius: inherit;
-    transform: rotateZ(var(--book-lean, 0deg)) rotateY(var(--book-turn, 0deg));
+    transform: rotateY(var(--book-turn, 0deg));
     transform-origin: left center;
     transform-style: preserve-3d;
-    transition: transform 255ms cubic-bezier(.23,1,.32,1);
+    transition: transform 210ms var(--ease-out);
   }
   .books-case-cover {
     position: absolute;
@@ -177,32 +177,26 @@ const preview = [books[5], books[0], books[6]];
   .books-folder:focus-visible { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-feature {
-      --book-rise: max(-27%, -27px);
-      --book-lean: -4deg;
-      --book-turn: -41deg;
-      transition: transform 320ms cubic-bezier(.16,.85,.28,1.12);
+      --book-rise: max(-14%, -17px);
+      --book-turn: -32deg;
+      transition: transform 230ms var(--ease-out);
     }
     :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-turn {
-      transition: transform 360ms cubic-bezier(.19,.82,.25,1.06) 55ms;
+      transition: transform 260ms var(--ease-out) 24ms;
     }
   }
   @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
     :where(.books-folder:active) .books-case-feature {
-      --book-rise: -10%;
-      --book-turn: -15deg;
+      --book-rise: -7%;
+      --book-turn: -14deg;
     }
     :where(.books-folder:active) :is(.books-case-feature, .books-case-turn) { transition: transform 100ms var(--ease-out); }
   }
-  :global(html[data-books-flight=take]) .books-case-feature {
-    --book-rise: max(-31%, -30px);
-    --book-lean: -4deg;
-    --book-turn: -48deg;
-  }
   :global(html[data-books-flight=land]) .books-case-feature {
-    --book-rise: -6%;
-    --book-turn: -14deg;
+    --book-rise: -4%;
+    --book-turn: -12deg;
   }
-  :global(html[data-books-flight]) :is(.books-case-feature, .books-case-turn) {
+  :global(html[data-books-flight=land]) :is(.books-case-feature, .books-case-turn) {
     transition: none;
   }
   @media (prefers-reduced-motion: reduce) {

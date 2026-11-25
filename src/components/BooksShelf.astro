@@ -169,6 +169,7 @@ const first = books[0];
     transition: width .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1);
     pointer-events: none;
   }
+  .books-categories:not([data-ready]) .books-category-marker { display: none; }
   .books-categories button {
     position: relative;
     z-index: 1;
