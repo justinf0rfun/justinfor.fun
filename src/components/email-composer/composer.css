@@ -363,9 +363,10 @@ html[data-home-theme="dark"] .home-email-layer {
   .home-email-composer-backdrop {
     display: block;
     position: fixed;
-    inset: 0;
+    /* Keep the scrim below the viewport edge Safari samples for its status bar. */
+    inset: max(1px, env(safe-area-inset-top, 0px)) 0 0;
     z-index: 40;
-    background-color: rgb(0 0 0 / 0.32);
+    background: linear-gradient(transparent, rgb(0 0 0 / 0.32) 24px);
     opacity: 0;
     visibility: hidden;
     /* The page behind doesn't scroll from under a finger on the dim */
