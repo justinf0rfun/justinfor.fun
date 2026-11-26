@@ -139,8 +139,10 @@ const markdown = articleMarkdown(article, post.body ?? "");
   .article-prose > .article-note {
     position: relative;
     margin-block: 1.5rem 1.75rem;
-    padding-inline-start: 3rem;
-    color: #717171;
+    padding: .8rem .5rem .9rem 2.375rem;
+    border-radius: .5rem;
+    background: #f3f1ed;
+    color: #6b6862;
     font-size: .9375rem;
     line-height: 1.62;
     overflow-wrap: anywhere;
@@ -148,21 +150,23 @@ const markdown = articleMarkdown(article, post.body ?? "");
 
   .article-note::before {
     position: absolute;
-    inset-block-start: -.36rem;
-    inset-inline-start: -.3rem;
-    width: 2.75rem;
-    height: 2.75rem;
-    background: url("/justin-avatar.png") center / 3.2rem no-repeat;
+    inset-block-start: .48rem;
+    inset-inline-start: .12rem;
+    width: 2rem;
+    height: 2rem;
+    background: url("/justin-avatar.png") center / 2.6rem no-repeat;
     content: "";
   }
 
   .article-note > * + * { margin-block-start: .55rem; }
+  .article-note > p:not(.article-note-label) { text-wrap: pretty; }
 
-  .article-prose .article-note :is(a, strong, code) { color: #5f5f5f; }
+  .article-prose .article-note :is(a, strong, code) { color: #625e58; }
+  .article-prose .article-note code { background: #ebe8e2; }
 
   .article-note > .article-note-label {
-    color: #4c4c4c;
-    font: 600 .72rem/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: #4c4842;
+    font: 600 .8125rem/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   .article-note-label + p { margin-block-start: .36rem; }
@@ -189,21 +193,30 @@ const markdown = articleMarkdown(article, post.body ?? "");
     .article-prose:has(> .article-note) { display: flow-root; }
 
     .article-prose > .article-note {
-      --note-width: 13.5rem;
+      --note-width: clamp(14.375rem, calc((100vw - 43.25rem) / 2 - 4rem), 15rem);
       --note-gap: 2rem;
       float: right;
       clear: right;
+      /* Lift the visible note while keeping the float's spacing for nearby notes. */
+      inset-block-start: -1.75rem;
       width: var(--note-width);
       margin-block: .15rem 1rem;
       margin-inline-end: calc(0px - var(--note-width) - var(--note-gap));
-      padding-inline-start: 2.4rem;
+      padding: .68rem .875rem .9rem;
       font-size: .875rem;
     }
 
+    .article-note > .article-note-label {
+      display: flex;
+      align-items: center;
+      min-block-size: 1.8rem;
+      padding-inline-start: 1.6rem;
+    }
+
     .article-note::before {
-      width: 2.4rem;
-      height: 2.4rem;
-      background-size: 2.8rem;
+      inset-block-start: .55rem;
+      inset-inline-start: .55rem;
+      background-size: 2.32rem;
     }
   }
 
