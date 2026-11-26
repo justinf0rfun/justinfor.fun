@@ -9,6 +9,10 @@ export const engineeringSources = [
   { id: "meta", name: "Meta Engineering", url: "https://engineering.fb.com/feed/" },
 ];
 
+export function engineeringChannel(position) {
+  return String(position).padStart(2, "0");
+}
+
 const relative = new Intl.RelativeTimeFormat("en", { numeric: "auto", style: "long" });
 export function engineeringTime(date, now = Date.now()) {
   const seconds = Math.round((Date.parse(date) - now) / 1000);
@@ -27,18 +31,31 @@ const escape = (text) => String(text).replace(/[&<>"']/g, (character) => ({
 })[character]);
 
 export function renderEngineeringArticles(articles) {
-  const shownSources = new Set();
-  return articles.map(({ source, title, link, date }) => {
-    const station = engineeringSources.find(({ name }) => name === source)?.id;
-    if (!station || !/^https?:\/\//i.test(link)) return "";
-    const latest = !shownSources.has(station);
-    shownSources.add(station);
-    return `<li class="engineering-article" data-engineering-article="${station}" ${latest ? "data-engineering-latest" : "hidden"}>
-      <div class="engineering-byline">
-        <button type="button" class="engineering-source" data-engineering-tune="${station}" aria-pressed="false" title="Tune to ${escape(source)}">${escape(source)}</button>
-        <time datetime="${escape(date)}" title="${escape(date)}">${escape(engineeringTime(date))}</time>
+  const latestByChannel = Array(engineeringSources.length).fill("");
+  const earlier = [];
+
+  for (const { source, title, link, date } of articles) {
+    const index = engineeringSources.findIndex(({ name }) => name === source);
+    if (index === -1 || !/^https?:\/\//i.test(link)) continue;
+
+    const station = engineeringSources[index].id;
+    const channel = engineeringChannel(index + 1);
+    const sourceLabel = escape(source);
+    const tuneLabel = `Tune to channel ${channel}, ${sourceLabel}`;
+    const latest = !latestByChannel[index];
+    const row = `<li class="engineering-article" data-engineering-article="${station}" ${latest ? "data-engineering-latest" : "hidden"}>
+      <button type="button" class="engineering-channel" data-engineering-tune="${station}" aria-label="${tuneLabel}" title="${tuneLabel}">${channel}</button>
+      <div class="engineering-program">
+        <div class="engineering-byline">
+          <span class="engineering-source">${sourceLabel}</span>
+          <time datetime="${escape(date)}" title="${escape(date)}">${escape(engineeringTime(date))}</time>
+        </div>
+        <a class="engineering-article-link" href="${escape(link)}" target="_blank" rel="noopener noreferrer"><span>${escape(title)}</span><span aria-hidden="true" class="engineering-outbound">↗</span></a>
       </div>
-      <a class="engineering-article-link" href="${escape(link)}" target="_blank" rel="noopener noreferrer"><span>${escape(title)}</span><span aria-hidden="true" class="engineering-outbound">↗</span></a>
     </li>`;
-  }).join("");
+    if (latest) latestByChannel[index] = row;
+    else earlier.push(row);
+  }
+
+  return [...latestByChannel, ...earlier].join("");
 }

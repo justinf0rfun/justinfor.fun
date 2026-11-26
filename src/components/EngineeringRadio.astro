@@ -1,10 +1,10 @@
 ---
 import { engineeringSources } from "../lib/engineering-blogs.mjs";
-const positions = ["All sources", ...engineeringSources.map(({ name }) => name)];
+const positions = ["All stations", ...engineeringSources.map(({ name }) => name)];
 const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
 ---
 
-<dialog class="engineering-radio" id="engineering-blogs" data-engineering-radio aria-labelledby="engineering-title">
+<dialog class="engineering-radio" id="engineering-blogs" data-engineering-radio data-view="guide" aria-labelledby="engineering-title">
   <div class="engineering-receiver">
     <div class="engineering-slot" aria-hidden="true"></div>
     <div class="engineering-face">
@@ -24,22 +24,25 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
           </div>
         </div>
         <div class="engineering-station">
-          <p class="engineering-readout" aria-live="polite"><span data-engineering-readout>All sources</span></p>
-          <button type="button" class="engineering-reset" data-engineering-reset aria-label="All sources" title="All sources" hidden>
+          <p class="engineering-readout" aria-live="polite" aria-atomic="true">
+            <span class="engineering-readout-channel" data-engineering-channel hidden></span>
+            <span data-engineering-readout>All stations</span>
+          </p>
+          <button type="button" class="engineering-reset" data-engineering-reset aria-label="All stations" title="All stations" hidden>
             <span aria-hidden="true">↶</span>
           </button>
         </div>
       </div>
-      <div class="engineering-dial" data-engineering-dial role="slider" tabindex="0" aria-label="Blog source"
+      <div class="engineering-dial" data-engineering-dial role="slider" tabindex="0" aria-label="Radio channel"
         aria-describedby="engineering-dial-help" aria-valuemin="0" aria-valuemax={positions.length - 1}
-        aria-valuenow="0" aria-valuetext="All sources">
+        aria-valuenow="0" aria-valuetext="All stations">
         {positions.map((name, index) => (
           <span class="engineering-tick" data-engineering-tick={index} data-current={index === 0 ? "" : undefined}
             style={{ "--tick-angle": `${index * 270 / (positions.length - 1) - 135}deg` }} aria-hidden="true" title={name}></span>
         ))}
         <span class="engineering-knob" aria-hidden="true"><i></i></span>
       </div>
-      <p class="sr-only" id="engineering-dial-help">Turn the dial or use arrow keys to tune. Press the center or Home to return to all sources.</p>
+      <p class="sr-only" id="engineering-dial-help">Turn the dial or use arrow keys to tune. Press the center or Home to return to all stations.</p>
       <button type="button" class="engineering-close" data-engineering-close aria-label="Close Engineering Radio">
         <span aria-hidden="true">×</span>
       </button>
@@ -48,8 +51,11 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
 
   <div class="engineering-output" data-engineering-output inert>
     <div class="engineering-feed" data-engineering-scroll>
-      <div class="engineering-paper">
-        <p class="engineering-paper-heading" data-engineering-paper-heading>Latest from each source</p>
+      <div class="engineering-paper" data-engineering-paper>
+        <h3 class="engineering-paper-heading" tabindex="-1">
+          <span class="engineering-paper-channel" data-engineering-paper-channel hidden></span>
+          <span data-engineering-paper-heading>Station guide</span>
+        </h3>
         <ol id="engineering-articles" data-engineering-items>
           <li class="engineering-empty">Articles are temporarily unavailable.</li>
         </ol>
@@ -193,6 +199,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   }
   .engineering-display {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto 1rem auto;
     align-items: center;
     min-width: 0;
@@ -299,12 +306,17 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   }
   .engineering-station { display: flex; align-items: center; height: 1.65rem; }
   .engineering-readout {
+    display: flex;
+    align-items: baseline;
+    gap: .45rem;
     min-width: 0;
     margin: 0;
     overflow: hidden;
     font: 610 .75rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
   }
   .engineering-readout > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .engineering-readout > [data-engineering-readout] { min-width: 0; }
+  .engineering-readout-channel { flex: none; color: var(--radio-signal); }
   .engineering-reset {
     flex: none;
     align-self: center;
@@ -415,29 +427,54 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     background: linear-gradient(to top, rgb(108 89 64 / .16), transparent 25px);
   }
   .engineering-paper-heading {
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
     margin: 0;
-    padding-block-end: .6rem;
+    padding-block-end: .68rem;
     border-block-end: 1px dashed var(--radio-line);
     color: var(--radio-muted);
     font: 600 .69rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
     letter-spacing: .046em;
     text-transform: uppercase;
   }
+  .engineering-paper-heading:focus { outline: none; }
+  .engineering-paper-heading > :last-child { min-width: 0; overflow-wrap: anywhere; }
+  .engineering-radio[data-view="station"] .engineering-paper-heading {
+    color: var(--radio-ink);
+    font: 640 1rem/1.3 var(--font-sans, system-ui);
+    letter-spacing: -.018em;
+    text-transform: none;
+  }
+  .engineering-paper-channel {
+    flex: none;
+    color: var(--radio-accent);
+    font: 650 .71rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: .025em;
+  }
   .engineering-feed ol { margin: 0; padding: 0; list-style: none; }
   .engineering-article {
-    position: relative;
     display: grid;
-    gap: .24rem;
-    padding: .62rem 0;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: .58rem;
+    padding: .66rem 0;
     border-block-end: 1px solid var(--radio-line);
   }
-  .engineering-article[data-locked]::before {
-    position: absolute;
-    inset: .54rem auto .54rem -.55rem;
-    width: 2px;
-    background: var(--radio-accent);
-    content: "";
+  .engineering-channel {
+    display: grid;
+    place-items: start center;
+    align-self: start;
+    min-height: 2.75rem;
+    padding-block-start: .07rem;
+    color: var(--radio-accent);
+    font: 650 .875rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
   }
+  .engineering-channel:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .22em; }
+  .engineering-channel:active { opacity: .65; }
+  .engineering-program { position: relative; display: grid; gap: .2rem; min-width: 0; }
   .engineering-byline {
     display: flex;
     flex-wrap: wrap;
@@ -448,19 +485,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     font-size: .75rem;
     line-height: 1.35;
   }
-  .engineering-source {
-    position: relative;
-    z-index: 1;
-    padding: .12rem 0;
-    color: var(--radio-ink);
-    font-weight: 640;
-    text-underline-offset: .2em;
-    cursor: pointer;
-  }
-  .engineering-source[aria-pressed="true"], .engineering-source:hover {
-    color: var(--radio-accent);
-    text-decoration: underline;
-  }
+  .engineering-source { color: var(--radio-ink); font-weight: 620; }
   .engineering-byline time { font-variant-numeric: tabular-nums; }
   .engineering-article-link {
     display: grid;
@@ -468,7 +493,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     align-items: baseline;
     gap: .65rem;
     color: inherit;
-    font-size: 1rem;
+    font-size: .96875rem;
     font-weight: 530;
     line-height: 1.33;
     letter-spacing: -.016em;
@@ -477,6 +502,15 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   .engineering-article-link::after { position: absolute; inset: 0; content: ""; }
   .engineering-article-link > :first-child { overflow-wrap: anywhere; }
   .engineering-outbound { color: var(--radio-muted); transition: transform 150ms var(--ease-out); }
+  .engineering-radio[data-view="station"] .engineering-article { grid-template-columns: minmax(0, 1fr); padding-block: .62rem; }
+  .engineering-radio[data-view="station"] :is(.engineering-channel, .engineering-source) { display: none; }
+  .engineering-radio[data-view="station"] .engineering-article-link { font-size: .9375rem; }
+  .engineering-radio[data-view="station"] [data-engineering-latest] { padding-block: .92rem 1.02rem; }
+  .engineering-radio[data-view="station"] [data-engineering-latest] .engineering-article-link {
+    font-size: clamp(1.125rem, 3.5vw, 1.42rem);
+    font-weight: 640;
+    letter-spacing: -.026em;
+  }
   @media (hover: hover) and (pointer: fine) {
     .engineering-article-link:hover .engineering-outbound { color: var(--radio-accent); transform: translate(2px, -2px); }
   }
@@ -507,7 +541,6 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   }
   @media (pointer: coarse) {
     .engineering-byline { align-items: center; }
-    .engineering-source { min-block-size: 2.1rem; }
     .engineering-article-link { min-block-size: 2rem; }
     .engineering-reset { width: 1.9rem; }
   }

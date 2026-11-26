@@ -1,6 +1,6 @@
-import { engineeringSources, engineeringTime } from "../lib/engineering-blogs.mjs";
+import { engineeringChannel, engineeringSources, engineeringTime } from "../lib/engineering-blogs.mjs";
 
-const stations = [{ id: "all", name: "All sources" }, ...engineeringSources];
+const stations = [{ id: "all", name: "All stations" }, ...engineeringSources];
 const sweepStart = -135;
 const step = 270 / (stations.length - 1);
 const clampStation = (index: number) => Math.max(0, Math.min(stations.length - 1, index));
@@ -16,9 +16,14 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   const list = root.querySelector<HTMLOListElement>("[data-engineering-items]")!;
   const items = [...list.querySelectorAll<HTMLElement>("[data-engineering-article]")];
   const hasMore = items.some(item => !item.hasAttribute("data-engineering-latest"));
+  const archive = items.map(item => ({ item, date: Date.parse(item.querySelector("time")!.dateTime) }))
+    .sort((a, b) => b.date - a.date).map(({ item }) => item);
   const dial = root.querySelector<HTMLElement>("[data-engineering-dial]")!;
   const readout = root.querySelector<HTMLElement>("[data-engineering-readout]")!;
+  const readoutChannel = root.querySelector<HTMLElement>("[data-engineering-channel]")!;
   const status = root.querySelector<HTMLElement>("[data-engineering-status]")!;
+  const paper = root.querySelector<HTMLElement>("[data-engineering-paper]")!;
+  const paperChannel = root.querySelector<HTMLElement>("[data-engineering-paper-channel]")!;
   const paperHeading = root.querySelector<HTMLElement>("[data-engineering-paper-heading]")!;
   const more = root.querySelector<HTMLButtonElement>("[data-engineering-more]")!;
   const reset = root.querySelector<HTMLButtonElement>("[data-engineering-reset]")!;
@@ -28,8 +33,8 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   let active = 0;
   let expanded = false;
   let allTop = 0;
-  let locked: HTMLElement | null = null;
   let flip: Animation | undefined;
+  let paperMotion: Animation | undefined;
   let connectionTimer = 0;
   let waveTimer = 0;
   let restoreFocus = false;
@@ -108,6 +113,7 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     window.clearTimeout(connectionTimer);
     settleWave();
     flip?.cancel();
+    paperMotion?.cancel();
     delete root.dataset.phase;
     trigger.setAttribute("aria-expanded", "false");
     if (restoreFocus) trigger.focus({ preventScroll: true });
@@ -116,20 +122,22 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
 
   function paint() {
     const station = stations[active];
+    const code = active ? `CH ${engineeringChannel(active)}` : "";
+    root.dataset.view = active ? "station" : expanded ? "archive" : "guide";
     let found = false;
     items.forEach((item) => {
       item.hidden = active === 0
         ? !expanded && !item.hasAttribute("data-engineering-latest")
         : item.dataset.engineeringArticle !== station.id;
       found ||= !item.hidden;
-      item.toggleAttribute("data-locked", item === locked);
-      item.querySelector("[data-engineering-tune]")?.setAttribute("aria-pressed", String(active !== 0 && !item.hidden));
     });
     empty.hidden = found;
     if (!found) empty.textContent = active === 0 ? "Articles are temporarily unavailable." : `${station.name} is temporarily unavailable.`;
     root.toggleAttribute("data-has-signal", found);
     if (root.dataset.phase === "tuned") status.textContent = found ? "Signal locked" : "No signal";
-    paperHeading.textContent = active !== 0 ? `Recent from ${station.name}` : expanded ? "Recent articles" : "Latest from each source";
+    paperHeading.textContent = active ? station.name : expanded ? "Recent articles" : "Station guide";
+    paperChannel.textContent = readoutChannel.textContent = code;
+    paperChannel.hidden = readoutChannel.hidden = !active;
     more.hidden = active !== 0 || !hasMore;
     more.setAttribute("aria-expanded", String(expanded));
     more.firstChild!.textContent = expanded ? "Fewer articles " : "More articles ";
@@ -138,32 +146,33 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     dial.style.setProperty("--dial-angle", `${sweepStart + active * step}deg`);
     setFrequency(active);
     dial.setAttribute("aria-valuenow", String(active));
-    dial.setAttribute("aria-valuetext", station.name);
+    dial.setAttribute("aria-valuetext", code ? `${code} · ${station.name}` : station.name);
     ticks.forEach((tick, index) => tick.toggleAttribute("data-current", index === active));
     formatTimes();
   }
 
-  function tune(next: number, anchor: HTMLElement | null = null) {
+  function tune(next: number, focusPaper = false) {
     if (next === active) return;
     if (active === 0) allTop = scroll.scrollTop;
-    const anchorTop = anchor ? anchor.getBoundingClientRect().top - scroll.getBoundingClientRect().top : 0;
     const direction = Math.sign(next - active);
     flip?.cancel();
+    paperMotion?.cancel();
     active = next;
-    locked = anchor;
     if (next === 0 && document.activeElement === reset) dial.focus({ preventScroll: true });
     paint();
-
-    scroll.scrollTop = anchor
-      ? scroll.scrollTop + anchor.getBoundingClientRect().top - scroll.getBoundingClientRect().top - anchorTop
-      : next === 0 ? allTop : 0;
+    scroll.scrollTop = next === 0 ? allTop : 0;
+    if (focusPaper) paperHeading.parentElement!.focus({ preventScroll: true });
 
     if (!reduced.matches) {
       if (!drag) pulseWave(.65);
-      flip = readout.animate([
+      flip = readout.parentElement!.animate([
         { transform: `perspective(60px) translateY(${direction * 6}px) rotateX(${direction * -55}deg)`, opacity: 0 },
         { transform: "perspective(60px) translateY(0) rotateX(0deg)", opacity: 1 },
       ], { duration: 190, easing: "cubic-bezier(.23,1,.32,1)" });
+      paperMotion = paper.animate([
+        { transform: "translateY(7px)", opacity: .58 },
+        { transform: "translateY(0)", opacity: 1 },
+      ], { duration: 210, easing: "cubic-bezier(.23,1,.32,1)" });
     }
   }
 
@@ -171,13 +180,15 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-engineering-tune]");
     if (!button) return;
     const next = stations.findIndex(({ id }) => id === button.dataset.engineeringTune);
-    if (next > 0) tune(next === active ? 0 : next, next === active ? null : button.closest<HTMLElement>("[data-engineering-article]"));
+    if (next > 0) tune(next, document.activeElement === button);
   });
   reset.addEventListener("click", () => tune(0));
   more.addEventListener("click", () => {
     expanded = !expanded;
+    list.append(...(expanded ? archive : items));
     paint();
-    if (!expanded) scroll.scrollTop = 0;
+    scroll.scrollTop = 0;
+    if (document.activeElement === more) paperHeading.parentElement!.focus({ preventScroll: true });
   });
 
   const centerStation = () => active === 0 ? 1 : 0;

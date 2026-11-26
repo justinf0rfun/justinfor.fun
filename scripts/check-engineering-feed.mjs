@@ -90,14 +90,17 @@ test("rendered article titles and links are safely escaped", () => {
   assert.equal(renderEngineeringArticles([{ ...article, link: "javascript:alert(1)" }]), "");
 });
 
-test("the homepage initially shows the newest article from each source", () => {
-  const article = { source: source.name, title: "Newest", link: "https://blog.cloudflare.com/newest", date: "2026-11-25T08:00:00.000Z" };
+test("the radio guide lists the latest from each channel first, then older articles in feed order", () => {
+  const article = { source: source.name, title: "Latest from Cloudflare", link: "https://blog.cloudflare.com/newest", date: "2026-11-25T08:00:00.000Z" };
   const output = renderEngineeringArticles([
+    { ...article, source: "GitHub Blog", title: "Latest from GitHub", link: "https://github.blog/latest", date: "2026-11-26T08:00:00.000Z" },
     article,
-    { ...article, title: "Older from the same source", link: "https://blog.cloudflare.com/older", date: "2026-11-24T08:00:00.000Z" },
-    { ...article, source: "GitHub Blog", title: "Newest from GitHub", link: "https://github.blog/latest", date: "2026-11-23T08:00:00.000Z" },
+    { ...article, source: "GitHub Blog", title: "Older from GitHub", link: "https://github.blog/older", date: "2026-11-24T08:00:00.000Z" },
+    { ...article, title: "Older from Cloudflare", link: "https://blog.cloudflare.com/older", date: "2026-11-23T08:00:00.000Z" },
   ]);
   assert.deepEqual([...output.matchAll(/data-engineering-article="([a-z]+)" ([a-z-]+)>/g)].map((match) => match.slice(1)), [
-    ["cloudflare", "data-engineering-latest"], ["cloudflare", "hidden"], ["github", "data-engineering-latest"],
+    ["cloudflare", "data-engineering-latest"], ["github", "data-engineering-latest"], ["github", "hidden"], ["cloudflare", "hidden"],
   ]);
+  assert.match(output, /data-engineering-tune="cloudflare" aria-label="Tune to channel 04, Cloudflare Blog"[^>]*>04<\/button>/);
+  assert.match(output, /data-engineering-tune="github" aria-label="Tune to channel 07, GitHub Blog"[^>]*>07<\/button>/);
 });
