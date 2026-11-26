@@ -11,6 +11,7 @@ import Folder from "../components/Folder.astro";
 import BooksFolder from "../components/BooksFolder.astro";
 import BooksTransition from "../components/BooksTransition.astro";
 import GitHubContributions from "../components/GitHubContributions.astro";
+import EngineeringRadio from "../components/EngineeringRadio.astro";
 import LocalTimeFooter from "../components/LocalTimeFooter.astro";
 import MusicShowcase from "../components/MusicShowcase.astro";
 import MemoryShowcase from "../components/MemoryShowcase.astro";
@@ -47,6 +48,7 @@ import { folderMusicTracks } from "../data/music";
   </Fragment>
   <main class="home-content space-y-16 pt-20 pb-8">
     <About />
+    <EngineeringRadio />
     <GitHubContributions />
     <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
       {collections.map((collection) => <Folder collection={collection} />)}

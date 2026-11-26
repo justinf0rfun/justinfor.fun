@@ -1,5 +1,18 @@
+import { WorkerEntrypoint } from "cloudflare:workers";
+import { loadEngineeringArticles, readEngineeringSource } from "./engineering-feed.js";
+import { engineeringSources, renderEngineeringArticles } from "./lib/engineering-blogs.mjs";
+
 const CACHE_KEY = "github-contributions:v1";
 const ONE_DAY = 24 * 60 * 60 * 1000;
+
+// A loopback binding gives each RSS parse its own Worker invocation.
+export class EngineeringSourceReader extends WorkerEntrypoint {
+  async read(id) {
+    const source = engineeringSources.find((feed) => feed.id === id);
+    if (!source) throw new Error("Unknown engineering feed");
+    return readEngineeringSource(source);
+  }
+}
 
 const CONTRIBUTIONS_QUERY = `
   query Contributions($login: String!) {
@@ -83,6 +96,29 @@ const getContributions = async (env, context) => {
 export default {
   async fetch(request, env, context) {
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/engineering-blogs") {
+      return Response.json({ articles: await loadEngineeringArticles(env.CONTRIBUTIONS, context) }, {
+        headers: { "Cache-Control": "no-cache" },
+      });
+    }
+
+    if (request.method === "GET" && url.pathname === "/") {
+      const page = await env.ASSETS.fetch(new Request(request.url));
+      if (!page.ok || !page.headers.get("Content-Type")?.includes("text/html")) return page;
+      const articles = loadEngineeringArticles(env.CONTRIBUTIONS, context);
+      const transformed = new HTMLRewriter().on("[data-engineering-items]", {
+        async element(element) {
+          const items = await articles;
+          if (items.length) element.setInnerContent(renderEngineeringArticles(items), { html: true });
+        },
+      }).transform(page);
+      const headers = new Headers(transformed.headers);
+      headers.delete("ETag");
+      headers.delete("Last-Modified");
+      headers.set("Cache-Control", "no-cache");
+      return new Response(transformed.body, { status: page.status, headers });
+    }
 
     if (url.pathname === "/api/contributions") {
       try {
