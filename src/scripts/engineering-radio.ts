@@ -7,7 +7,7 @@ const clampStation = (index: number) => Math.max(0, Math.min(stations.length - 1
 
 export function mountEngineeringRadio(root: HTMLElement) {
   const items = [...root.querySelectorAll<HTMLElement>("[data-engineering-article]")];
-  const hasMore = items.some(item => !item.hasAttribute("data-engineering-latest"));
+  const latestCount = items.filter(item => item.hasAttribute("data-engineering-latest")).length;
   const dial = root.querySelector<HTMLElement>("[data-engineering-dial]")!;
   const readout = root.querySelector<HTMLElement>("[data-engineering-readout]")!;
   const more = root.querySelector<HTMLButtonElement>("[data-engineering-more]")!;
@@ -15,11 +15,12 @@ export function mountEngineeringRadio(root: HTMLElement) {
   const empty = root.querySelector<HTMLElement>("[data-engineering-empty]")!;
   const ticks = [...dial.querySelectorAll<HTMLElement>("[data-engineering-tick]")];
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const compact = matchMedia("(width < 75rem)");
   let active = 0;
   let expanded = false;
   let allTop = 0;
   let locked: HTMLElement | null = null;
-  let motions: Animation[] = [];
+  let flip: Animation | undefined;
   let drag: { id: number; centerX: number; centerY: number; angle: number; position: number; travel: number } | null = null;
 
   if (!items.length) {
@@ -34,6 +35,7 @@ export function mountEngineeringRadio(root: HTMLElement) {
 
   function paint() {
     const station = stations[active];
+    root.toggleAttribute("data-engineering-preview", active === 0 && !expanded);
     let found = false;
     items.forEach((item) => {
       item.hidden = active === 0
@@ -45,7 +47,8 @@ export function mountEngineeringRadio(root: HTMLElement) {
     });
     empty.hidden = found;
     if (!found) empty.textContent = `${station.name} is temporarily unavailable.`;
-    more.hidden = active !== 0 || !hasMore;
+    const previewCount = compact.matches ? Math.min(3, latestCount) : latestCount;
+    more.hidden = active !== 0 || items.length <= previewCount;
     more.setAttribute("aria-expanded", String(expanded));
     more.firstChild!.textContent = expanded ? "Fewer articles " : "More articles ";
     reset.hidden = active === 0;
@@ -62,9 +65,8 @@ export function mountEngineeringRadio(root: HTMLElement) {
     const fromAll = active === 0;
     if (fromAll) allTop = root.getBoundingClientRect().top;
     const anchorTop = anchor?.getBoundingClientRect().top;
-    const positions = new Map(items.filter(item => !item.hidden).map(item => [item, item.getBoundingClientRect().top]));
-    motions.forEach(motion => motion.cancel());
-    motions = [];
+    const direction = Math.sign(next - active);
+    flip?.cancel();
     active = next;
     locked = anchor;
     if (next === 0 && document.activeElement === reset) dial.focus({ preventScroll: true });
@@ -76,15 +78,12 @@ export function mountEngineeringRadio(root: HTMLElement) {
       window.scrollBy({ top: root.getBoundingClientRect().top - allTop, behavior: "instant" });
     }
 
-    if (reduced.matches) return;
-    motions = items.filter(item => !item.hidden && item !== anchor).map(item => {
-      const previous = positions.get(item);
-      const shift = previous === undefined ? 6 : Math.max(-28, Math.min(28, previous - item.getBoundingClientRect().top));
-      return item.animate([
-        { transform: `translateY(${shift}px)`, opacity: previous === undefined ? .35 : 1 },
-        { transform: "translateY(0)", opacity: 1 },
+    if (!reduced.matches) {
+      flip = readout.animate([
+        { transform: `perspective(60px) translateY(${direction * 6}px) rotateX(${direction * -55}deg)`, opacity: 0 },
+        { transform: "perspective(60px) translateY(0) rotateX(0deg)", opacity: 1 },
       ], { duration: 190, easing: "cubic-bezier(.23,1,.32,1)" });
-    });
+    }
   }
 
   root.querySelector("[data-engineering-items]")!.addEventListener("click", (event) => {
@@ -94,12 +93,18 @@ export function mountEngineeringRadio(root: HTMLElement) {
     if (next > 0) tune(next === active ? 0 : next, next === active ? null : button.closest<HTMLElement>("[data-engineering-article]"));
   });
   reset.addEventListener("click", () => tune(0));
-  more.addEventListener("click", () => { expanded = !expanded; paint(); });
+  more.addEventListener("click", () => {
+    expanded = !expanded;
+    paint();
+    if (!expanded) more.scrollIntoView({ block: "nearest", behavior: "instant" });
+  });
+  compact.addEventListener("change", paint);
 
+  const centerStation = () => active === 0 ? 1 : 0;
   dial.addEventListener("keydown", (event) => {
     const positions: Record<string, number> = {
       ArrowRight: active + 1, ArrowUp: active + 1, ArrowLeft: active - 1, ArrowDown: active - 1,
-      Home: 0, End: stations.length - 1,
+      Home: 0, End: stations.length - 1, Enter: centerStation(), " ": centerStation(),
     };
     if (!(event.key in positions)) return;
     event.preventDefault();
@@ -114,7 +119,6 @@ export function mountEngineeringRadio(root: HTMLElement) {
     drag = { id: event.pointerId, centerX, centerY, angle: angleAt(event.clientX - centerX, event.clientY - centerY), position: active, travel: 0 };
     dial.setPointerCapture(event.pointerId);
     dial.setAttribute("data-dragging", "");
-    dial.focus({ preventScroll: true });
   });
   dial.addEventListener("pointermove", (event) => {
     if (!drag || event.pointerId !== drag.id) return;
@@ -135,7 +139,7 @@ export function mountEngineeringRadio(root: HTMLElement) {
     if (travel >= 5) return;
     const x = event.clientX - centerX, y = event.clientY - centerY;
     const onTrack = Math.hypot(x, y) > dial.offsetWidth * .33;
-    tune(onTrack ? clampStation(Math.round((angleAt(x, y) - sweepStart) / step)) : (active + 1) % stations.length);
+    tune(onTrack ? clampStation(Math.round((angleAt(x, y) - sweepStart) / step)) : centerStation());
   });
   dial.addEventListener("lostpointercapture", () => {
     drag = null;
