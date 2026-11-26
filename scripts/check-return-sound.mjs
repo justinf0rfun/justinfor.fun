@@ -85,6 +85,7 @@ const source = stripTypeScriptTypes(readFileSync(new URL("../src/scripts/return-
 class Element {
   constructor(control = null) { this.control = control; }
   closest() { return this.control; }
+  hasAttribute(name) { return name === "data-books-home" && this.booksHome === true; }
 }
 class Anchor extends Element {
   href = "https://justinfor.fun/thoughts"; target = "";
@@ -141,6 +142,18 @@ test("same-tab returns allow the short click to finish and navigate only once", 
   f.advance(79); assert.deepEqual(f.navigations, []);
   f.advance(1); assert.deepEqual(f.navigations, [anchor.href]);
   f.advance(1000); assert.equal(f.navigations.length, 1);
+});
+
+test("the Books hinge owns its navigation while the trusted return still sounds", async () => {
+  const f = navigationFixture(), anchor = new Anchor();
+  f.click(anchor, { defaultPrevented: true });
+  assert.equal(f.sounds, 0);
+  anchor.booksHome = true;
+  f.click(anchor, { defaultPrevented: true });
+  assert.equal(f.sounds, 1);
+  await setImmediate();
+  f.advance(1000);
+  assert.deepEqual(f.navigations, []);
 });
 
 test("audio failure or a stalled resume cannot trap parent navigation", async () => {

@@ -8,11 +8,11 @@ export function mountReturnSound() {
   const cancel = () => { clearTimeout(deadline); clearTimeout(soundTimer); pending = undefined; };
 
   const onClick = (event: MouseEvent) => {
-    if (!event.isTrusted || event.button !== 0 || event.defaultPrevented || !(event.target instanceof Element)) return;
+    if (!event.isTrusted || event.button !== 0 || !(event.target instanceof Element)) return;
     const control = event.target.closest<HTMLElement>("[data-parent-navigation]");
-    if (!control) return;
+    if (!control || (event.defaultPrevented && !control.hasAttribute("data-books-home"))) return;
     const playback = play();
-    if (!(control instanceof HTMLAnchorElement) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
+    if (event.defaultPrevented || !(control instanceof HTMLAnchorElement) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
       || (control.target && control.target !== "_self")) return;
 
     event.preventDefault();

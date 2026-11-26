@@ -17,6 +17,7 @@ const preview = [books[5], books[0], books[6]];
             <span class="books-case-turn">
               <BookSpine {book} compact />
               <span id="home-books-cover" class="books-case-cover" data-books-home-cover
+                data-title={book.title} data-author={book.authors}
                 style={{ "--book-aspect": book.aspect, "--cover-back": book.spinePalette.body }}>
                 <img alt="" draggable="false" fetchpriority="low" />
               </span>
@@ -174,7 +175,7 @@ const preview = [books[5], books[0], books[6]];
     --aluminum-ink: #20231f;
   }
 
-  .books-folder:focus-visible { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
+  .books-folder:focus-visible:not(:has([data-books-carried])) { outline: 2px solid var(--home-ink, #202221); outline-offset: 4px; border-radius: 8px; }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     :where(.books-folder:hover:not([data-books-hover-paused])) .books-case-feature {
       --book-rise: max(-14%, -17px);
