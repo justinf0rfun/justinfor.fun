@@ -140,7 +140,7 @@ const markdown = articleMarkdown(article, post.body ?? "");
     position: relative;
     margin-block: 1.5rem 1.75rem;
     padding-inline-start: 3rem;
-    color: #646464;
+    color: #717171;
     font-size: .9375rem;
     line-height: 1.62;
     overflow-wrap: anywhere;
@@ -158,8 +158,10 @@ const markdown = articleMarkdown(article, post.body ?? "");
 
   .article-note > * + * { margin-block-start: .55rem; }
 
+  .article-prose .article-note :is(a, strong, code) { color: #5f5f5f; }
+
   .article-note > .article-note-label {
-    color: #303030;
+    color: #4c4c4c;
     font: 600 .72rem/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
