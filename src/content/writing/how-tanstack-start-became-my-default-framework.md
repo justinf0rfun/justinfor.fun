@@ -41,7 +41,12 @@ TanStack Start's server functions let client code call server-only logic through
 
 The important part is not the convenience of the RPC. It is that the boundary is named in code. Database access, secrets, and mutations have an obvious home, while inputs cross a validator before they reach the handler.
 
+<aside class="article-note" aria-label="Justin’s note">
+<p class="article-note-label">Justin’s note</p>
+
 That explicitness matters when an agent is editing a full-stack feature. A file name and a `createServerFn` call provide evidence about where code runs. They reduce the chance that a convenient import quietly moves server assumptions into a client bundle.
+
+</aside>
 
 ### One application, two environments
 

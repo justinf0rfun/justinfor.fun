@@ -136,6 +136,35 @@ const markdown = articleMarkdown(article, post.body ?? "");
     font-size: 0.875em;
   }
 
+  .article-prose > .article-note {
+    position: relative;
+    margin-block: 1.5rem 1.75rem;
+    padding-inline-start: 3rem;
+    color: #646464;
+    font-size: .9375rem;
+    line-height: 1.62;
+    overflow-wrap: anywhere;
+  }
+
+  .article-note::before {
+    position: absolute;
+    inset-block-start: -.36rem;
+    inset-inline-start: -.3rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: url("/justin-avatar.png") center / 3.2rem no-repeat;
+    content: "";
+  }
+
+  .article-note > * + * { margin-block-start: .55rem; }
+
+  .article-note > .article-note-label {
+    color: #303030;
+    font: 600 .72rem/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .article-note-label + p { margin-block-start: .36rem; }
+
   @media (hover: hover) and (pointer: fine) {
 
     .article-prose a:hover {
@@ -153,6 +182,26 @@ const markdown = articleMarkdown(article, post.body ?? "");
 
     .article-shell {
       padding-block: 6rem 10rem;
+    }
+
+    .article-prose:has(> .article-note) { display: flow-root; }
+
+    .article-prose > .article-note {
+      --note-width: 13.5rem;
+      --note-gap: 2rem;
+      float: right;
+      clear: right;
+      width: var(--note-width);
+      margin-block: .15rem 1rem;
+      margin-inline-end: calc(0px - var(--note-width) - var(--note-gap));
+      padding-inline-start: 2.4rem;
+      font-size: .875rem;
+    }
+
+    .article-note::before {
+      width: 2.4rem;
+      height: 2.4rem;
+      background-size: 2.8rem;
     }
   }
 

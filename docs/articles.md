@@ -23,6 +23,21 @@ Section content.
 
 The filename supplies the `/thoughts/<slug>` path. Drafts are excluded from the article routes and lists. Existing `/writing/<slug>` URLs redirect to Thoughts.
 
+### Author notes
+
+Insert a note between Markdown paragraphs where the aside belongs. Keep the blank lines around the Markdown inside it.
+
+```md
+<aside class="article-note" aria-label="Justin’s note">
+<p class="article-note-label">Justin’s note</p>
+
+Write the note here using ordinary Markdown.
+
+</aside>
+```
+
+The shared layout supplies the avatar. At 80rem and up the note sits in the right margin. At narrower widths it appears inline between the surrounding paragraphs.
+
 ## Included automatically
 
 - The homepage's `HomeNews.astro` capsule links to the latest published Thought using the same publication-date order and draft filter as the list. It expands at the page top and collapses on scroll without taking space from the introduction. Preserve the reference's actual Motion width morph (`32px` → `auto` → `32px`): 200ms opening, text revealed halfway with 50ms staggers, and 180ms closing after a 60ms text-exit lead. Do not replace this geometry with clip-path or scale effects. New articles require no separate homepage announcement edit.

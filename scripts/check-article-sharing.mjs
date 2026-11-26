@@ -50,7 +50,7 @@ test("every published article inherits the common layout, actions, dialog and fu
     const html = readFileSync(new URL(`../dist/thoughts/${slug}/index.html`, import.meta.url), "utf8");
     const url = `https://justinfor.fun/thoughts/${slug}`;
     assert.ok(html.includes(`rel="canonical" href="${url}"`), slug);
-    assert.equal((html.match(/data-article-actions\b/g) ?? []).length, 1, slug);
+    assert.equal((html.match(/<[^>]+\sdata-article-actions(?=[\s>])/g) ?? []).length, 1, slug);
     assert.match(html, /<dialog\b[^>]*data-article-share\b[^>]*aria-labelledby="article-share-title"/);
     assert.match(html, /data-article-ai-toggle[^>]*aria-expanded="false"/);
     assert.match(html, /data-article-ai-options[^>]*inert/);
