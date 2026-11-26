@@ -46,20 +46,15 @@ import { folderMusicTracks } from "../data/music";
       )
     }
   </Fragment>
-  <main class="home-content pt-20 pb-8">
-    <div class="home-primary space-y-16">
-      <About />
-      <GitHubContributions />
-      <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
-        {collections.map((collection) => <Folder collection={collection} />)}
-        <BooksFolder />
-      </div>
+  <main class="home-content space-y-16 pt-20 pb-8">
+    <About />
+    <GitHubContributions />
+    <div class="mx-auto grid w-[94%] grid-cols-2 gap-6">
+      {collections.map((collection) => <Folder collection={collection} />)}
+      <BooksFolder />
     </div>
-    <EngineeringRadio />
-    <div class="home-tail space-y-16">
-      <BeliefNote />
-      <LocalTimeFooter showInspired />
-    </div>
+    <BeliefNote />
+    <LocalTimeFooter showInspired />
   </main>
   <HomeDock />
   <HomeChat client:load />
@@ -72,44 +67,5 @@ import { folderMusicTracks } from "../data/music";
   <MemoryShowcase mode="overlay" />
   <WritingShowcase mode="overlay" />
   <XBookmarksShowcase mode="overlay" />
+  <EngineeringRadio />
 </Layout>
-
-<style>
-  .home-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4rem;
-  }
-
-  @media (width >= 75rem) {
-    :global(body.home-surface) { max-width: 63rem; }
-    .home-content {
-      grid-template-columns: 36rem minmax(0, 1fr);
-      grid-template-rows: auto 1fr;
-      column-gap: 4.5rem;
-    }
-    .home-primary { grid-area: 1 / 1; }
-    .home-content > :global(.engineering-radio) {
-      grid-area: 1 / 2 / 3;
-      align-self: start;
-      transition: opacity 180ms var(--ease-out), visibility 0s;
-    }
-    .home-tail { grid-area: 2 / 1; align-self: start; }
-    :global(.home-surface:has(.home-chat[data-open="true"])) > .home-content { left: 0; }
-    :global(.home-surface:has(.home-chat[data-open="true"])) > .home-content > :global(.engineering-radio) {
-      opacity: 0;
-      visibility: hidden;
-      transition-delay: 0s, 180ms;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .home-content > :global(.engineering-radio) { transition: none; }
-    }
-  }
-
-  @media (75rem <= width < 87.5rem) {
-    :global(.home-surface > .ride-coupon:not([data-expanded="true"])) {
-      --ride-scale: .24;
-      right: calc(8px - var(--ride-width) * (1 - var(--ride-scale)) / 2);
-    }
-  }
-</style>

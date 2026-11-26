@@ -1,19 +1,36 @@
 ---
 import { engineeringSources } from "../lib/engineering-blogs.mjs";
 const positions = ["All sources", ...engineeringSources.map(({ name }) => name)];
+const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
 ---
 
-<aside class="engineering-radio" id="engineering-blogs" data-engineering-radio data-engineering-preview aria-labelledby="engineering-title">
-  <header class="engineering-header">
-    <div class="engineering-heading">
-      <h2 id="engineering-title">Engineering Blogs</h2>
-      <div class="engineering-station">
-        <p class="engineering-readout" aria-live="polite"><span data-engineering-readout>All sources</span></p>
-        <button type="button" class="engineering-reset" data-engineering-reset aria-label="All sources" title="All sources" hidden><span aria-hidden="true">↶</span></button>
+<dialog class="engineering-radio" id="engineering-blogs" data-engineering-radio aria-labelledby="engineering-title">
+  <div class="engineering-receiver">
+    <div class="engineering-slot" aria-hidden="true"></div>
+    <div class="engineering-face">
+      <div class="engineering-display">
+        <header class="engineering-header">
+          <h2 id="engineering-title" tabindex="-1" autofocus>Engineering Radio</h2>
+          <p class="engineering-status" role="status">
+            <i aria-hidden="true"></i><span data-engineering-status>Tuning…</span><span class="engineering-seeking" aria-hidden="true">Tuning…</span>
+          </p>
+        </header>
+        <div class="engineering-band" aria-hidden="true">
+          <div class="engineering-frequency"><i></i></div>
+          <div class="engineering-wave" data-engineering-wave>
+            {wave.map((height, index) => (
+              <i style={{ "--wave-height": `${height}px`, "--wave-delay": `${-index * 39}ms` }}></i>
+            ))}
+          </div>
+        </div>
+        <div class="engineering-station">
+          <p class="engineering-readout" aria-live="polite"><span data-engineering-readout>All sources</span></p>
+          <button type="button" class="engineering-reset" data-engineering-reset aria-label="All sources" title="All sources" hidden>
+            <span aria-hidden="true">↶</span>
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="engineering-tuner">
-      <div class="engineering-dial" data-engineering-dial data-visual role="slider" tabindex="0" aria-label="Blog source"
+      <div class="engineering-dial" data-engineering-dial role="slider" tabindex="0" aria-label="Blog source"
         aria-describedby="engineering-dial-help" aria-valuemin="0" aria-valuemax={positions.length - 1}
         aria-valuenow="0" aria-valuetext="All sources">
         {positions.map((name, index) => (
@@ -22,127 +39,292 @@ const positions = ["All sources", ...engineeringSources.map(({ name }) => name)]
         ))}
         <span class="engineering-knob" aria-hidden="true"><i></i></span>
       </div>
-      <p class="sr-only" id="engineering-dial-help">Drag the dial or use arrow keys to tune. Press the center or Home to return to all sources.</p>
+      <p class="sr-only" id="engineering-dial-help">Turn the dial or use arrow keys to tune. Press the center or Home to return to all sources.</p>
+      <button type="button" class="engineering-close" data-engineering-close aria-label="Close Engineering Radio">
+        <span aria-hidden="true">×</span>
+      </button>
     </div>
-  </header>
-  <div class="engineering-feed">
-    <ol id="engineering-articles" data-engineering-items>
-      <li class="engineering-empty">Articles are temporarily unavailable.</li>
-    </ol>
-    <p class="engineering-empty" data-engineering-empty hidden></p>
-    <button type="button" class="engineering-more" data-engineering-more aria-controls="engineering-articles" aria-expanded="false" hidden>More articles <span aria-hidden="true">↓</span></button>
   </div>
-</aside>
+
+  <div class="engineering-output" data-engineering-output inert>
+    <div class="engineering-feed" data-engineering-scroll>
+      <div class="engineering-paper">
+        <p class="engineering-paper-heading" data-engineering-paper-heading>Latest from each source</p>
+        <ol id="engineering-articles" data-engineering-items>
+          <li class="engineering-empty">Articles are temporarily unavailable.</li>
+        </ol>
+        <p class="engineering-empty" data-engineering-empty hidden></p>
+        <button type="button" class="engineering-more" data-engineering-more aria-controls="engineering-articles" aria-expanded="false" hidden>More articles <span aria-hidden="true">↓</span></button>
+      </div>
+    </div>
+  </div>
+</dialog>
 
 <script>
   import { mountEngineeringRadio } from "../scripts/engineering-radio";
-  document.querySelectorAll<HTMLElement>("[data-engineering-radio]").forEach(mountEngineeringRadio);
+  const radio = document.querySelector<HTMLDialogElement>("[data-engineering-radio]");
+  if (radio) mountEngineeringRadio(radio);
 </script>
 
 <style is:global>
+  html:has(.engineering-radio[open]) { overflow: hidden; }
+  .home-surface:has(.engineering-radio[open]) .home-news { visibility: hidden; }
+
   .engineering-radio {
-    --radio-ink: var(--home-ink, #202221);
-    --radio-muted: #656660;
-    --radio-line: #deded9;
-    --radio-accent: #bb4820;
-    --radio-card: #eeefeb;
-    --radio-ring: #ddded9;
-    --radio-knob: #d5d7d0;
-    width: 100%;
-    scroll-margin-block-start: calc(4rem + env(safe-area-inset-top, 0px));
+    --radio-safe-top: max(1rem, env(safe-area-inset-top));
+    --radio-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+    --radio-metal-light: #ecece8;
+    --radio-metal: #b9b9b5;
+    --radio-case-ink: #383935;
+    --radio-paper: #f9f6ee;
+    --radio-ink: #302c24;
+    --radio-muted: #6c6253;
+    --radio-line: #e6ded1;
+    --radio-accent: #a94720;
+    --radio-signal: #ffc17b;
+    --radio-ring: #90918d;
+    --radio-knob: #c4c6c3;
+    position: fixed;
+    inset: auto 0 var(--radio-bottom);
+    width: min(35rem, calc(100% - 1.5rem));
+    height: max-content;
+    max-width: none;
+    max-height: calc(100dvh - var(--radio-safe-top) - var(--radio-bottom));
+    margin: 0 auto;
+    overflow: visible;
+    padding: 0;
+    background: transparent;
     color: var(--radio-ink);
+    isolation: isolate;
   }
+
   html[data-home-theme="dark"] .engineering-radio {
-    --radio-muted: #9e9e97;
-    --radio-line: #363632;
-    --radio-accent: #ff865b;
-    --radio-card: #20211d;
-    --radio-ring: #43443d;
-    --radio-knob: #696b62;
+    --radio-metal-light: #464744;
+    --radio-metal: #2a2c2a;
+    --radio-case-ink: #e2e2dc;
+    --radio-paper: #242119;
+    --radio-ink: #f4eddd;
+    --radio-muted: #b8ad99;
+    --radio-line: #3d362a;
+    --radio-accent: #ffad73;
+    --radio-ring: #686966;
+    --radio-knob: #858784;
   }
-  .engineering-header {
+
+  .engineering-radio[open] {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    margin-block-end: .5rem;
-    padding-block-end: .7rem;
-    border-block-end: 1px solid var(--radio-line);
+    flex-direction: column;
+    animation: engineering-wake 230ms var(--ease-out) both;
   }
-  .engineering-heading { min-width: 0; }
-  .engineering-radio h2 {
-    margin: 0;
-    font-size: 1.375rem;
-    font-weight: 630;
-    line-height: 1.12;
-    letter-spacing: -.05em;
-  }
-  .engineering-feed { min-width: 0; }
-  .engineering-feed ol { margin: 0; padding: 0; list-style: none; }
+  .engineering-radio:focus { outline: none; }
+  .engineering-radio::backdrop { background: rgb(24 21 17 / .33); }
+  .engineering-radio[open]::backdrop { animation: engineering-backdrop 190ms ease-out both; }
+  html[data-home-theme="dark"] .engineering-radio::backdrop { background: rgb(0 0 0 / .58); }
   .engineering-radio [hidden] { display: none; }
-  .engineering-article {
-    position: relative;
-    display: grid;
-    align-content: start;
-    gap: .19rem;
-    padding: .53rem 0 .56rem;
-    transition: background-color 150ms var(--ease-out);
+  @keyframes engineering-wake {
+    from { translate: 0 22px; scale: .97; opacity: 0; }
   }
-  .engineering-article[data-locked]::before {
-    position: absolute;
-    inset: .6rem auto .6rem -.5rem;
-    width: 2px;
-    background: var(--radio-accent);
-    content: "";
-  }
-  .engineering-byline {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: .65rem;
-    min-width: 0;
-    color: var(--radio-muted);
-    font-size: .6875rem;
-    line-height: 1.45;
-  }
-  .engineering-source {
+  @keyframes engineering-backdrop { from { opacity: 0; } }
+
+  .engineering-receiver {
     position: relative;
     z-index: 1;
-    padding: .12rem 0;
-    color: var(--radio-ink);
-    font-weight: 600;
-    text-decoration-thickness: 1px;
-    text-underline-offset: .2em;
+    flex: none;
+    padding: .57rem .98rem .67rem;
+    border-radius: .95rem;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 1px, rgb(31 32 31 / .021) 1px 2px),
+      linear-gradient(119deg, rgb(255 255 255 / .2), transparent 57%),
+      linear-gradient(170deg, var(--radio-metal-light), var(--radio-metal));
+    color: var(--radio-case-ink);
+    box-shadow: inset 0 1px rgb(255 255 255 / .5), inset 0 -1px rgb(27 31 30 / .34),
+      0 12px 27px -10px rgb(20 23 22 / .58);
+  }
+  .engineering-receiver::before {
+    position: absolute;
+    inset: auto .55rem calc(100% - 1px) auto;
+    width: 1.9rem;
+    height: 2px;
+    border-radius: 4px;
+    background: linear-gradient(0deg, #6a6a65, #dedfd9 62%, #a0a09b);
+    box-shadow: 0 1px 3px rgb(22 23 20 / .25);
+    transform: rotate(76deg);
+    transform-origin: right center;
+    content: "";
+  }
+  .engineering-radio[open] .engineering-receiver::before { animation: engineering-aerial 300ms var(--ease-out) both; }
+  @keyframes engineering-aerial { from { transform: rotate(33deg) scaleX(.6); } }
+  .engineering-header {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    justify-content: space-between;
+  }
+  .engineering-header h2 {
+    margin: 0;
+    color: #eeede7;
+    font-size: .8125rem;
+    line-height: 1.25;
+    font-weight: 620;
+    letter-spacing: -.016em;
+    white-space: nowrap;
+  }
+  .engineering-header h2:focus { outline: none; }
+  .engineering-close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-inline-end: -.35rem;
+    border-radius: 50%;
+    color: inherit;
+    font: 400 1.16rem/1 ui-sans-serif, system-ui, sans-serif;
     cursor: pointer;
   }
-  .engineering-source:is(:hover, [aria-pressed="true"]) { color: var(--radio-accent); text-decoration: underline; }
-  .engineering-byline time { font-variant-numeric: tabular-nums; }
-  .engineering-article-link {
+  .engineering-close:hover { background: rgb(100 88 64 / .1); }
+  .engineering-close:active { scale: .95; }
+
+  .engineering-face {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: clamp(.28rem, 2vw, .76rem);
+  }
+  .engineering-display {
+    display: grid;
+    grid-template-rows: auto 1rem auto;
+    align-items: center;
+    min-width: 0;
+    padding: .56rem .72rem .29rem;
+    border-radius: .44rem;
+    background: linear-gradient(150deg, #2c2f2b, #1c1f1d 72%);
+    color: #f2cc99;
+    box-shadow: inset 0 1px 4px rgb(11 15 13 / .69), 0 1px rgb(255 255 255 / .35);
+  }
+  .engineering-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .37rem;
+    margin: 0;
+    color: #c9bcaa;
+    font: 520 .57rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: .038em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .engineering-status i {
+    flex: none;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #7f6c52;
+  }
+  .engineering-radio[data-has-signal][data-phase="tuned"]:not([data-searching]) .engineering-status i {
+    background: var(--radio-signal);
+    box-shadow: 0 0 .44rem rgb(247 174 97 / .57);
+  }
+  .engineering-seeking { display: none; }
+  .engineering-radio[data-searching] .engineering-seeking { display: inline; }
+  .engineering-radio[data-searching] [data-engineering-status] { position: absolute; clip-path: inset(50%); }
+
+  .engineering-band {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: .6rem;
-    color: var(--radio-ink);
-    font-size: .9375rem;
-    font-weight: 530;
-    line-height: 1.38;
-    letter-spacing: -.021em;
-    text-decoration: none;
+    align-items: center;
+    gap: .55rem;
   }
-  .engineering-article-link::after { position: absolute; inset: 0; content: ""; }
-  .engineering-article-link > :first-child { overflow-wrap: anywhere; }
-  .engineering-outbound { color: var(--radio-muted); font-size: .875rem; transition: transform 150ms var(--ease-out); }
-  @media (hover: hover) and (pointer: fine) {
-    .engineering-article:hover { background: var(--radio-card); }
-    .engineering-article-link:hover .engineering-outbound { color: var(--radio-accent); transform: translate(2px, -2px); }
+  .engineering-frequency {
+    position: relative;
+    height: .62rem;
+    margin-inline: 1px;
+    background: repeating-linear-gradient(to right, #d8b68254 0 1px, transparent 1px 12.5%) center bottom / 100% .24rem no-repeat;
+    border-inline-end: 1px solid transparent;
   }
-  .engineering-tuner { flex: none; }
+  .engineering-frequency::after {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    height: .24rem;
+    background: #d8b68254;
+    content: "";
+  }
+  .engineering-frequency i {
+    position: absolute;
+    z-index: 1;
+    inset-block: 0;
+    left: var(--radio-frequency, 0%);
+    width: 1.5px;
+    background: var(--radio-signal);
+    box-shadow: 0 0 6px rgb(255 180 104 / .52);
+    transition: left 205ms var(--ease-out);
+  }
+  .engineering-radio[data-searching] .engineering-frequency i { transition-duration: 72ms; }
+  .engineering-wave { display: flex; align-items: center; gap: clamp(1.5px, .3vw, 2.75px); height: 1rem; color: #e5b16c; opacity: .62; }
+  .engineering-wave i {
+    width: clamp(1.5px, .16vw, 2px);
+    height: var(--wave-height);
+    border-radius: 1px;
+    background: currentColor;
+    transform: scaleY(.21);
+    transition: transform 160ms var(--ease-out);
+  }
+  .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-wave { color: var(--radio-signal); opacity: .92; }
+  .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-wave i {
+    animation: engineering-wave 305ms var(--wave-delay) ease-in-out infinite;
+  }
+  @keyframes engineering-wave {
+    0%, 100% { transform: scaleY(.23); }
+    30% { transform: scaleY(calc(.19 + var(--radio-wave-level, .75) * .79)); }
+    60% { transform: scaleY(calc(.21 + var(--radio-wave-level, .75) * .27)); }
+    80% { transform: scaleY(calc(.2 + var(--radio-wave-level, .75) * .52)); }
+  }
+  .engineering-radio[data-phase="connecting"] .engineering-frequency i {
+    animation: engineering-sweep var(--radio-connect-time) cubic-bezier(.55,.1,.25,1) both;
+  }
+  .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-status i {
+    animation: engineering-search var(--radio-connect-time) alternate ease-out both;
+  }
+  @keyframes engineering-sweep {
+    0% { left: 4%; opacity: .4; }
+    40% { left: 92%; opacity: 1; }
+    68% { left: 26%; }
+    100% { left: var(--radio-frequency, 0%); opacity: 1; }
+  }
+  @keyframes engineering-search {
+    36%, 75% { background: var(--radio-signal); box-shadow: 0 0 .45rem #f1ac6388; }
+    58%, 85% { background: #7f6c52; }
+  }
+  .engineering-station { display: flex; align-items: center; height: 1.65rem; }
+  .engineering-readout {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font: 610 .75rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  .engineering-readout > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .engineering-reset {
+    flex: none;
+    align-self: center;
+    width: 1.75rem;
+    height: 1.65rem;
+    color: #f9dfb8;
+    border-radius: .25rem;
+    font: 1.05rem/1 system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .engineering-reset:hover { background: rgb(245 220 173 / .09); }
+  .engineering-radio[data-phase="connecting"] :is(.engineering-readout, .engineering-reset) { opacity: .55; }
+
   .engineering-dial {
     --dial-angle: -135deg;
+    --dial-size: clamp(3.625rem, 15vw, 4.125rem);
     position: relative;
     display: grid;
     place-items: center;
-    width: 4.25rem;
+    width: var(--dial-size);
     aspect-ratio: 1;
     border-radius: 50%;
     touch-action: none;
@@ -157,77 +339,183 @@ const positions = ["All sources", ...engineeringSources.map(({ name }) => name)]
     width: 1px;
     height: 4px;
     border-radius: 1px;
-    background: var(--radio-muted);
-    opacity: .55;
-    transform: rotate(var(--tick-angle)) translateY(-1.9375rem);
+    background: var(--radio-case-ink);
+    opacity: .42;
+    transform: rotate(var(--tick-angle)) translateY(calc(.19rem - var(--dial-size) * .5));
   }
   .engineering-tick[data-current] { background: var(--radio-accent); opacity: 1; }
   .engineering-knob {
     position: relative;
-    width: 3.125rem;
+    width: calc(var(--dial-size) - .94rem);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: radial-gradient(circle, var(--radio-knob) 60%, transparent 62%),
-      conic-gradient(#fff6, transparent 13%, #1b201b3d 27%, #fff5 45%, #23251f35 59%, #fff7 79%, #22251b32 91%, #fff6), var(--radio-ring);
-    box-shadow: inset 0 1px #fff9, inset 0 -1px #20262045, 0 2px 4px #20262025, 0 7px 14px -5px #2a2c214a;
+    background: conic-gradient(from 45deg, #fcfcf26b, #292c2a50 24%, #ecece541 49%, #25282548 74%, #fcfcf26b), var(--radio-ring);
+    box-shadow: inset 0 1px rgb(255 255 255 / .75), inset 0 -1px rgb(26 28 27 / .39),
+      0 2px 3px rgb(17 18 16 / .25), 0 6px 10px -4px rgb(17 18 16 / .37);
     transform: rotate(var(--dial-angle));
-    transition: transform 240ms var(--ease-out), scale 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
+    transition: transform 240ms var(--ease-out), scale 150ms var(--ease-out);
   }
   .engineering-knob::before {
     position: absolute;
-    inset: 10%;
+    inset: 6%;
     border-radius: inherit;
-    background: radial-gradient(ellipse at 36% 22%, #fff5, transparent 65%),
-      repeating-linear-gradient(115deg, #fff0 0 1px, #1f23190a 1px 2px, #fff1 2px 3px);
-    box-shadow: inset 0 1px #fff4, 0 0 0 1px #1c231916;
+    background: linear-gradient(145deg, rgb(255 255 255 / .4), transparent 70%),
+      repeating-linear-gradient(115deg, transparent 0 1px, rgb(30 32 30 / .035) 1px 2px), var(--radio-knob);
+    box-shadow: inset 0 1px rgb(255 255 255 / .21), 0 0 0 .5px rgb(25 28 25 / .16);
     content: "";
   }
   .engineering-knob i {
     position: absolute;
-    top: .29rem;
-    left: calc(50% - 1.5px);
-    width: 3px;
-    height: 9px;
+    top: .3rem;
+    left: calc(50% - 1px);
+    width: 2px;
+    height: 7px;
     border-radius: 2px;
     background: var(--radio-accent);
     box-shadow: inset 0 1px #ffc8ac62;
   }
   .engineering-dial[data-dragging] .engineering-knob { scale: .96; transition-duration: 65ms; }
-  @media (hover: hover) and (pointer: fine) {
-    .engineering-dial:hover .engineering-knob { box-shadow: inset 0 1px #fff9, inset 0 -1px #23262045, 0 4px 8px #2026203b, 0 9px 15px -6px #2a2c214a; }
+
+  .engineering-slot {
+    height: .26rem;
+    margin-block-end: .53rem;
+    margin-inline: .5rem;
+    border-radius: 2px;
+    background: linear-gradient(#2d302d, #5f605a);
+    box-shadow: inset 0 1px 2px #292b28, 0 1px rgb(255 255 255 / .42);
   }
-  .engineering-station { display: flex; align-items: center; gap: .1rem; height: 2.75rem; }
-  .engineering-readout {
+  .engineering-output {
+    order: -1;
+    display: grid;
+    grid-template-rows: minmax(0, 0fr);
+    min-height: 0;
+    margin: 0 1.48rem -.84rem;
+    border-radius: .55rem .55rem 0 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: grid-template-rows 330ms var(--ease-out), opacity 210ms var(--ease-out), transform 330ms var(--ease-out);
+  }
+  .engineering-radio[data-phase="tuned"] .engineering-output {
+    grid-template-rows: minmax(0, 1fr);
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 22px 48px -19px rgb(31 20 10 / .36);
+  }
+  .engineering-feed {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: inherit;
+    background: var(--radio-paper);
+    scrollbar-width: thin;
+    scrollbar-color: var(--radio-line) transparent;
+  }
+  .engineering-paper {
+    padding: 1rem clamp(.9rem, 4vw, 1.55rem) 1rem;
+    background: linear-gradient(to top, rgb(108 89 64 / .16), transparent 25px);
+  }
+  .engineering-paper-heading {
     margin: 0;
-    overflow: hidden;
+    padding-block-end: .6rem;
+    border-block-end: 1px dashed var(--radio-line);
     color: var(--radio-muted);
-    font: 600 .75rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
-    overflow-wrap: anywhere;
+    font: 600 .69rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: .046em;
+    text-transform: uppercase;
   }
-  .engineering-readout > span { display: block; }
-  .engineering-reset, .engineering-more {
+  .engineering-feed ol { margin: 0; padding: 0; list-style: none; }
+  .engineering-article {
+    position: relative;
+    display: grid;
+    gap: .24rem;
+    padding: .62rem 0;
+    border-block-end: 1px solid var(--radio-line);
+  }
+  .engineering-article[data-locked]::before {
+    position: absolute;
+    inset: .54rem auto .54rem -.55rem;
+    width: 2px;
+    background: var(--radio-accent);
+    content: "";
+  }
+  .engineering-byline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: .58rem;
+    min-width: 0;
+    color: var(--radio-muted);
+    font-size: .75rem;
+    line-height: 1.35;
+  }
+  .engineering-source {
+    position: relative;
+    z-index: 1;
+    padding: .12rem 0;
+    color: var(--radio-ink);
+    font-weight: 640;
+    text-underline-offset: .2em;
+    cursor: pointer;
+  }
+  .engineering-source[aria-pressed="true"], .engineering-source:hover {
+    color: var(--radio-accent);
+    text-decoration: underline;
+  }
+  .engineering-byline time { font-variant-numeric: tabular-nums; }
+  .engineering-article-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: .65rem;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 530;
+    line-height: 1.33;
+    letter-spacing: -.016em;
+    text-decoration: none;
+  }
+  .engineering-article-link::after { position: absolute; inset: 0; content: ""; }
+  .engineering-article-link > :first-child { overflow-wrap: anywhere; }
+  .engineering-outbound { color: var(--radio-muted); transition: transform 150ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) {
+    .engineering-article-link:hover .engineering-outbound { color: var(--radio-accent); transform: translate(2px, -2px); }
+  }
+  .engineering-more {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
     min-height: 2.75rem;
     color: var(--radio-muted);
     font-size: .8125rem;
     cursor: pointer;
   }
-  .engineering-reset { flex: none; width: 2.75rem; font-size: 1.125rem; }
-  .engineering-reset:hover,.engineering-more:hover { color: var(--radio-accent); }
-  .engineering-more { display: inline-flex; align-items: center; gap: .45rem; margin-block-start: .3rem; }
+  .engineering-more:hover { color: var(--radio-accent); }
   .engineering-more[aria-expanded="true"] > span { rotate: 180deg; }
-  .engineering-empty { padding-block: .8rem; color: var(--radio-muted); font-size: .875rem; }
-  .engineering-radio :is(a, button, [role="slider"]) { scroll-margin-block-end: 7rem; }
-  .engineering-radio :is(a, button, [role="slider"]):focus-visible { outline: 2px solid var(--radio-accent); outline-offset: 3px; }
-  .engineering-article-link:focus-visible::after { outline: inherit; outline-offset: -1px; }
-  @media (width < 75rem) {
-    .engineering-radio[data-engineering-preview] .engineering-article:nth-child(n+4 of [data-engineering-latest]) { display: none; }
+  .engineering-empty { padding-block: .85rem; color: var(--radio-muted); font-size: .875rem; }
+  .engineering-radio :is(a, button, [role="slider"]):focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+  .engineering-article-link:focus-visible { outline: none; }
+  .engineering-article-link:focus-visible::after { outline: 2px solid var(--radio-accent); outline-offset: 1px; }
+
+  @media (width < 28rem) {
+    .engineering-receiver { padding-inline: .87rem; }
+    .engineering-display { padding-inline: .57rem; }
+    .engineering-slot { margin-inline: .41rem; }
+    .engineering-output { margin-inline: 1.28rem; }
+  }
+  @media (width < 25rem) {
+    .engineering-status span { position: absolute; clip-path: inset(50%); }
   }
   @media (pointer: coarse) {
     .engineering-byline { align-items: center; }
-    .engineering-source,.engineering-article-link { min-block-size: 2.75rem; align-items: center; }
-    .engineering-article-link { font-size: 1rem; }
+    .engineering-source { min-block-size: 2.1rem; }
+    .engineering-article-link { min-block-size: 2rem; }
+    .engineering-reset { width: 1.9rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .engineering-radio :is(.engineering-article, .engineering-knob, .engineering-outbound) { transition: none; }
+    .engineering-radio[open],
+    .engineering-radio[open]::backdrop,
+    .engineering-radio[open] .engineering-receiver::before,
+    .engineering-radio:is([data-searching], [data-phase="connecting"]) :is(.engineering-frequency, .engineering-status, .engineering-wave) i { animation: none; }
+    .engineering-radio :is(.engineering-output, .engineering-knob, .engineering-outbound, .engineering-frequency i, .engineering-wave i) { transition: none; }
   }
 </style>
