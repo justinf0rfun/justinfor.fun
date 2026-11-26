@@ -50,18 +50,29 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   </div>
 
   <div class="engineering-output" data-engineering-output inert>
-    <div class="engineering-feed" data-engineering-scroll>
-      <div class="engineering-paper" data-engineering-paper>
-        <h3 class="engineering-paper-heading" tabindex="-1">
-          <span class="engineering-paper-channel" data-engineering-paper-channel hidden></span>
-          <span data-engineering-paper-heading>Station guide</span>
-        </h3>
-        <ol id="engineering-articles" data-engineering-items>
-          <li class="engineering-empty">Articles are temporarily unavailable.</li>
-        </ol>
-        <p class="engineering-empty" data-engineering-empty hidden></p>
-        <button type="button" class="engineering-more" data-engineering-more aria-controls="engineering-articles" aria-expanded="false" hidden>More articles <span aria-hidden="true">↓</span></button>
+    <div class="engineering-terminal">
+      <div class="engineering-feed" data-engineering-scroll>
+        <div class="engineering-paper" data-engineering-paper>
+          <h3 class="engineering-paper-heading" tabindex="-1">
+            <span class="engineering-prompt-sign" aria-hidden="true">radio&gt;</span>
+            <span class="engineering-command-output" data-engineering-command-output aria-hidden="true">stations</span>
+            <span class="sr-only" data-engineering-paper-channel hidden></span>
+            <span class="engineering-terminal-context" data-engineering-paper-heading>Station guide</span>
+          </h3>
+          <ol id="engineering-articles" data-engineering-items>
+            <li class="engineering-empty">Articles are temporarily unavailable.</li>
+          </ol>
+          <p class="engineering-empty" data-engineering-empty hidden></p>
+          <button type="button" class="engineering-more" data-engineering-more aria-controls="engineering-articles" aria-expanded="false" hidden>More articles <span aria-hidden="true">↓</span></button>
+        </div>
       </div>
+      <form class="engineering-prompt" data-engineering-command-form>
+        <p class="engineering-command-feedback" data-engineering-command-feedback role="status" hidden></p>
+        <label class="engineering-prompt-sign" for="engineering-command"><span aria-hidden="true">radio&gt;</span><span class="sr-only">Radio command</span></label>
+        <input id="engineering-command" data-engineering-command type="text" autocomplete="off"
+          autocapitalize="off" spellcheck="false" enterkeyhint="go" maxlength="32" placeholder="tune 04" />
+        <button class="engineering-command-run" type="submit" aria-label="Run command" title="Run command"><span aria-hidden="true">↵</span></button>
+      </form>
     </div>
   </div>
 </dialog>
@@ -82,12 +93,14 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     --radio-metal-light: #ecece8;
     --radio-metal: #b9b9b5;
     --radio-case-ink: #383935;
-    --radio-paper: #f9f6ee;
-    --radio-ink: #302c24;
-    --radio-muted: #6c6253;
-    --radio-line: #e6ded1;
-    --radio-accent: #a94720;
-    --radio-signal: #ffc17b;
+    --radio-screen: #0d1410;
+    --radio-ink: #d6e3d9;
+    --radio-muted: #91a49a;
+    --radio-line: #293b31;
+    --radio-accent: #216343;
+    --radio-signal: #79f5a4;
+    --radio-signal-glow: color-mix(in srgb, var(--radio-signal) 45%, transparent);
+    --radio-scale-tick: color-mix(in srgb, var(--radio-signal) 30%, transparent);
     --radio-ring: #90918d;
     --radio-knob: #c4c6c3;
     position: fixed;
@@ -108,11 +121,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     --radio-metal-light: #464744;
     --radio-metal: #2a2c2a;
     --radio-case-ink: #e2e2dc;
-    --radio-paper: #242119;
-    --radio-ink: #f4eddd;
-    --radio-muted: #b8ad99;
-    --radio-line: #3d362a;
-    --radio-accent: #ffad73;
+    --radio-accent: var(--radio-signal);
     --radio-ring: #686966;
     --radio-knob: #858784;
   }
@@ -168,7 +177,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   }
   .engineering-header h2 {
     margin: 0;
-    color: #eeede7;
+    color: var(--radio-ink);
     font-size: .8125rem;
     line-height: 1.25;
     font-weight: 620;
@@ -205,8 +214,8 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     min-width: 0;
     padding: .56rem .72rem .29rem;
     border-radius: .44rem;
-    background: linear-gradient(150deg, #2c2f2b, #1c1f1d 72%);
-    color: #f2cc99;
+    background: var(--radio-screen);
+    color: var(--radio-ink);
     box-shadow: inset 0 1px 4px rgb(11 15 13 / .69), 0 1px rgb(255 255 255 / .35);
   }
   .engineering-status {
@@ -215,7 +224,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     align-items: center;
     gap: .37rem;
     margin: 0;
-    color: #c9bcaa;
+    color: var(--radio-muted);
     font: 520 .57rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
     letter-spacing: .038em;
     text-transform: uppercase;
@@ -226,11 +235,12 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: #7f6c52;
+    background: var(--radio-scale-tick);
   }
+  .engineering-radio[data-has-signal][data-phase="tuned"]:not([data-searching]) .engineering-status { color: var(--radio-signal); }
   .engineering-radio[data-has-signal][data-phase="tuned"]:not([data-searching]) .engineering-status i {
     background: var(--radio-signal);
-    box-shadow: 0 0 .44rem rgb(247 174 97 / .57);
+    box-shadow: 0 0 .44rem var(--radio-signal-glow);
   }
   .engineering-seeking { display: none; }
   .engineering-radio[data-searching] .engineering-seeking { display: inline; }
@@ -246,7 +256,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     position: relative;
     height: .62rem;
     margin-inline: 1px;
-    background: repeating-linear-gradient(to right, #d8b68254 0 1px, transparent 1px 12.5%) center bottom / 100% .24rem no-repeat;
+    background: repeating-linear-gradient(to right, var(--radio-scale-tick) 0 1px, transparent 1px 12.5%) center bottom / 100% .24rem no-repeat;
     border-inline-end: 1px solid transparent;
   }
   .engineering-frequency::after {
@@ -255,7 +265,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     right: 0;
     width: 1px;
     height: .24rem;
-    background: #d8b68254;
+    background: var(--radio-scale-tick);
     content: "";
   }
   .engineering-frequency i {
@@ -265,11 +275,11 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     left: var(--radio-frequency, 0%);
     width: 1.5px;
     background: var(--radio-signal);
-    box-shadow: 0 0 6px rgb(255 180 104 / .52);
+    box-shadow: 0 0 6px var(--radio-signal-glow);
     transition: left 205ms var(--ease-out);
   }
   .engineering-radio[data-searching] .engineering-frequency i { transition-duration: 72ms; }
-  .engineering-wave { display: flex; align-items: center; gap: clamp(1.5px, .3vw, 2.75px); height: 1rem; color: #e5b16c; opacity: .62; }
+  .engineering-wave { display: flex; align-items: center; gap: clamp(1.5px, .3vw, 2.75px); height: 1rem; color: var(--radio-signal); opacity: .62; }
   .engineering-wave i {
     width: clamp(1.5px, .16vw, 2px);
     height: var(--wave-height);
@@ -278,7 +288,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     transform: scaleY(.21);
     transition: transform 160ms var(--ease-out);
   }
-  .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-wave { color: var(--radio-signal); opacity: .92; }
+  .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-wave { opacity: .92; }
   .engineering-radio:is([data-searching], [data-phase="connecting"]) .engineering-wave i {
     animation: engineering-wave 305ms var(--wave-delay) ease-in-out infinite;
   }
@@ -301,8 +311,8 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     100% { left: var(--radio-frequency, 0%); opacity: 1; }
   }
   @keyframes engineering-search {
-    36%, 75% { background: var(--radio-signal); box-shadow: 0 0 .45rem #f1ac6388; }
-    58%, 85% { background: #7f6c52; }
+    36%, 75% { background: var(--radio-signal); box-shadow: 0 0 .45rem var(--radio-signal-glow); }
+    58%, 85% { background: var(--radio-scale-tick); }
   }
   .engineering-station { display: flex; align-items: center; height: 1.65rem; }
   .engineering-readout {
@@ -322,12 +332,12 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     align-self: center;
     width: 1.75rem;
     height: 1.65rem;
-    color: #f9dfb8;
+    color: var(--radio-muted);
     border-radius: .25rem;
     font: 1.05rem/1 system-ui, sans-serif;
     cursor: pointer;
   }
-  .engineering-reset:hover { background: rgb(245 220 173 / .09); }
+  .engineering-reset:hover { background: color-mix(in srgb, var(--radio-signal) 9%, transparent); }
   .engineering-radio[data-phase="connecting"] :is(.engineering-readout, .engineering-reset) { opacity: .55; }
 
   .engineering-dial {
@@ -384,7 +394,7 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     height: 7px;
     border-radius: 2px;
     background: var(--radio-accent);
-    box-shadow: inset 0 1px #ffc8ac62;
+    box-shadow: inset 0 1px var(--radio-signal-glow);
   }
   .engineering-dial[data-dragging] .engineering-knob { scale: .96; transition-duration: 65ms; }
 
@@ -411,92 +421,115 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     grid-template-rows: minmax(0, 1fr);
     opacity: 1;
     transform: translateY(0);
-    box-shadow: 0 22px 48px -19px rgb(31 20 10 / .36);
+    box-shadow: 0 22px 48px -19px rgb(12 16 12 / .53);
+  }
+  .engineering-terminal {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    background: var(--radio-screen);
+    color-scheme: dark;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   }
   .engineering-feed {
     min-height: 0;
     overflow: auto;
     overscroll-behavior: contain;
-    border-radius: inherit;
-    background: var(--radio-paper);
+    background:
+      repeating-linear-gradient(transparent 0 3px, rgb(9 13 9 / .13) 3px 4px),
+      linear-gradient(155deg, color-mix(in srgb, var(--radio-signal) 4.5%, transparent), transparent 48%),
+      var(--radio-screen);
+    box-shadow: inset 0 1px color-mix(in srgb, var(--radio-signal) 12%, transparent);
     scrollbar-width: thin;
-    scrollbar-color: var(--radio-line) transparent;
+    scrollbar-color: #4b6156 transparent;
   }
   .engineering-paper {
-    padding: 1rem clamp(.9rem, 4vw, 1.55rem) 1rem;
-    background: linear-gradient(to top, rgb(108 89 64 / .16), transparent 25px);
+    padding: .8rem clamp(.8rem, 3vw, 1.25rem) .6rem;
   }
   .engineering-paper-heading {
     display: flex;
     align-items: baseline;
-    gap: .6rem;
+    gap: .55rem;
     margin: 0;
-    padding-block-end: .68rem;
+    padding-block-end: .65rem;
     border-block-end: 1px dashed var(--radio-line);
-    color: var(--radio-muted);
-    font: 600 .69rem/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
-    letter-spacing: .046em;
-    text-transform: uppercase;
+    font-size: .825rem;
+    line-height: 1.45;
+    font-weight: 600;
   }
   .engineering-paper-heading:focus { outline: none; }
-  .engineering-paper-heading > :last-child { min-width: 0; overflow-wrap: anywhere; }
-  .engineering-radio[data-view="station"] .engineering-paper-heading {
-    color: var(--radio-ink);
-    font: 640 1rem/1.3 var(--font-sans, system-ui);
-    letter-spacing: -.018em;
-    text-transform: none;
-  }
-  .engineering-paper-channel {
+  .engineering-prompt-sign {
     flex: none;
-    color: var(--radio-accent);
-    font: 650 .71rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
-    letter-spacing: .025em;
+    color: var(--radio-signal);
+    font-weight: 620;
+  }
+  .engineering-command-output { flex: none; }
+  .engineering-terminal-context {
+    min-width: 0;
+    overflow: hidden;
+    margin-inline-start: auto;
+    color: var(--radio-muted);
+    font-size: .72rem;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .engineering-radio:not([data-view="station"]) .engineering-terminal-context {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    clip-path: inset(50%);
   }
   .engineering-feed ol { margin: 0; padding: 0; list-style: none; }
   .engineering-article {
     display: grid;
     grid-template-columns: 2.75rem minmax(0, 1fr);
-    gap: .58rem;
-    padding: .66rem 0;
-    border-block-end: 1px solid var(--radio-line);
+    gap: .45rem;
+    padding: .68rem 0 .25rem;
   }
   .engineering-channel {
-    display: grid;
-    place-items: start center;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
     align-self: start;
     min-height: 2.75rem;
     padding-block-start: .07rem;
-    color: var(--radio-accent);
-    font: 650 .875rem/1.3 ui-monospace, SFMono-Regular, Consolas, monospace;
+    gap: .05rem;
+    color: var(--radio-muted);
+    font-size: .77rem;
+    line-height: 1.45;
+    font-weight: 550;
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
-  .engineering-channel:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: .22em; }
+  .engineering-channel::before { content: "["; }
+  .engineering-channel::after { content: "]"; }
+  .engineering-channel:is(:hover, :focus-visible) { color: var(--radio-signal); text-decoration: underline; text-underline-offset: .22em; }
   .engineering-channel:active { opacity: .65; }
   .engineering-program { position: relative; display: grid; gap: .2rem; min-width: 0; }
   .engineering-byline {
     display: flex;
-    flex-wrap: wrap;
     align-items: baseline;
     column-gap: .58rem;
     min-width: 0;
     color: var(--radio-muted);
-    font-size: .75rem;
-    line-height: 1.35;
+    font-size: .7rem;
+    line-height: 1.45;
   }
-  .engineering-source { color: var(--radio-ink); font-weight: 620; }
-  .engineering-byline time { font-variant-numeric: tabular-nums; }
+  .engineering-source { min-width: 0; overflow-wrap: anywhere; color: color-mix(in srgb, var(--radio-ink) 80%, var(--radio-muted)); font-weight: 550; }
+  .engineering-byline time { flex: none; margin-inline-start: auto; white-space: nowrap; }
   .engineering-article-link {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: baseline;
     gap: .65rem;
     color: inherit;
-    font-size: .96875rem;
-    font-weight: 530;
-    line-height: 1.33;
-    letter-spacing: -.016em;
+    font-size: .84rem;
+    font-weight: 470;
+    line-height: 1.44;
     text-decoration: none;
   }
   .engineering-article-link::after { position: absolute; inset: 0; content: ""; }
@@ -504,15 +537,13 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
   .engineering-outbound { color: var(--radio-muted); transition: transform 150ms var(--ease-out); }
   .engineering-radio[data-view="station"] .engineering-article { grid-template-columns: minmax(0, 1fr); padding-block: .62rem; }
   .engineering-radio[data-view="station"] :is(.engineering-channel, .engineering-source) { display: none; }
-  .engineering-radio[data-view="station"] .engineering-article-link { font-size: .9375rem; }
   .engineering-radio[data-view="station"] [data-engineering-latest] { padding-block: .92rem 1.02rem; }
   .engineering-radio[data-view="station"] [data-engineering-latest] .engineering-article-link {
-    font-size: clamp(1.125rem, 3.5vw, 1.42rem);
-    font-weight: 640;
-    letter-spacing: -.026em;
+    font-size: .97rem;
+    font-weight: 600;
   }
   @media (hover: hover) and (pointer: fine) {
-    .engineering-article-link:hover .engineering-outbound { color: var(--radio-accent); transform: translate(2px, -2px); }
+    .engineering-article-link:hover .engineering-outbound { color: var(--radio-signal); transform: translate(2px, -2px); }
   }
   .engineering-more {
     display: inline-flex;
@@ -520,15 +551,55 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     gap: .45rem;
     min-height: 2.75rem;
     color: var(--radio-muted);
-    font-size: .8125rem;
+    font-size: .75rem;
+    line-height: 1.35;
     cursor: pointer;
   }
-  .engineering-more:hover { color: var(--radio-accent); }
+  .engineering-more:hover { color: var(--radio-signal); }
   .engineering-more[aria-expanded="true"] > span { rotate: 180deg; }
   .engineering-empty { padding-block: .85rem; color: var(--radio-muted); font-size: .875rem; }
+  .engineering-prompt {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: .55rem;
+    padding-inline: clamp(.8rem, 3vw, 1.25rem) .3rem;
+    padding-block-end: .84rem;
+    border-block-start: 1px solid var(--radio-line);
+    background: #0a100c;
+    font-size: .825rem;
+  }
+  .engineering-prompt:focus-within { box-shadow: inset 2px 0 var(--radio-signal); }
+  .engineering-prompt input {
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    outline: none;
+    color: var(--radio-ink);
+    background: none;
+    caret-color: var(--radio-signal);
+    font: inherit;
+  }
+  .engineering-prompt input::placeholder { color: var(--radio-muted); }
+  .engineering-command-feedback {
+    grid-column: 1 / -1;
+    margin: .55rem .5rem 0 0;
+    color: var(--radio-muted);
+    font-size: .72rem;
+    overflow-wrap: anywhere;
+  }
+  .engineering-command-run {
+    width: 2.75rem;
+    min-height: 2.75rem;
+    color: var(--radio-muted);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .engineering-command-run:hover { color: var(--radio-signal); }
   .engineering-radio :is(a, button, [role="slider"]):focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
   .engineering-article-link:focus-visible { outline: none; }
-  .engineering-article-link:focus-visible::after { outline: 2px solid var(--radio-accent); outline-offset: 1px; }
+  .engineering-article-link:focus-visible::after { outline: 2px solid var(--radio-signal); outline-offset: 1px; }
 
   @media (width < 28rem) {
     .engineering-receiver { padding-inline: .87rem; }
@@ -540,8 +611,8 @@ const wave = [4, 7, 5, 10, 14, 7, 12, 16, 9, 12, 6, 9, 4];
     .engineering-status span { position: absolute; clip-path: inset(50%); }
   }
   @media (pointer: coarse) {
-    .engineering-byline { align-items: center; }
     .engineering-article-link { min-block-size: 2rem; }
+    .engineering-prompt input { font-size: 1rem; }
     .engineering-reset { width: 1.9rem; }
   }
   @media (prefers-reduced-motion: reduce) {

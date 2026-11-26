@@ -6,6 +6,7 @@ const step = 270 / (stations.length - 1);
 const clampStation = (index: number) => Math.max(0, Math.min(stations.length - 1, index));
 const connectionTime = 460;
 const waveSettleTime = 210;
+const tuningMotion = { duration: 190, easing: "cubic-bezier(.23,1,.32,1)" };
 
 export function mountEngineeringRadio(root: HTMLDialogElement) {
   const trigger = document.querySelector<HTMLButtonElement>("[data-engineering-open]")!;
@@ -25,15 +26,21 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   const paper = root.querySelector<HTMLElement>("[data-engineering-paper]")!;
   const paperChannel = root.querySelector<HTMLElement>("[data-engineering-paper-channel]")!;
   const paperHeading = root.querySelector<HTMLElement>("[data-engineering-paper-heading]")!;
+  const commandForm = root.querySelector<HTMLFormElement>("[data-engineering-command-form]")!;
+  const commandInput = root.querySelector<HTMLInputElement>("[data-engineering-command]")!;
+  const commandFeedback = root.querySelector<HTMLElement>("[data-engineering-command-feedback]")!;
+  const commandOutput = root.querySelector<HTMLElement>("[data-engineering-command-output]")!;
   const more = root.querySelector<HTMLButtonElement>("[data-engineering-more]")!;
   const reset = root.querySelector<HTMLButtonElement>("[data-engineering-reset]")!;
   const empty = root.querySelector<HTMLElement>("[data-engineering-empty]")!;
   const ticks = [...dial.querySelectorAll<HTMLElement>("[data-engineering-tick]")];
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   let active = 0;
+  let settledStation = 0;
   let expanded = false;
   let allTop = 0;
   let flip: Animation | undefined;
+  let commandMotion: Animation | undefined;
   let paperMotion: Animation | undefined;
   let connectionTimer = 0;
   let waveTimer = 0;
@@ -60,17 +67,42 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     root.style.removeProperty("--radio-wave-level");
   }
 
+  function resetTuningMotion() {
+    settleWave();
+    settledStation = active;
+    flip?.cancel();
+    commandMotion?.cancel();
+    paperMotion?.cancel();
+  }
+
+  function lockStation() {
+    settleWave();
+    if (active === settledStation) return;
+    settledStation = active;
+    if (!active || !root.open || reduced.matches || !root.hasAttribute("data-has-signal")) return;
+
+    commandMotion = commandOutput.animate([
+      { color: "var(--radio-ink)", filter: "brightness(1)" },
+      { color: "var(--radio-signal)", filter: "brightness(1.12)", offset: .35 },
+      { color: "var(--radio-ink)", filter: "brightness(1)" },
+    ], tuningMotion);
+    paperMotion = paper.animate([
+      { transform: "translateY(18px)", opacity: .8 },
+      { transform: "translateY(0)", opacity: 1 },
+    ], tuningMotion);
+  }
+
   function pulseWave(level: number) {
     if (reduced.matches || root.dataset.phase !== "tuned") return;
     root.style.setProperty("--radio-wave-level", String(level));
     root.toggleAttribute("data-searching", true);
     window.clearTimeout(waveTimer);
-    waveTimer = window.setTimeout(settleWave, waveSettleTime);
+    waveTimer = window.setTimeout(lockStation, waveSettleTime);
   }
 
   function tuneIn() {
     root.dataset.phase = "tuned";
-    output.inert = dial.inert = reset.inert = false;
+    output.inert = dial.inert = reset.inert = commandForm.inert = false;
     paint();
   }
 
@@ -82,11 +114,11 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   function open(event?: MouseEvent) {
     if (root.open) return;
     window.clearTimeout(connectionTimer);
-    settleWave();
+    resetTuningMotion();
     restoreFocus = !event || event.detail === 0;
     root.dataset.phase = "connecting";
     status.textContent = "Tuning…";
-    output.inert = dial.inert = reset.inert = true;
+    output.inert = dial.inert = reset.inert = commandForm.inert = true;
     placeAboveDock();
     root.showModal();
     trigger.setAttribute("aria-expanded", "true");
@@ -94,7 +126,7 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     else connectionTimer = window.setTimeout(tuneIn, connectionTime);
   }
 
-  reduced.addEventListener("change", settleWave);
+  reduced.addEventListener("change", resetTuningMotion);
   window.addEventListener("resize", () => { if (root.open) placeAboveDock(); });
   trigger.addEventListener("click", open);
   close.addEventListener("click", (event) => {
@@ -111,9 +143,9 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   root.addEventListener("close", () => {
     if (root.open) return;
     window.clearTimeout(connectionTimer);
-    settleWave();
-    flip?.cancel();
-    paperMotion?.cancel();
+    resetTuningMotion();
+    commandInput.value = "";
+    commandFeedback.hidden = true;
     delete root.dataset.phase;
     trigger.setAttribute("aria-expanded", "false");
     if (restoreFocus) trigger.focus({ preventScroll: true });
@@ -124,6 +156,8 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     const station = stations[active];
     const code = active ? `CH ${engineeringChannel(active)}` : "";
     root.dataset.view = active ? "station" : expanded ? "archive" : "guide";
+    commandOutput.textContent = active ? `tune ${engineeringChannel(active)}` : expanded ? "recent" : "stations";
+    commandFeedback.hidden = true;
     let found = false;
     items.forEach((item) => {
       item.hidden = active === 0
@@ -156,8 +190,10 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
     if (active === 0) allTop = scroll.scrollTop;
     const direction = Math.sign(next - active);
     flip?.cancel();
+    commandMotion?.cancel();
     paperMotion?.cancel();
     active = next;
+    if (!active) settledStation = 0;
     if (next === 0 && document.activeElement === reset) dial.focus({ preventScroll: true });
     paint();
     scroll.scrollTop = next === 0 ? allTop : 0;
@@ -168,13 +204,45 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
       flip = readout.parentElement!.animate([
         { transform: `perspective(60px) translateY(${direction * 6}px) rotateX(${direction * -55}deg)`, opacity: 0 },
         { transform: "perspective(60px) translateY(0) rotateX(0deg)", opacity: 1 },
-      ], { duration: 190, easing: "cubic-bezier(.23,1,.32,1)" });
-      paperMotion = paper.animate([
-        { transform: "translateY(7px)", opacity: .58 },
-        { transform: "translateY(0)", opacity: 1 },
-      ], { duration: 210, easing: "cubic-bezier(.23,1,.32,1)" });
+      ], tuningMotion);
     }
   }
+
+  function showAll(recent: boolean) {
+    const orderChanged = recent !== expanded;
+    if (orderChanged) {
+      expanded = recent;
+      list.append(...(recent ? archive : items));
+    }
+    if (active) tune(0);
+    else if (orderChanged) paint();
+    if (orderChanged) scroll.scrollTop = 0;
+  }
+
+  commandForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!root.open || root.dataset.phase !== "tuned") return;
+    const request = commandInput.value.trim().toLowerCase();
+    commandInput.value = "";
+    commandInput.focus({ preventScroll: true });
+    if (!request) return;
+
+    const channelRange = `01–${engineeringChannel(stations.length - 1)}`;
+    let reply = "";
+    if (request === "stations" || request === "recent") {
+      showAll(request === "recent");
+    } else if (request === "help") {
+      reply = `stations · tune ${channelRange} · recent · help`;
+    } else if (/^tune(?:\s|$)/.test(request)) {
+      const channel = Number(/^tune\s+(\d{1,2})$/.exec(request)?.[1]);
+      if (channel > 0 && channel < stations.length) tune(channel);
+      else reply = `Enter a channel from ${channelRange}. Try tune 04.`;
+    } else {
+      reply = "Unknown command. Type help for commands.";
+    }
+    commandFeedback.textContent = reply;
+    commandFeedback.hidden = !reply;
+  });
 
   list.addEventListener("click", (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-engineering-tune]");
@@ -184,10 +252,7 @@ export function mountEngineeringRadio(root: HTMLDialogElement) {
   });
   reset.addEventListener("click", () => tune(0));
   more.addEventListener("click", () => {
-    expanded = !expanded;
-    list.append(...(expanded ? archive : items));
-    paint();
-    scroll.scrollTop = 0;
+    showAll(!expanded);
     if (document.activeElement === more) paperHeading.parentElement!.focus({ preventScroll: true });
   });
 
