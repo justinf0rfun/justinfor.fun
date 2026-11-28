@@ -85,7 +85,7 @@ for (const [file, targets] of graph) {
   checkCycles(file);
   if (!name(file).startsWith("src/data/")) continue;
   for (const target of targets) {
-    assert.doesNotMatch(name(target), /^src\/(?:components\/|layouts\/|pages\/|scripts\/|styles\/|worker\.js$|engineering-feed\.js$)/,
+    assert.doesNotMatch(name(target), /^src\/(?:components\/|layouts\/|pages\/|scripts\/|styles\/|worker\.js$|engineering-feed\.js$|github-contributions\.js$)/,
       `${name(file)} depends on the presentation or runtime entry point ${name(target)}`);
   }
 }
