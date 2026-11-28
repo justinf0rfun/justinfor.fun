@@ -21,7 +21,7 @@ catalogs and check link, uniqueness and initial active-slot behavior.
 
 GitHub Actions installs Node.js 22 and uses Corepack to honor the
 `packageManager` version in `package.json`. See the [Node.js CI guide](https://docs.github.com/en/actions/tutorials/build-and-test-code/nodejs)
-and [Corepack documentation](https://nodejs.org/download/release/latest-v22.x/docs/api/corepack.html).
+and [Corepack documentation](https://github.com/nodejs/corepack#when-authoring-packages).
 
 ## 02 · Own Projects as one ordered catalog
 
@@ -62,3 +62,16 @@ parsers covers Astro frontmatter and scripts as well as TypeScript.
 
 A temporary cyclic fixture and a prohibited catalog type import through
 `/src/` both failed the check. The current graph passes.
+
+## 05 · Keep the GitHub calendar policy in its loader
+
+`github-contributions.js` owns the GraphQL request, payload mapping, KV key,
+expiry and refresh. The Worker HTTP route reads through it, and the scheduled
+handler uses the same refresh path. Status codes and headers remain part of
+Worker routing.
+
+A generic cache interface would need to accommodate one calendar snapshot
+and per-source RSS refreshes, including different expiry and failure timing.
+Separate loaders keep each policy and its tests together. This extraction
+preserves the existing write and failure semantics. The next calendar round
+can use the new fixtures and a local Worker to verify behavior changes.

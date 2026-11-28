@@ -19,7 +19,7 @@ flowchart LR
   Browser["Browser requests"] --> Worker["Cloudflare Worker"]
   Worker --> Assets
   Worker --> Feeds["Engineering RSS reader"]
-  Worker --> Calendar["GitHub calendar loader"]
+  Worker --> Calendar["github-contributions.js"]
   Feeds --> KV["CONTRIBUTIONS KV"]
   Calendar --> KV
   Feeds --> Origins["RSS publishers"]
@@ -52,8 +52,8 @@ built-output checks.
 | Writing | `src/content/writing`, `getPublishedThoughts`, `ArticleLayout`, `article-sharing.ts` | Drafts stay unpublished. Homepage announcement and lists use newest-first publication order. Article routes, canonical URLs, note markup and Markdown export retain their contracts. The folder teaser currently pins one article. |
 | Catalogs and images | `src/data`, `src/content.config.ts`, `scripts/publish-memory.mjs` | Catalog IDs and ordering feed visual transitions and direct routes. Memory records bind dimensions and month to local or published image URLs. The publisher targets R2 and updates the manifest after uploads. |
 | Engineering Radio | `engineering-blogs.mjs`, `engineering-feed.js`, `engineering-radio.ts` | Source order defines channel IDs. The Worker serves the JSON endpoint and injects the feed into the prerendered homepage. The client owns the selected channel, command prompt, archive order and animation state. |
-| GitHub calendar | `worker.js`, `GitHubContributions.astro` | The Worker keeps the token on the server. The public calendar payload, cache headers, `github-contributions:v1` key, daily Cron and 24-hour freshness are existing contracts. |
-| KV and retry policies | `wrangler.jsonc`, `worker.js`, `engineering-feed.js` | The shared namespace has separate key formats and policies. RSS uses per-source freshness, retention and retry timing. A loopback Worker entrypoint gives each RSS parse its own invocation. |
+| GitHub calendar | `github-contributions.js`, `GitHubContributions.astro` | The loader owns the provider request and cache policy. The Worker keeps the token on the server. The public calendar payload, cache headers, `github-contributions:v1` key, daily Cron and 24-hour freshness are existing contracts. |
+| KV and retry policies | `wrangler.jsonc`, `github-contributions.js`, `engineering-feed.js` | The shared namespace has separate key formats and policies. RSS uses per-source freshness, retention and retry timing. A loopback Worker entrypoint gives each RSS parse its own invocation. |
 | Worker routing and faults | `worker.js`, `wrangler.jsonc` | Assets serve prerendered routes. The homepage HTML and two public JSON routes run through the Worker. Request handlers own response status, cache headers and logging. |
 | Configuration and verification | `package.json`, `pnpm-workspace.yaml`, `astro.config.mjs`, `wrangler.jsonc`, `scripts/verify.mjs` | Node.js 22 and a pinned pnpm version. Vite caches are keyed by command and mode. Cloudflare owns its bindings and deploy configuration. Pull requests and main commits use the local verification command. |
 
@@ -62,7 +62,7 @@ built-output checks.
 | State | Current owner | Crossing point |
 | --- | --- | --- |
 | Home theme | Home inline bootstrap and `theme-dial.ts`; standalone Uses, Music and Books bootstraps | `home-theme` in local storage. `data-home-mode` and `data-home-theme` connect browser state to CSS. Several routes currently resolve it independently. |
-| Home collection navigation | `Folder.astro`, feature controllers and Music's standalone controller | History state and `data-*-stage` hooks connect the homepage, overlays and direct pages. |
+| Home collection navigation | `Folder.astro`, feature controllers and the Music page controller | History state and `data-*-stage` hooks connect the homepage, overlays and direct pages. |
 | Chat, Moments and email | Feature components and pure behavior modules where they exist | Feature events coordinate the Dock and other surfaces. Several components directly acquire and restore document scroll and inert state. |
 | Finds browsing position | `FindsCabinet.tsx` | `finds-position` in session storage. Drawer and selected card stay local to the cabinet. |
 | Audio playback and feedback | `music-preview.ts`, return, wake and step sound modules | Visibility, media events and gesture unlocks have feature-specific timing. Reuse each sound module's public behavior. |

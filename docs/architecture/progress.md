@@ -32,3 +32,19 @@ were fixed inventory counts for the tool strip and Inspiration catalog.
 
 The [architecture map](README.md) and [backlog](backlog.md) cover the remaining
 ownership migration, runtime verification and rollout work.
+
+## Round 2 · GitHub calendar owner
+
+`f691c12` moved the complete GitHub calendar loader out of Worker routing.
+Both HTTP and Cron use the extracted interface. The old functions were removed
+from the Worker. Independent review confirmed identical routing and extraction
+semantics. Five tests cover the GraphQL shape, first read, expiry boundary,
+background refresh and failure cases.
+
+- `pnpm verify` passed all 208 checks. All 41 active Vite files were preserved.
+- Wrangler completed a Worker bundle dry run with the existing bindings.
+- Chromium verified the hydrated homepage and Projects opening after the build.
+
+The remaining calendar timeout and concurrent-refresh work stays in the
+backlog pending a Workerd reproducer. Live remote API and hosted CI behavior
+require their own verification.
