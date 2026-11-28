@@ -1,7 +1,8 @@
 ---
 import ParentLink from "./ParentLink.astro";
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 import { Icon } from "astro-icon/components";
+import { getPublishedThoughts } from "../lib/published-thoughts";
 import LocalTimeFooter from "./LocalTimeFooter.astro";
 
 interface Props {
@@ -10,9 +11,7 @@ interface Props {
 
 const { mode } = Astro.props;
 const isOverlay = mode === "overlay";
-const posts = (await getCollection("writing", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
-);
+const posts = await getPublishedThoughts();
 const renderedPosts = await Promise.all(
   posts.map(async (post) => ({ post, Content: (await render(post)).Content })),
 );
