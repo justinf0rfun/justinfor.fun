@@ -2,6 +2,7 @@ import { folderPreviewUses } from "./uses";
 import { folderMusicTracks, musicTracks, type MusicTrack } from "./music";
 import { folderMemoryPhotos } from "./memories";
 import { folderXBookmarks } from "./x-bookmarks";
+import { projects, projectsSummary } from "./projects";
 
 /* Shape overrides for how an item hangs inside a folder. Sizes are % of the
    folder's width; `top` is how far down it's pushed. */
@@ -40,22 +41,9 @@ export const collections: Collection[] = [
   {
     slug: "projects",
     title: "Projects",
-    meta: "2 shipped projects",
+    meta: projectsSummary,
     layout: "projects",
-    items: [
-      {
-        src: "/projects/huoban-cover.png",
-        w: 38,
-        ratio: "1200/630",
-        top: 8,
-      },
-      {
-        src: "/projects/gson-cover.png",
-        w: 42,
-        ratio: "1200/630",
-        top: 4,
-      },
-    ],
+    items: projects.map(({ image, preview }) => ({ src: image, ratio: "1200/630", ...preview })),
   },
   {
     slug: "music",
