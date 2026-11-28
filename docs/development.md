@@ -1,5 +1,8 @@
 # Development and verification
 
+See the [architecture map](architecture/README.md) for module ownership,
+dependency checks and the governance backlog.
+
 Use Node 22 and the pnpm version in `package.json`.
 
 ```sh
