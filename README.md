@@ -52,12 +52,16 @@ upload succeeds.
 
 ## Getting Started
 
+Use Node 22 and the pnpm version specified in `package.json`.
+
 ```sh
 pnpm install
-pnpm dev
+pnpm exec astro dev --background
 ```
 
 The site runs at `localhost:4321`.
+
+Run `pnpm verify` for a fresh build, TypeScript verification, and the repository checks. See the [development and verification guide](docs/development.md).
 
 ## Make It Yours
 
@@ -70,9 +74,11 @@ The site runs at `localhost:4321`.
 | Command           | Action                                       |
 | :---------------- | :------------------------------------------- |
 | `pnpm install`    | Install dependencies                         |
-| `pnpm dev`        | Start local dev server at `localhost:4321`   |
+| `pnpm exec astro dev --background` | Start local dev server at `localhost:4321` |
 | `pnpm build`      | Build the production site to `./dist/`       |
-| `pnpm preview`    | Preview the build locally before deploying   |
+| `pnpm verify`     | Check cache isolation, build, typecheck, and run the checks |
+| `pnpm preview`    | Serve the static build locally               |
+| `pnpm exec wrangler dev` | Serve the existing build through the Worker |
 | `pnpm run deploy` | Build and deploy to Cloudflare Workers       |
 
 ## License

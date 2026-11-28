@@ -1,13 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
-import { runInNewContext } from "node:vm";
 import test from "node:test";
-
-const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
-const compile = path => stripTypeScriptTypes(read(path)).replace(/^export /gm, "");
-const { inspiredGeometry } = runInNewContext(`${compile("../src/scripts/inspired-credits.ts")}\n({inspiredGeometry})`);
-const { inspirations } = runInNewContext(`${compile("../src/data/inspirations.ts")}\n({inspirations})`);
+import { inspirations } from "../src/data/inspirations.ts";
+import { inspiredGeometry } from "../src/scripts/inspired-credits.ts";
 
 test("mobile source bar occupies the opposite edge to the highlighted component", () => {
   const anchor = { left: 12, right: 378, top: 12, bottom: 90 };
@@ -30,14 +24,13 @@ test("thread joins the nearest target edge and disappears beyond the viewport", 
   assert.equal(inspiredGeometry({ ...target, top: 901, bottom: 950 }, target, 1440, 900).visible, false);
 });
 
-test("all eleven credits have unique identities, original URLs and real local destinations", () => {
-  assert.equal(inspirations.length, 11);
+test("credit records have unique identities, original URLs and local feature paths", () => {
   assert.equal(new Set(inspirations.map(source => source.id)).size, inspirations.length);
   for (const source of inspirations) {
     assert.equal(new URL(source.url).protocol, "https:");
-    assert.ok(source.note && source.relation && source.features.length);
+    assert.ok(source.id && source.note && source.relation && source.features.length);
     for (const feature of source.features) {
-      assert.match(feature.page, /^\//); assert.ok(feature.selector && feature.label);
+      assert.match(feature.page, /^\/(?!\/)/); assert.ok(feature.selector && feature.label);
     }
   }
   assert.match(inspirations.find(source => source.id === "dots").relation, /Assets from/);

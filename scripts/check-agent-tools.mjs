@@ -1,14 +1,11 @@
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
+import { devinBots } from "../src/data/devin-bots.ts";
 
 // Run after building: checks the actual prerendered island and shipped assets.
 const html = readFileSync(new URL("../dist/index.html", import.meta.url), "utf8");
 const strip = html.match(/<astro-island\b[^>]*component-url="[^"]*AgentTools[^>]*>[\s\S]*?<\/astro-island>/)?.[0];
 assert.ok(strip, "Homepage must render the AgentTools island");
-assert.equal((strip.match(/data-tw-item="/g) ?? []).length, 14, "Render fourteen icons, without duplicates");
-for (const name of ["Tern", "Rex", "Herdr", "omp", "Kero", "Otty", "Orca", "Grok Bot", "ChatGPT", "Claude", "Dots · Felipe", "Dots · Todd", "Dots · Alfred", "Dots · Iggy"]) {
-  assert.ok(strip.includes(`data-tw-title="${name}"`), `Missing ${name}`);
-}
 const destinations = {
   Tern: "https://stencil.so/tern",
   Rex: "https://www.superlogical.com/rex/docs/installation",
@@ -25,12 +22,18 @@ const destinations = {
   "Dots · Alfred": "https://chatgpt.com/features/dots/",
   "Dots · Iggy": "https://chatgpt.com/features/dots/",
 };
-const links = [...strip.matchAll(/<a\b[^>]*data-tw-item="[^>]*>/g)].map(([tag]) => ({
-  title: tag.match(/data-tw-title="([^"]+)"/)?.[1],
-  href: tag.match(/href="([^"]+)"/)?.[1],
-}));
-assert.equal(links.length, 14, "Every icon must be a navigable link");
-for (const link of links) assert.equal(link.href, destinations[link.title], `Wrong destination for ${link.title}`);
+const expected = new Map([
+  ...Object.entries(destinations),
+  ...devinBots.slice(0, 6).map(({ title, href }) => [title, href]),
+]);
+const links = [...strip.matchAll(/<a\b[^>]*data-tw-item="[^>]*>/g)].map(([tag]) => [
+  tag.match(/data-tw-title="([^"]+)"/)?.[1],
+  tag.match(/href="([^"]+)"/)?.[1],
+]);
+assert.equal(links.length, (strip.match(/data-tw-item="/g) ?? []).length, "Every icon must be a navigable link");
+const byTitle = new Map(links);
+assert.equal(byTitle.size, links.length, "Strip titles must be unique");
+assert.deepEqual(byTitle, expected, "Prerender the tool links and six initial Devin bot links");
 const chatgpt = strip.match(/<a\b[^>]*data-tw-title="ChatGPT"[^>]*>[\s\S]*?<\/a>/)?.[0];
 assert.ok(chatgpt?.includes('src="/uses/ai/codex.png"'), "ChatGPT must use the Codex icon");
 assert.ok(!strip.includes("agent-tools-pause"), "Do not render the removed pause control");
@@ -44,4 +47,4 @@ const thoughts = readFileSync(new URL("../dist/thoughts/index.html", import.meta
 assert.ok(!thoughts.includes('data-tw-item'), "Thoughts must not include the homepage animation");
 const source = readFileSync(new URL("../src/components/AgentTools.tsx", import.meta.url), "utf8");
 assert.match(source, /entrance="rain"/, "Keep the requested staggered falling entrance");
-console.log("Agent tools: fourteen local icons, falling entrance, correct homepage position, no Thoughts changes.");
+console.log("Agent tools: tool links, six initial Devin bots, local assets and correct homepage placement.");
